@@ -18,6 +18,10 @@ class Example(Frame):
 
         fx = 20
         fy = 40
+
+        global DirPathLbl
+        DirPathLbl = Label(text="Выберите папку с файлами:", background="white")
+        DirPathLbl.place(x=fx -4, y=fy -20)
         
         global DirPathEntry
         DirPathEntry = Entry(fg="black", bg="white", width=40)
@@ -25,21 +29,41 @@ class Example(Frame):
         
         global DirChooseBtn
         DirChooseBtn = Button(text='Выбор', command=DirChoose)
-        DirChooseBtn.place(x=fx+250, y=fy-1, height=20)
+        DirChooseBtn.place(x=fx +250, y=fy -1, height=20)
 
         global DirCalcBtn
         DirCalcBtn = Button(text='Посчитать', command=CountFiles)
-        DirCalcBtn.place(x=fx, y=fy+22, height=20)
+        DirCalcBtn.place(x=fx, y=fy +22, height=20)
 
         global FilesCountLbl
         FilesCountLbl = Label(text="", background="white")
-        FilesCountLbl.place(x=fx+75, y=fy+22)
+        FilesCountLbl.place(x=fx +75, y=fy +22)
+
+
+
+        global SaveNameLbl
+        SaveNameLbl = Label(text="Введите имя итогового файла:", background="white")
+        SaveNameLbl.place(x=fx -4, y=fy +52)
+
+        global SaveNameEntry
+        SaveNameEntry = Entry(fg="black", bg="white", width=15)
+        SaveNameEntry.place(x=fx +180, y=fy +53)
+
+        global SaveDirBtn
+        SaveDirBtn = Button(text="Выбрать путь", command=SaveDirChoose)
+        SaveDirBtn.place(x=fx, y=fy +75, height=20)
+
+        global SaveDirLbl
+        SaveDirLbl = Label(text="", background="white")
+        SaveDirLbl.place(x=fx +95, y=fy +75)
+
 
         global MergeBtn
         MergeBtn = Button(text="Выполнить слияние", command=StartMergingThread)
-        MergeBtn.place(x=fx, y=fy+52, height=20)
+        MergeBtn.place(x=fx, y=fy +120, height=20)
 
         global directory
+        global savedirectory
         global FilesArray
         FilesArray = []
 
@@ -68,6 +92,13 @@ def DirChoose():
         DirPathEntry.insert(0,directory)
         print(directory)
         CountFiles()
+
+def SaveDirChoose():
+    savedirectory = filedialog.askdirectory(title="Выбрать папку") #initialdir=""
+    if savedirectory:
+        SaveDirLbl.config(text = savedirectory)
+        print(savedirectory)
+
 
 
 def CountFiles():
