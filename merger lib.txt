@@ -1,0 +1,2 @@
+python -m pip install pypdf2
+https://habr.com/ru/company/vdsina/blog/557316/
