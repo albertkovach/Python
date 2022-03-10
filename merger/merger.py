@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter import filedialog
 from PyPDF2 import PdfFileMerger
+from threading import Thread
 import os
 
  
@@ -35,7 +36,7 @@ class Example(Frame):
         FilesCountLbl.place(x=fx+75, y=fy+22)
 
         global MergeBtn
-        MergeBtn = Button(text="Выполнить слияние", command=PDFmerge)
+        MergeBtn = Button(text="Выполнить слияние", command=StartMergingThread)
         MergeBtn.place(x=fx, y=fy+52, height=20)
 
         global directory
@@ -83,18 +84,21 @@ def CountFiles():
     else:
         FilesCountLbl.config(text = 'Неправильный путь')
 
-
-
-def PDFmerge():
+def StartMergingThread():
     directory = DirPathEntry.get()
     isDirectory = os.path.isdir(directory)
     if isDirectory:
         CountFiles()
-        pdfmerger = PdfFileMerger()
-        for i in range(0, len(FilesArray)):
-            pdfmerger.append(FilesArray[i])
-            print(i)
-            print(FilesArray[i])
+        mergethread = Thread(target=PDFmerge)
+        mergethread.start()
+        mergethread.join()
+
+def PDFmerge():
+    pdfmerger = PdfFileMerger()
+    for i in range(0, len(FilesArray)):
+        pdfmerger.append(FilesArray[i])
+        print(i)
+        print(FilesArray[i])
     pdfmerger.write("C:\\Users\\ORB User\\Desktop\\pdf\\result.pdf")
 
 if __name__ == '__main__':
