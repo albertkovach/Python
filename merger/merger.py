@@ -34,8 +34,8 @@ def main():
     scrnw = scrnw//2
     scrnh = scrnh//2
     scrnw = scrnw - 175
-    scrnh = scrnh - 100
-    root.geometry('350x200+{}+{}'.format(scrnw, scrnh))
+    scrnh = scrnh - 125
+    root.geometry('350x250+{}+{}'.format(scrnw, scrnh))
         
     app = GUI(root)
     root.mainloop()
@@ -53,27 +53,27 @@ class GUI(Frame):
     
     def initUI(self):
         fx = 20
-        fy = 40
+        fy = 35
 
         global InputDirPathLbl
         InputDirPathLbl = Label(text="Выберите папку с файлами:", background="white")
-        InputDirPathLbl.place(x=fx -4, y=fy -20)
+        InputDirPathLbl.place(x=16, y=10)
         
         global InputDirEntry
         InputDirEntry = Entry(fg="black", bg="white", width=40)
-        InputDirEntry.place(x=fx, y=fy)
+        InputDirEntry.place(x=20, y=30)
         
         global InputDirChooseBtn
         InputDirChooseBtn = Button(text='Выбор', command=InputDirChoose)
-        InputDirChooseBtn.place(x=fx +250, y=fy -1, height=20)
+        InputDirChooseBtn.place(x=270, y=29, height=20)
 
         global DirCalcBtn
         DirCalcBtn = Button(text='Посчитать', command=CountFiles)
-        DirCalcBtn.place(x=fx, y=fy +22, height=20)
+        DirCalcBtn.place(x=20, y=52, height=20)
 
         global FilesCountLbl
         FilesCountLbl = Label(text="", background="white")
-        FilesCountLbl.place(x=fx +75, y=fy +22)
+        FilesCountLbl.place(x=95, y=52)
 
 
         global SaveNameLbl
@@ -93,9 +93,13 @@ class GUI(Frame):
         SaveDirEntry.place(x=fx +93, y=fy +76)
 
 
+        global MergeStatusLbl
+        MergeStatusLbl = Label(text="", background="white")
+        MergeStatusLbl.place(x=145, y=175)
+
         global MergeBtn
-        MergeBtn = Button(text="Выполнить слияние", command=StartMergingThread)
-        MergeBtn.place(x=fx, y=fy +120, height=20)
+        MergeBtn = Button(text="Выполнить склейку", command=StartMergingThread)
+        MergeBtn.place(x=fx, y=175, height=20)
 
 
 
@@ -228,9 +232,13 @@ def PDFmerge():
     if len(FilesArray) > 0 :
         for i in range(0, len(FilesArray)):
             pdfmerger.append(FilesArray[i])
+            MergeStatusLbl.config(text = ('Добавление в задачу: '+str(i+1)))
             print(i)
             print(FilesArray[i])
+            
+        MergeStatusLbl.config(text = 'Обьединение документа...') 
         pdfmerger.write(RevisedOutputPath)
+        MergeStatusLbl.config(text = 'Обьединение завершено !') 
 
 
 
