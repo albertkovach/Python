@@ -3,33 +3,68 @@ from tkinter import messagebox
 from tkinter import filedialog
 from PyPDF2 import PdfFileMerger
 from threading import Thread
+from datetime import datetime
+from pathlib import Path
 import os
+import re
+
+
+global root
+global inputdir
+global savedir
+global savename
+global outputfile
+
+global ValidFilesCount
+global FilesArray
+
+global InputPath
+global OutputPath
+
+
+
+
+def main():
+    global root
+    root = Tk()
+    root.resizable(False, False)
+        
+    scrnw = root.winfo_screenwidth()
+    scrnh = root.winfo_screenheight()
+    scrnw = scrnw//2
+    scrnh = scrnh//2
+    scrnw = scrnw - 175
+    scrnh = scrnh - 100
+    root.geometry('350x200+{}+{}'.format(scrnw, scrnh))
+        
+    app = GUI(root)
+    root.mainloop()
+
 
  
-class Example(Frame):
+class GUI(Frame):
     def __init__(self, parent):
         Frame.__init__(self, parent, background="white")   
         self.parent = parent
+        self.parent.title("Merge PDF")
+        self.pack(fill=BOTH, expand=1)
         self.initUI()
     
     def initUI(self):
-        self.parent.title("Merge PDF")
-        self.pack(fill=BOTH, expand=1)
-
         fx = 20
         fy = 40
 
-        global DirPathLbl
-        DirPathLbl = Label(text="Выберите папку с файлами:", background="white")
-        DirPathLbl.place(x=fx -4, y=fy -20)
+        global InputDirPathLbl
+        InputDirPathLbl = Label(text="Выберите папку с файлами:", background="white")
+        InputDirPathLbl.place(x=fx -4, y=fy -20)
         
-        global DirPathEntry
-        DirPathEntry = Entry(fg="black", bg="white", width=40)
-        DirPathEntry.place(x=fx, y=fy)
+        global InputDirEntry
+        InputDirEntry = Entry(fg="black", bg="white", width=40)
+        InputDirEntry.place(x=fx, y=fy)
         
-        global DirChooseBtn
-        DirChooseBtn = Button(text='Выбор', command=DirChoose)
-        DirChooseBtn.place(x=fx +250, y=fy -1, height=20)
+        global InputDirChooseBtn
+        InputDirChooseBtn = Button(text='Выбор', command=InputDirChoose)
+        InputDirChooseBtn.place(x=fx +250, y=fy -1, height=20)
 
         global DirCalcBtn
         DirCalcBtn = Button(text='Посчитать', command=CountFiles)
@@ -40,97 +75,169 @@ class Example(Frame):
         FilesCountLbl.place(x=fx +75, y=fy +22)
 
 
-
         global SaveNameLbl
         SaveNameLbl = Label(text="Введите имя итогового файла:", background="white")
         SaveNameLbl.place(x=fx -4, y=fy +52)
 
         global SaveNameEntry
-        SaveNameEntry = Entry(fg="black", bg="white", width=15)
-        SaveNameEntry.place(x=fx +180, y=fy +53)
+        SaveNameEntry = Entry(fg="black", bg="white", width=20)
+        SaveNameEntry.place(x=fx +176, y=fy +53)
 
         global SaveDirBtn
         SaveDirBtn = Button(text="Выбрать путь", command=SaveDirChoose)
         SaveDirBtn.place(x=fx, y=fy +75, height=20)
 
-        global SaveDirLbl
-        SaveDirLbl = Label(text="", background="white")
-        SaveDirLbl.place(x=fx +95, y=fy +75)
+        global SaveDirEntry
+        SaveDirEntry = Entry(fg="black", bg="white", width=34)
+        SaveDirEntry.place(x=fx +93, y=fy +76)
 
 
         global MergeBtn
         MergeBtn = Button(text="Выполнить слияние", command=StartMergingThread)
         MergeBtn.place(x=fx, y=fy +120, height=20)
 
-        global directory
-        global savedirectory
-        global FilesArray
-        FilesArray = []
 
 
-def main():
-    global root
-    root = Tk()
-    root.resizable(False, False)
-    
-    scrnw = root.winfo_screenwidth()
-    scrnh = root.winfo_screenheight()
-    scrnw = scrnw//2
-    scrnh = scrnh//2
-    scrnw = scrnw - 175
-    scrnh = scrnh - 100
-    root.geometry('350x200+{}+{}'.format(scrnw, scrnh))
-    
-    app = Example(root)
-    root.mainloop()
 
 
-def DirChoose(): 
-    directory = filedialog.askdirectory(title="Выбрать папку") #initialdir=""
-    if directory:
-        DirPathEntry.delete(0,END)
-        DirPathEntry.insert(0,directory)
-        print(directory)
+
+def InputDirChoose(): 
+    global inputdir
+    inputdir = filedialog.askdirectory(title="Выбрать папку")
+    print('======')
+    if inputdir:
+        InputDirEntry.delete(0,END)
+        InputDirEntry.insert(0,inputdir)
+        print('DChs: inputdir -', inputdir)
         CountFiles()
+    else:
+        print('IDChs: inputdir is NOT defined')
+
+
 
 def SaveDirChoose():
-    savedirectory = filedialog.askdirectory(title="Выбрать папку") #initialdir=""
-    if savedirectory:
-        SaveDirLbl.config(text = savedirectory)
-        print(savedirectory)
+    global savedir
+    print('======')
+    savedir = filedialog.askdirectory(title="Выбрать папку")
+    if savedir:
+        SaveDirEntry.delete(0,END)
+        SaveDirEntry.insert(0,savedir)
+        print('SDChs: savedir -', savedir)
+    else:
+        print('SDChs: savedir is NOT defined')
 
 
 
 def CountFiles():
-    directory = DirPathEntry.get()
-    isDirectory = os.path.isdir(directory)
-    if isDirectory:
+    global inputdir
+    global FilesArray
+    global ValidFilesCount
+    FilesArray = []
+    isinputdir = os.path.isdir(inputdir)
+    print('======')
+    print('CF: inputdir is valid - ', isinputdir)
+    if isinputdir:
         FilesArray.clear()
-        print('Path is valid: ', isDirectory)
-        for file in os.listdir(directory):
+        for file in os.listdir(inputdir):
             if file.endswith(".pdf"):
-                FilesArray.append(os.path.join(directory, file))
+                FilesArray.append(os.path.join(inputdir, file))
+        ValidFilesCount = len(FilesArray)
         FilesCountLbl.config(text = 'Количество файлов PDF: ' + str(len(FilesArray)))
-        print('Number of valid files: ', len(FilesArray))
+        print('CF: number of valid files -', str(ValidFilesCount))
     else:
         FilesCountLbl.config(text = 'Неправильный путь')
+    
+
+
 
 def StartMergingThread():
-    directory = DirPathEntry.get()
-    isDirectory = os.path.isdir(directory)
-    if isDirectory:
-        CountFiles()
-        mergethread = Thread(target=PDFmerge)
-        mergethread.start()
-        mergethread.join()
+    global inputdir
+    global savedir
+    global savename
+    global outputfile
+    global InputPath
+    global OutputPath
+    
+    print('======')
+    inputdir = InputDirEntry.get()
+    if inputdir:
+        print("SMT: inputdir exists")
+        isinputdir = os.path.isdir(inputdir)
+        print('SMT: inputdir is valid -', isinputdir)
+        if isinputdir:
+            CountFiles()
+            print('======')
+            if ValidFilesCount > 0:
+                print("SMT: valid files available")
+                savedir = SaveDirEntry.get()
+                if savedir:
+                    print("SMT: savedir exists")
+                    issavedir = os.path.isdir(savedir)
+                    print('SMT: inputdir is valid -', issavedir)
+                    if issavedir:
+                        savename = SaveNameEntry.get()
+                        if savename:
+                            print("SMT: savename exists")
+                            outputfile = (str(savename) + ".pdf")
+                            print('SMT: inputdir -', inputdir)
+                            print('SMT: savename -', savename)
+                            print('SMT: full savename -', outputfile)
+                            InputPath = Path(inputdir)
+                            OutputPath = Path(savedir, outputfile)
+                            print('SMT: InputPath -', InputPath)
+                            print('SMT: OutputPath -', OutputPath)
+                            
+                            print('SMT: starting merge')
+                            mergethread = Thread(target=PDFmerge)
+                            mergethread.start()
+                            
+                        else:
+                            print("SMT: savename is empty")
+                            now = datetime.now()
+                            savename = ("Merged_"+str(now.date())+"_"+str(now.hour)+":"+str(now.minute)+":"+str(now.second))
+                            SaveNameEntry.delete(0,END)
+                            SaveNameEntry.insert(0,savename)
+                            StartMergingThread()
+                else:
+                    print("SMT: savedir is empty")
+                    savedir = r"C:/Users/ORB User/Desktop"
+                    SaveDirEntry.delete(0,END)
+                    SaveDirEntry.insert(0,savedir)
+                    StartMergingThread()
+            else:
+                print("SMT: no valid files")
+    else:
+        print("SMT: inputdir is empty")
+
+
+
+
+
+
 
 def PDFmerge():
+    print('====== PDFM ======')
+    global InputPath
+    global OutputPath
+    print('PDFM: InputPath -', InputPath)
+    print('PDFM: OutputPath -', OutputPath)
+
+    RevisedOutputPath = OutputPath.as_posix()
+    print('PDFM: RevisedOutputPath -', RevisedOutputPath)
+    
+    #RevisedOutputPath = str('%r'%str(OutputPath))
+    #RevisedOutputPath = re.sub("[//]", '\\', RevisedOutputPath)
+
     pdfmerger = PdfFileMerger()
-    for i in range(0, len(FilesArray)):
-        pdfmerger.append(FilesArray[i])
-        print(i)
-        print(FilesArray[i])
-    pdfmerger.write("C:\\Users\\ORB User\\Desktop\\pdf\\result.pdf")
+
+    if len(FilesArray) > 0 :
+        for i in range(0, len(FilesArray)):
+            pdfmerger.append(FilesArray[i])
+            print(i)
+            print(FilesArray[i])
+        pdfmerger.write(RevisedOutputPath)
+
+
 
 if __name__ == '__main__':
     main()
