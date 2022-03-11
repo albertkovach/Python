@@ -41,6 +41,7 @@ def main():
     root.mainloop()
 
 
+
  
 class GUI(Frame):
     def __init__(self, parent):
@@ -99,10 +100,9 @@ class GUI(Frame):
 
 
 
-
-
 def InputDirChoose(): 
     global inputdir
+    
     inputdir = filedialog.askdirectory(title="Выбрать папку")
     print('======')
     if inputdir:
@@ -112,6 +112,7 @@ def InputDirChoose():
         CountFiles()
     else:
         print('IDChs: inputdir is NOT defined')
+
 
 
 
@@ -128,10 +129,12 @@ def SaveDirChoose():
 
 
 
+
 def CountFiles():
     global inputdir
     global FilesArray
     global ValidFilesCount
+    
     FilesArray = []
     isinputdir = os.path.isdir(inputdir)
     print('======')
@@ -146,7 +149,7 @@ def CountFiles():
         print('CF: number of valid files -', str(ValidFilesCount))
     else:
         FilesCountLbl.config(text = 'Неправильный путь')
-    
+
 
 
 
@@ -157,9 +160,12 @@ def StartMergingThread():
     global outputfile
     global InputPath
     global OutputPath
+
+    inputdir = InputDirEntry.get()
+    savedir = SaveDirEntry.get()
+    savename = SaveNameEntry.get()
     
     print('======')
-    inputdir = InputDirEntry.get()
     if inputdir:
         print("SMT: inputdir exists")
         isinputdir = os.path.isdir(inputdir)
@@ -169,48 +175,40 @@ def StartMergingThread():
             print('======')
             if ValidFilesCount > 0:
                 print("SMT: valid files available")
-                savedir = SaveDirEntry.get()
                 if savedir:
                     print("SMT: savedir exists")
                     issavedir = os.path.isdir(savedir)
                     print('SMT: inputdir is valid -', issavedir)
                     if issavedir:
-                        savename = SaveNameEntry.get()
                         if savename:
                             print("SMT: savename exists")
-                            outputfile = (str(savename) + ".pdf")
-                            print('SMT: inputdir -', inputdir)
-                            print('SMT: savename -', savename)
-                            print('SMT: full savename -', outputfile)
                             InputPath = Path(inputdir)
+                            outputfile = (str(savename) + ".pdf")
                             OutputPath = Path(savedir, outputfile)
-                            print('SMT: InputPath -', InputPath)
-                            print('SMT: OutputPath -', OutputPath)
-                            
                             print('SMT: starting merge')
                             mergethread = Thread(target=PDFmerge)
                             mergethread.start()
-                            
                         else:
                             print("SMT: savename is empty")
                             now = datetime.now()
-                            savename = ("Merged_"+str(now.date())+"_"+str(now.hour)+":"+str(now.minute)+":"+str(now.second))
+                            savename = ("Merged_"+str(now.date())+"_"+str(now.hour)+"-"+str(now.minute)+"-"+str(now.second))
                             SaveNameEntry.delete(0,END)
                             SaveNameEntry.insert(0,savename)
                             StartMergingThread()
                 else:
                     print("SMT: savedir is empty")
-                    savedir = r"C:/Users/ORB User/Desktop"
+                    #desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') 
+                    #savedir = r"\\zorb-srv\Operators\ORBScan\merged-pdf"
+                    savedir = r"C:\Users\ORB User\Desktop"
                     SaveDirEntry.delete(0,END)
                     SaveDirEntry.insert(0,savedir)
                     StartMergingThread()
+                    
             else:
                 print("SMT: no valid files")
     else:
         print("SMT: inputdir is empty")
-
-
-
+        FilesCountLbl.config(text = 'Неправильный путь')
 
 
 
@@ -221,12 +219,9 @@ def PDFmerge():
     global OutputPath
     print('PDFM: InputPath -', InputPath)
     print('PDFM: OutputPath -', OutputPath)
-
+    
     RevisedOutputPath = OutputPath.as_posix()
     print('PDFM: RevisedOutputPath -', RevisedOutputPath)
-    
-    #RevisedOutputPath = str('%r'%str(OutputPath))
-    #RevisedOutputPath = re.sub("[//]", '\\', RevisedOutputPath)
 
     pdfmerger = PdfFileMerger()
 
