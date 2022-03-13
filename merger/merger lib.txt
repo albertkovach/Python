@@ -1,3 +1,9 @@
-python -m pip install pypdf2
+pip install pypdf2
 pip install pathlib
+pip install auto-py-to-exe
+auto-py-to-exe
+
 https://habr.com/ru/company/vdsina/blog/557316/
+
+
+python "$(FULL_CURRENT_PATH)"

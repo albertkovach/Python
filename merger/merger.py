@@ -3,6 +3,7 @@ from tkinter import messagebox
 from tkinter import filedialog
 from PyPDF2 import PdfFileMerger
 from threading import Thread
+from multiprocessing import Process
 from datetime import datetime
 from pathlib import Path
 import os
@@ -190,7 +191,9 @@ def StartMergingThread():
                             outputfile = (str(savename) + ".pdf")
                             OutputPath = Path(savedir, outputfile)
                             print('SMT: starting merge')
-                            mergethread = Thread(target=PDFmerge)
+                            mergethread = Process(target=PDFmerge, args=(InputPath, OutputPath, FilesArray))
+                            print('SMT: InputPath -', InputPath)
+                            print('SMT: OutputPath -', OutputPath)
                             mergethread.start()
                         else:
                             print("SMT: savename is empty")
@@ -201,9 +204,10 @@ def StartMergingThread():
                             StartMergingThread()
                 else:
                     print("SMT: savedir is empty")
-                    #desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') 
+                    desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') 
                     #savedir = r"\\zorb-srv\Operators\ORBScan\merged-pdf"
-                    savedir = r"C:\Users\ORB User\Desktop"
+                    #savedir = r"C:\Users\ORB User\Desktop"
+                    savedir = desktop
                     SaveDirEntry.delete(0,END)
                     SaveDirEntry.insert(0,savedir)
                     StartMergingThread()
@@ -217,10 +221,11 @@ def StartMergingThread():
 
 
 
-def PDFmerge():
+def PDFmerge(InputPath, OutputPath, FilesArray):
     print('====== PDFM ======')
-    global InputPath
-    global OutputPath
+    #global InputPath
+    #global OutputPath
+    global MergeStatusLbl
     print('PDFM: InputPath -', InputPath)
     print('PDFM: OutputPath -', OutputPath)
     
