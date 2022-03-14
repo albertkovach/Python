@@ -5,6 +5,8 @@ from PyPDF2 import PdfFileMerger
 from threading import Thread
 from datetime import datetime
 from pathlib import Path
+import datetime as datetime2
+import time
 import os
 import re
 
@@ -20,7 +22,12 @@ global FilesArray
 
 global InputPath
 global OutputPath
+global mergethread
+global timethread
 
+global MergeInProgress
+global StartedMergeTime
+MergeInProgress = False
 
 
 
@@ -52,6 +59,7 @@ class GUI(Frame):
         self.initUI()
     
     def initUI(self):
+        global mergethread
         fx = 20
         fy = 35
 
@@ -78,28 +86,33 @@ class GUI(Frame):
 
         global SaveNameLbl
         SaveNameLbl = Label(text="Введите имя итогового файла:", background="white")
-        SaveNameLbl.place(x=fx -4, y=fy +52)
+        SaveNameLbl.place(x=16, y=87)
 
         global SaveNameEntry
         SaveNameEntry = Entry(fg="black", bg="white", width=20)
-        SaveNameEntry.place(x=fx +176, y=fy +53)
+        SaveNameEntry.place(x=196, y=88)
 
         global SaveDirBtn
         SaveDirBtn = Button(text="Выбрать путь", command=SaveDirChoose)
-        SaveDirBtn.place(x=fx, y=fy +75, height=20)
+        SaveDirBtn.place(x=20, y=110, height=20)
 
         global SaveDirEntry
         SaveDirEntry = Entry(fg="black", bg="white", width=34)
-        SaveDirEntry.place(x=fx +93, y=fy +76)
+        SaveDirEntry.place(x=113, y=111)
 
+
+        global MergeBtn
+        MergeBtn = Button(text="Выполнить склейку", command=StartMergingThread)
+        MergeBtn.place(x=20, y=175, height=20)
 
         global MergeStatusLbl
         MergeStatusLbl = Label(text="", background="white")
         MergeStatusLbl.place(x=145, y=175)
+        
+        global MergeTimeLbl
+        MergeTimeLbl = Label(text="", background="white")
+        MergeTimeLbl.place(x=145, y=192)
 
-        global MergeBtn
-        MergeBtn = Button(text="Выполнить склейку", command=StartMergingThread)
-        MergeBtn.place(x=fx, y=175, height=20)
 
 
 
@@ -164,7 +177,8 @@ def StartMergingThread():
     global outputfile
     global InputPath
     global OutputPath
-
+    global StartedMerge
+    
     inputdir = InputDirEntry.get()
     savedir = SaveDirEntry.get()
     savename = SaveNameEntry.get()
@@ -192,10 +206,14 @@ def StartMergingThread():
                             print('SMT: starting merge')
                             mergethread = Thread(target=PDFmerge)
                             mergethread.start()
+                            timethread = Thread(target=TimeUpdater)
+                            timethread.start()
+                            mergethread = ""
+                            timethread = ""
                         else:
                             print("SMT: savename is empty")
                             now = datetime.now()
-                            savename = ("Merged_"+str(now.date())+"_"+str(now.hour)+"-"+str(now.minute)+"-"+str(now.second))
+                            savename = ("Merged PDF "+str(now.day)+"."+str(now.month)+"."+str(now.year)+" "+str(now.hour)+"-"+str(now.minute)+"-"+str(now.second))
                             SaveNameEntry.delete(0,END)
                             SaveNameEntry.insert(0,savename)
                             StartMergingThread()
@@ -203,7 +221,7 @@ def StartMergingThread():
                     print("SMT: savedir is empty")
                     #desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') 
                     #savedir = r"\\zorb-srv\Operators\ORBScan\merged-pdf"
-                    savedir = r"C:\Users\ORB User\Desktop"
+                    savedir = r"C:\Users\ORB User\Desktop\1"
                     SaveDirEntry.delete(0,END)
                     SaveDirEntry.insert(0,savedir)
                     StartMergingThread()
@@ -218,9 +236,14 @@ def StartMergingThread():
 
 
 def PDFmerge():
-    print('====== PDFM ======')
+    global MergeInProgress
+    global StartedMergeTime
     global InputPath
     global OutputPath
+
+    print('====== PDFM ======')
+    MergeInProgress = True
+    StartedMergeTime = time.time()
     print('PDFM: InputPath -', InputPath)
     print('PDFM: OutputPath -', OutputPath)
     
@@ -239,7 +262,20 @@ def PDFmerge():
         MergeStatusLbl.config(text = 'Обьединение документа...') 
         pdfmerger.write(RevisedOutputPath)
         MergeStatusLbl.config(text = 'Обьединение завершено !') 
+        
+    MergeInProgress = False
 
+
+
+def TimeUpdater():
+    global StartedMergeTime
+
+    while MergeInProgress:
+        CurrentTime = time.time()
+        result = CurrentTime - StartedMergeTime
+        result = datetime2.timedelta(seconds=round(result))
+        MergeTimeLbl.config(text = str(result))
+        time.sleep(0.01)
 
 
 if __name__ == '__main__':
