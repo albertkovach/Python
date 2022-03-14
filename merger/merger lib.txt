@@ -7,3 +7,4 @@ https://habr.com/ru/company/vdsina/blog/557316/
 
 
 python "$(FULL_CURRENT_PATH)"
+cmd /K python -i "$(FULL_CURRENT_PATH)"
