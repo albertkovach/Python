@@ -25,9 +25,11 @@ global OutputPath
 global mergethread
 global timethread
 
+global MergeMode
 global MergeInProgress
 global StartedMergeTime
 MergeInProgress = False
+MergeMode = 0
 
 
 
@@ -41,8 +43,8 @@ def main():
     scrnw = scrnw//2
     scrnh = scrnh//2
     scrnw = scrnw - 175
-    scrnh = scrnh - 125
-    root.geometry('350x250+{}+{}'.format(scrnw, scrnh))
+    scrnh = scrnh - 150
+    root.geometry('350x300+{}+{}'.format(scrnw, scrnh))
         
     app = GUI(root)
     root.mainloop()
@@ -60,6 +62,7 @@ class GUI(Frame):
     
     def initUI(self):
         global mergethread
+        global MergeMode
         fx = 20
         fy = 35
 
@@ -84,6 +87,7 @@ class GUI(Frame):
         FilesCountLbl.place(x=95, y=52)
 
 
+
         global SaveNameLbl
         SaveNameLbl = Label(text="Введите имя итогового файла:", background="white")
         SaveNameLbl.place(x=16, y=87)
@@ -101,19 +105,52 @@ class GUI(Frame):
         SaveDirEntry.place(x=113, y=111)
 
 
+
+        global ModeMergeAll
+        ModeMergeAll = Radiobutton(text="В один файл", background="white", variable=MergeMode, value=0, command=RadioBtnHandler)
+        ModeMergeAll.place(x=25, y=150)
+        
+        global ModeMergeByC
+        ModeMergeByC = Radiobutton(text="По заданным частям", background="white", variable=MergeMode, value=1, command=RadioBtnHandler)
+        ModeMergeByC.place(x=25, y=170)
+        
+        global ModeMergeByE
+        ModeMergeByE = Radiobutton(text="По равным частям", background="white", variable=MergeMode, value=2, command=RadioBtnHandler)
+        ModeMergeByE.place(x=25, y=190)
+
+
+
+
+        global MBEparts
+        MBEparts = 2
+        
+        global MBEpartsLbl
+        MBEpartsLbl = Label(text="Количество частей:", background="white")
+        #MBEpartsLbl.place(x=180, y=160)
+        
+        global MBEpartsSpin
+        MBEpartsSpin = Spinbox(from_=2, to=100, textvariable=MBEparts, justify=CENTER)
+        #MBEpartsSpin.place(x=295, y=160, width=40)
+
+        global MBEpartsDocsLbl
+        MBEpartsDocsLbl = Label(text="Документов в одной: 1025", background="white")
+        #MBEpartsDocsLbl.place(x=180, y=185) #.place_forget()
+
+
+        ay = 60
         global MergeBtn
-        MergeBtn = Button(text="Выполнить склейку", command=StartMergingThread)
-        MergeBtn.place(x=20, y=175, height=20)
+        MergeBtn = Button(text="Выполнить сборку", command=StartMergingThread)
+        MergeBtn.place(x=20, y=ay+175, height=20)
 
         global MergeStatusLbl
         MergeStatusLbl = Label(text="", background="white")
-        MergeStatusLbl.place(x=145, y=175)
+        MergeStatusLbl.place(x=145, y=ay+175)
         
         global MergeTimeLbl
         MergeTimeLbl = Label(text="", background="white")
-        MergeTimeLbl.place(x=145, y=192)
+        MergeTimeLbl.place(x=145, y=ay+192)
 
-
+        RadioBtnInit()
 
 
 
@@ -168,6 +205,32 @@ def CountFiles():
         FilesCountLbl.config(text = 'Неправильный путь')
 
 
+def RadioBtnInit():
+    global MergeMode
+    
+    ModeMergeAll.select()
+    ModeMergeByC.deselect()
+    ModeMergeByE.deselect()
+    
+def RadioBtnHandler():
+    global MergeMode
+    print('RBH: MergeMode -', str(MergeMode))
+    
+    if MergeMode == 0:
+        MBEpartsLbl.place_forget()
+        MBEpartsSpin.place_forget()
+        MBEpartsDocsLbl.place_forget()
+    if MergeMode == 1:
+        MBEpartsLbl.place_forget()
+        MBEpartsSpin.place_forget()
+        MBEpartsDocsLbl.place_forget()
+    if MergeMode == 2:
+        MBEpartsLbl.place(x=180, y=160)
+        MBEpartsSpin.place(x=295, y=160, width=40)
+        MBEpartsDocsLbl.place(x=180, y=185)
+    
+
+    
 
 
 def StartMergingThread():
@@ -204,7 +267,7 @@ def StartMergingThread():
                             outputfile = (str(savename) + ".pdf")
                             OutputPath = Path(savedir, outputfile)
                             print('SMT: starting merge')
-                            mergethread = Thread(target=PDFmerge)
+                            mergethread = Thread(target=PDFmergeAll)
                             mergethread.start()
                             timethread = Thread(target=TimeUpdater)
                             timethread.start()
@@ -235,7 +298,39 @@ def StartMergingThread():
 
 
 
-def PDFmerge():
+def PDFmergeAll():
+    global MergeInProgress
+    global StartedMergeTime
+    global InputPath
+    global OutputPath
+
+    print('====== PDFM All ======')
+    MergeInProgress = True
+    StartedMergeTime = time.time()
+    print('PDFM all: InputPath -', InputPath)
+    print('PDFM all: OutputPath -', OutputPath)
+    
+    RevisedOutputPath = OutputPath.as_posix()
+    print('PDFM all: RevisedOutputPath -', RevisedOutputPath)
+
+    pdfmerger = PdfFileMerger()
+
+    if len(FilesArray) > 0 :
+        for i in range(0, len(FilesArray)):
+            pdfmerger.append(FilesArray[i])
+            MergeStatusLbl.config(text = ('Добавление в задачу: '+str(i+1)))
+            print(i)
+            print(FilesArray[i])
+            
+        MergeStatusLbl.config(text = 'Обьединение документа...') 
+        pdfmerger.write(RevisedOutputPath)
+        MergeStatusLbl.config(text = 'Обьединение завершено !') 
+        
+    MergeInProgress = False
+
+
+
+def PDFmergeAll():
     global MergeInProgress
     global StartedMergeTime
     global InputPath
@@ -264,6 +359,7 @@ def PDFmerge():
         MergeStatusLbl.config(text = 'Обьединение завершено !') 
         
     MergeInProgress = False
+
 
 
 
