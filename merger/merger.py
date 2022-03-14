@@ -33,6 +33,7 @@ Status2 = Value('L', 100000)
 global Status3
 Status3 = 0
 
+<<<<<<< HEAD
 
 
 
@@ -92,6 +93,58 @@ global SaveDirEntry
 SaveDirEntry = Entry(fg="black", bg="white", width=34)
 SaveDirEntry.place(x=fx +93, y=fy +76)
 
+=======
+def main():
+    global root
+    root = Tk()
+    root.resizable(False, False)
+        
+    scrnw = root.winfo_screenwidth()
+    scrnh = root.winfo_screenheight()
+    scrnw = scrnw//2
+    scrnh = scrnh//2
+    scrnw = scrnw - 175
+    scrnh = scrnh - 100
+    root.geometry('350x200+{}+{}'.format(scrnw, scrnh))
+        
+    app = GUI(root)
+    root.mainloop()
+
+
+
+ 
+class GUI(Frame):
+    def __init__(self, parent):
+        Frame.__init__(self, parent, background="white")   
+        self.parent = parent
+        self.parent.title("Merge PDF")
+        self.pack(fill=BOTH, expand=1)
+        self.initUI()
+    
+    def initUI(self):
+        fx = 20
+        fy = 40
+
+        global InputDirPathLbl
+        InputDirPathLbl = Label(text="Выберите папку с файлами:", background="white")
+        InputDirPathLbl.place(x=fx -4, y=fy -20)
+        
+        global InputDirEntry
+        InputDirEntry = Entry(fg="black", bg="white", width=40)
+        InputDirEntry.place(x=fx, y=fy)
+        
+        global InputDirChooseBtn
+        InputDirChooseBtn = Button(text='Выбор', command=InputDirChoose)
+        InputDirChooseBtn.place(x=fx +250, y=fy -1, height=20)
+
+        global DirCalcBtn
+        DirCalcBtn = Button(text='Посчитать', command=CountFiles)
+        DirCalcBtn.place(x=fx, y=fy +22, height=20)
+
+        global FilesCountLbl
+        FilesCountLbl = Label(text="", background="white")
+        FilesCountLbl.place(x=fx +75, y=fy +22)
+>>>>>>> parent of e0c67c7 (log)
 
 global MergeStatusLbl
 MergeStatusLbl = Label(text="", background="white")
@@ -114,7 +167,13 @@ MergeBtn.place(x=fx, y=175, height=20)
 #MergeStatusLbl.after(10, UpdateGUI)
 
 
+<<<<<<< HEAD
 
+=======
+        global MergeBtn
+        MergeBtn = Button(text="Выполнить слияние", command=StartMergingThread)
+        MergeBtn.place(x=fx, y=fy +120, height=20)
+>>>>>>> parent of e0c67c7 (log)
 
 
 
@@ -266,6 +325,7 @@ def PDFmerge(InputPath, OutputPath, FilesArray, Status, Status2):
     if len(FilesArray) > 0 :
         for i in range(0, len(FilesArray)):
             pdfmerger.append(FilesArray[i])
+<<<<<<< HEAD
             Status = ('Добавление в задачу: '+str(i+1))
             #print(i)
             #print(FilesArray[i])
@@ -289,6 +349,11 @@ def PDFmerge(InputPath, OutputPath, FilesArray, Status, Status2):
 
 
 
+=======
+            print(i)
+            print(FilesArray[i])
+        pdfmerger.write(RevisedOutputPath)
+>>>>>>> parent of e0c67c7 (log)
 
 
 
