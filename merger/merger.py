@@ -4,10 +4,12 @@ from tkinter import filedialog
 from PyPDF2 import PdfFileMerger
 from threading import Thread
 from multiprocessing import Process
+from multiprocessing.sharedctypes import Value
 from datetime import datetime
 from pathlib import Path
 import os
 import re
+import multiprocessing
 
 
 global root
@@ -22,86 +24,105 @@ global FilesArray
 global InputPath
 global OutputPath
 
+global Status
+Status = str('Готов к работе')
+
+global Status2
+Status2 = Value('L', 100000)
+
+global Status3
+Status3 = 0
 
 
 
-def main():
-    global root
-    root = Tk()
-    root.resizable(False, False)
-        
-    scrnw = root.winfo_screenwidth()
-    scrnh = root.winfo_screenheight()
-    scrnw = scrnw//2
-    scrnh = scrnh//2
-    scrnw = scrnw - 175
-    scrnh = scrnh - 125
-    root.geometry('350x250+{}+{}'.format(scrnw, scrnh))
-        
-    app = GUI(root)
-    root.mainloop()
+
+global root
+root = Tk()
+root.resizable(False, False)
+
+scrnw = root.winfo_screenwidth()
+scrnh = root.winfo_screenheight()
+scrnw = scrnw//2
+scrnh = scrnh//2
+scrnw = scrnw - 175
+scrnh = scrnh - 125
+root.geometry('350x250+{}+{}'.format(scrnw, scrnh))
+
+#root.parent = parent
+#root.parent.title("Merge PDF")
+#root.pack(fill=BOTH, expand=1)
+
+fx = 20
+fy = 35
+
+global InputDirPathLbl
+InputDirPathLbl = Label(text="Выберите папку с файлами:", background="white")
+InputDirPathLbl.place(x=16, y=10)
+
+global InputDirEntry
+InputDirEntry = Entry(fg="black", bg="white", width=40)
+InputDirEntry.place(x=20, y=30)
+
+global InputDirChooseBtn
+InputDirChooseBtn = Button(text='Выбор', command=InputDirChoose)
+InputDirChooseBtn.place(x=270, y=29, height=20)
+
+global DirCalcBtn
+DirCalcBtn = Button(text='Посчитать', command=CountFiles)
+DirCalcBtn.place(x=20, y=52, height=20)
+
+global FilesCountLbl
+FilesCountLbl = Label(text="", background="white")
+FilesCountLbl.place(x=95, y=52)
+
+
+global SaveNameLbl
+SaveNameLbl = Label(text="Введите имя итогового файла:", background="white")
+SaveNameLbl.place(x=fx -4, y=fy +52)
+
+global SaveNameEntry
+SaveNameEntry = Entry(fg="black", bg="white", width=20)
+SaveNameEntry.place(x=fx +176, y=fy +53)
+
+global SaveDirBtn
+SaveDirBtn = Button(text="Выбрать путь", command=SaveDirChoose)
+SaveDirBtn.place(x=fx, y=fy +75, height=20)
+
+global SaveDirEntry
+SaveDirEntry = Entry(fg="black", bg="white", width=34)
+SaveDirEntry.place(x=fx +93, y=fy +76)
+
+
+global MergeStatusLbl
+MergeStatusLbl = Label(text="", background="white")
+MergeStatusLbl.place(x=145, y=175)
+
+global MergeBtn
+MergeBtn = Button(text="Выполнить склейку", command=StartMergingThread)
+MergeBtn.place(x=fx, y=175, height=20)
+
+#global Status2
+#MergeStatusLbl.config(text = Status2.value)
+
+#global Status2
+#global Status3
+#if Status3==1:
+#    Status3 = 0
+#    print('====== GUI REFRESHED ======')
+#    MergeStatusLbl.config(text = Status2.value)
+
+#MergeStatusLbl.after(10, UpdateGUI)
 
 
 
- 
-class GUI(Frame):
-    def __init__(self, parent):
-        Frame.__init__(self, parent, background="white")   
-        self.parent = parent
-        self.parent.title("Merge PDF")
-        self.pack(fill=BOTH, expand=1)
-        self.initUI()
-    
-    def initUI(self):
-        fx = 20
-        fy = 35
-
-        global InputDirPathLbl
-        InputDirPathLbl = Label(text="Выберите папку с файлами:", background="white")
-        InputDirPathLbl.place(x=16, y=10)
-        
-        global InputDirEntry
-        InputDirEntry = Entry(fg="black", bg="white", width=40)
-        InputDirEntry.place(x=20, y=30)
-        
-        global InputDirChooseBtn
-        InputDirChooseBtn = Button(text='Выбор', command=InputDirChoose)
-        InputDirChooseBtn.place(x=270, y=29, height=20)
-
-        global DirCalcBtn
-        DirCalcBtn = Button(text='Посчитать', command=CountFiles)
-        DirCalcBtn.place(x=20, y=52, height=20)
-
-        global FilesCountLbl
-        FilesCountLbl = Label(text="", background="white")
-        FilesCountLbl.place(x=95, y=52)
 
 
-        global SaveNameLbl
-        SaveNameLbl = Label(text="Введите имя итогового файла:", background="white")
-        SaveNameLbl.place(x=fx -4, y=fy +52)
-
-        global SaveNameEntry
-        SaveNameEntry = Entry(fg="black", bg="white", width=20)
-        SaveNameEntry.place(x=fx +176, y=fy +53)
-
-        global SaveDirBtn
-        SaveDirBtn = Button(text="Выбрать путь", command=SaveDirChoose)
-        SaveDirBtn.place(x=fx, y=fy +75, height=20)
-
-        global SaveDirEntry
-        SaveDirEntry = Entry(fg="black", bg="white", width=34)
-        SaveDirEntry.place(x=fx +93, y=fy +76)
 
 
-        global MergeStatusLbl
-        MergeStatusLbl = Label(text="", background="white")
-        MergeStatusLbl.place(x=145, y=175)
-
-        global MergeBtn
-        MergeBtn = Button(text="Выполнить склейку", command=StartMergingThread)
-        MergeBtn.place(x=fx, y=175, height=20)
-
+def UpdateGUI():
+    global MergeStatusLbl
+    print('====== UpdateGUI ======')
+    MergeStatusLbl.config(text = Status2.value)
 
 
 
@@ -165,6 +186,10 @@ def StartMergingThread():
     global outputfile
     global InputPath
     global OutputPath
+    global Status
+    global Status2
+    global Status3
+
 
     inputdir = InputDirEntry.get()
     savedir = SaveDirEntry.get()
@@ -190,11 +215,14 @@ def StartMergingThread():
                             InputPath = Path(inputdir)
                             outputfile = (str(savename) + ".pdf")
                             OutputPath = Path(savedir, outputfile)
-                            print('SMT: starting merge')
-                            mergethread = Process(target=PDFmerge, args=(InputPath, OutputPath, FilesArray))
                             print('SMT: InputPath -', InputPath)
                             print('SMT: OutputPath -', OutputPath)
+                            print('SMT: starting merge')
+                            mergethread = Process(target=PDFmerge, args=(InputPath, OutputPath, FilesArray, Status, Status2,))
                             mergethread.start()
+                            mergethread.join()
+                            print('SMT: Status2 ' + str(Status2.value))
+                            Status3 = 1
                         else:
                             print("SMT: savename is empty")
                             now = datetime.now()
@@ -221,11 +249,9 @@ def StartMergingThread():
 
 
 
-def PDFmerge(InputPath, OutputPath, FilesArray):
+def PDFmerge(InputPath, OutputPath, FilesArray, Status, Status2):
     print('====== PDFM ======')
     #global InputPath
-    #global OutputPath
-    global MergeStatusLbl
     print('PDFM: InputPath -', InputPath)
     print('PDFM: OutputPath -', OutputPath)
     
@@ -234,19 +260,37 @@ def PDFmerge(InputPath, OutputPath, FilesArray):
 
     pdfmerger = PdfFileMerger()
 
+    Status2.value = 200000
+    print(Status2.value)
+
     if len(FilesArray) > 0 :
         for i in range(0, len(FilesArray)):
             pdfmerger.append(FilesArray[i])
-            MergeStatusLbl.config(text = ('Добавление в задачу: '+str(i+1)))
-            print(i)
-            print(FilesArray[i])
+            Status = ('Добавление в задачу: '+str(i+1))
+            #print(i)
+            #print(FilesArray[i])
+            Status2.value = Status2.value + 1
+            #main()
+            print(Status2.value)
+            print(Status)
             
-        MergeStatusLbl.config(text = 'Обьединение документа...') 
+        Status2.value = Status2.value + 100000
+        print(Status2.value)
+        Status = str('Обьединение документа...')
+        print(Status)
         pdfmerger.write(RevisedOutputPath)
-        MergeStatusLbl.config(text = 'Обьединение завершено !') 
+        Status = str('Обьединение завершено !')
+        print(Status)
+        Status2.value = 500000
+        print(Status2.value)
+        #GUI.GUIrefresh(GUI)
+        #GUI.GUIrefresh()
+
+
+
+
 
 
 
 if __name__ == '__main__':
     main()
-
