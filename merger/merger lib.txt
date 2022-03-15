@@ -8,3 +8,10 @@ https://habr.com/ru/company/vdsina/blog/557316/
 
 python "$(FULL_CURRENT_PATH)"
 cmd /K python -i "$(FULL_CURRENT_PATH)"
+
+
+https://docs-python.ru/tutorial/
+https://python-scripts.com/tkinter
+https://younglinux.info/tkinter/tkinter
+https://pythonguides.com/python-tkinter-spinbox/
+https://pythonpip.ru/osnovy/mnogoprotsessornost-python
