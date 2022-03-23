@@ -14,10 +14,13 @@ global root
 # Albert Kovach
 # 15/03/2022
 # ORB Mara, cold spring, 
-# ORB Mara, cold spring, 
 #       second week of war
 #       end of COVID in Moscow
 #       yet first wall is in work
+
+# 23/03/2022
+# added enum merged in txt
+# dismissals awaiting
 
 # Input folder data
 global inputdir
@@ -27,9 +30,11 @@ global InputPath
 # Output folder data
 global savedir
 global OutputPath
+global OutputPathFilesEnum
 
 global savename
 global outputfile
+global outputfilesenum
 
 global ValidFilesCount
 global FilesArray
@@ -50,6 +55,8 @@ global MergeQuotient
 global MergeRemainder
 
 global CreateDocTime
+global CreateFilesEnum
+
 MergeInProgress = False
 
 
@@ -93,6 +100,7 @@ class GUI(Frame):
         global MergeDivisor
         global MergeQuotient
         global MergeRemainder
+        global CreateFilesEnum
         
         # Variables initialization
         MergeMode = IntVar()
@@ -101,6 +109,9 @@ class GUI(Frame):
         MergeDivisor = IntVar()
         MergeQuotient = 0
         MergeRemainder = 0
+        
+        CreateFilesEnum = IntVar()
+        CreateFilesEnum.set(0)
 
         
         # >>>>>>>> Input folder widgets block  <<<<<<<<
@@ -151,6 +162,9 @@ class GUI(Frame):
 
         # >>>>>>> Merging settings widgets block <<<<<<<
         # ==============================================
+        global ModeSaveEnum
+        ModeSaveEnum = Checkbutton(text="Записать имена в .txt", background="white", variable=CreateFilesEnum, onvalue=1, offvalue=0)
+        
         global ModeMergeAll
         ModeMergeAll = Radiobutton(text="В один файл", background="white", variable=MergeMode, value=0, command=RadioBtnHandler)
         
@@ -234,6 +248,7 @@ def RadioBtnStates():
     print('RBH: MergeMode -', str(MergeMode.get())) 
     
     if CheckInputDir():
+        ModeSaveEnum.place(x=177, y=138)
         ModeMergeAll.place(x=25, y=150)
         ModeMergeByC.place(x=25, y=170)
         ModeMergeByE.place(x=25, y=190)
@@ -250,7 +265,7 @@ def RadioBtnStates():
             MergeDivisor = DefDocs
             MergeDivisorSpin.delete(0, END)
             MergeDivisorSpin.insert(0, MergeDivisor)
-            MergeDivisorSpin.place(x=300, y=162, width=40)
+            MergeDivisorSpin.place(x=300, y=164, width=40)
             MergeQuotientLbl.place(x=180, y=183)
             MergeRemainderLbl.place(x=180, y=203)
         if MergeMode.get() == 2:
@@ -259,10 +274,11 @@ def RadioBtnStates():
             MergeDivisor = DefParts
             MergeDivisorSpin.delete(0, END)
             MergeDivisorSpin.insert(0, MergeDivisor)
-            MergeDivisorSpin.place(x=300, y=162, width=40)
+            MergeDivisorSpin.place(x=300, y=164, width=40)
             MergeQuotientLbl.place(x=180, y=183)
             MergeRemainderLbl.place(x=180, y=203)
     else:
+        ModeSaveEnum.place_forget()
         ModeMergeAll.place_forget()
         ModeMergeByC.place_forget()
         ModeMergeByE.place_forget()
@@ -351,6 +367,8 @@ def BlockGUI(block):
         SaveDirBtn.configure(state = DISABLED)
         SaveDirEntry.configure(state = DISABLED)
 
+        ModeSaveEnum.configure(state = DISABLED)
+        
         ModeMergeAll.configure(state = DISABLED)
         ModeMergeByC.configure(state = DISABLED)
         ModeMergeByE.configure(state = DISABLED)
@@ -373,6 +391,8 @@ def BlockGUI(block):
         SaveDirBtn.configure(state = NORMAL)
         SaveDirEntry.configure(state = NORMAL)
     
+        ModeSaveEnum.configure(state = NORMAL)
+        
         ModeMergeAll.configure(state = NORMAL)
         ModeMergeByC.configure(state = NORMAL)
         ModeMergeByE.configure(state = NORMAL)
@@ -514,8 +534,6 @@ def StartMergingThread():
                             print("SMT: savename exists")
                             
                             DateTimeUpdate(True)
-                            outputfile = (SavenameGenerate(False, SettAddTime, savename, 0) + ".pdf")
-                            OutputPath = Path(savedir, outputfile)
                             InputPath = Path(inputdir)
                             
                             print('SMT: starting merge')
@@ -533,8 +551,6 @@ def StartMergingThread():
                             SaveNameEntry.insert(0,SavenameGenerate(True, SettAddTime, savename, 0))
                             
                             DateTimeUpdate(True)
-                            outputfile = (savename + ".pdf")
-                            OutputPath = Path(savedir, outputfile)
                             InputPath = Path(inputdir)
                             
                             print('SMT: starting merge')
@@ -570,6 +586,7 @@ def PDFmerge():
     global StartedMergeTime
     global InputPath
     global OutputPath
+    global savename
 
     global MergeMode
 
@@ -577,32 +594,56 @@ def PDFmerge():
     global MergeQuotient
     global MergeRemainder
 
+    global outputfilesenum
+    global OutputPathFilesEnum
+    global CreateFilesEnum
+
 
     print('====== PDFM ======')
     MergeInProgress = True
     StartedMergeTime = time.time()
     BlockGUI(True)
-    
-    RevisedOutputPath = OutputPath.as_posix()
-    print('PDFM: InputPath -', InputPath)
-    print('PDFM: OutputPath -', OutputPath)
-    print('PDFM: RevisedOutputPath -', RevisedOutputPath)
 
+    print('PDFM: CreateFilesEnum', CreateFilesEnum.get())
 
     if MergeMode.get() == 0:
         print('PDFM: Merge all')
+        
+        outputfile = (SavenameGenerate(False, False, savename, 0) + ".pdf")
+        OutputPath = Path(savedir, outputfile)
+        RevisedOutputPath = OutputPath.as_posix()
+        print('PDFM: InputPath -', InputPath)
+        print('PDFM: OutputPath -', OutputPath)
+        print('PDFM: RevisedOutputPath -', RevisedOutputPath)
+        
+        if CreateFilesEnum.get() == 1:
+            outputfilesenum = (SavenameGenerate(False, False, savename, 0) + " files list" + ".txt")
+            OutputPathFilesEnum = Path(savedir, outputfilesenum)
+            RevisedOutputPathFilesEnum = OutputPathFilesEnum.as_posix()
+            try:
+                os.remove(RevisedOutputPathFilesEnum)
+                print("PDFM: Existing enum file removed")
+            except IOError:
+                print("PDFM: No enum file!")
+            filesenum = open(RevisedOutputPathFilesEnum, 'a')
+        
         MergeProgressLbl.config(text = '')
         pdfmerger = PdfFileMerger()
         for i in range(0, len(FilesArray)):
             pdfmerger.append(FilesArray[i])
+            if CreateFilesEnum.get() == 1:
+                filesenum.write(FilesArray[i])
+                filesenum.write('\n')
             MergeStatusLbl.config(text = ('Добавление в задачу: '+str(i+1)))
             print('========================================')
             print('Добавление в задачу - i: '+str(i))
             print('Файл: ' +str(FilesArray[i]))
             
-        MergeStatusLbl.config(text = 'Обьединение документа...') 
+        MergeStatusLbl.config(text = 'Обьединение документа...')
         pdfmerger.write(RevisedOutputPath)
         pdfmerger = ""
+        if CreateFilesEnum.get() == 1:
+            filesenum.close()
         MergeStatusLbl.config(text = 'Обьединение завершено !')
 
 
@@ -628,8 +669,23 @@ def PDFmerge():
             i = BlockStart + 1
             
             if k > 0:
+            
+                if CreateFilesEnum.get() == 1:
+                    outputfilesenum = (SavenameGenerate(False, False, savename, k) + " files list" + ".txt")
+                    OutputPathFilesEnum = Path(savedir, outputfilesenum)
+                    RevisedOutputPathFilesEnum = OutputPathFilesEnum.as_posix()
+                    try:
+                        os.remove(RevisedOutputPathFilesEnum)
+                        print("PDFM: Existing enum file removed")
+                    except IOError:
+                        print("PDFM: No enum file!")
+                    filesenum = open(RevisedOutputPathFilesEnum, 'a')
+            
                 while i <= BlockEnd:
                     pdfmerger.append(FilesArray[i-1])
+                    if CreateFilesEnum.get() == 1:
+                        filesenum.write(FilesArray[i-1])
+                        filesenum.write('\n')
                     MergeStatusLbl.config(text = ('Добавление в задачу: '+str(i+1)))
                     print('========================================')
                     print('Добавление в задачу - i: '+str(i))
@@ -644,6 +700,8 @@ def PDFmerge():
                 RevisedOutputPath = OutputPath.as_posix()
                 pdfmerger.write(RevisedOutputPath)
                 pdfmerger = ""
+                if CreateFilesEnum.get() == 1:
+                    filesenum.close()
                 print('Итоговый файл: ' +str(RevisedOutputPath))
                 MergeProgressLbl.config(text = (str(k)+'/'+str(MergeDivisor)))
         
@@ -655,8 +713,22 @@ def PDFmerge():
         print('BlockStart: '+str(BlockStart))
         print('BlockEnd: '+str(BlockEnd))
         
+        if CreateFilesEnum.get() == 1:
+            outputfilesenum = (SavenameGenerate(False, False, savename, k+1) + " files list" + ".txt")
+            OutputPathFilesEnum = Path(savedir, outputfilesenum)
+            RevisedOutputPathFilesEnum = OutputPathFilesEnum.as_posix()
+            try:
+                os.remove(RevisedOutputPathFilesEnum)
+                print("PDFM: Existing enum file removed")
+            except IOError:
+                print("PDFM: No enum file!")
+            filesenum = open(RevisedOutputPathFilesEnum, 'a')
+        
         for i in range(BlockStart, BlockEnd):
             pdfmerger.append(FilesArray[i-1])
+            if CreateFilesEnum.get() == 1:
+                filesenum.write(FilesArray[i-1])
+                filesenum.write('\n')
             MergeStatusLbl.config(text = ('Добавление в задачу: '+str(i+1)))
             print('========================================')
             print('Добавление в задачу - i: '+str(i))
@@ -669,6 +741,8 @@ def PDFmerge():
         RevisedOutputPath = OutputPath.as_posix()
         pdfmerger.write(RevisedOutputPath)
         pdfmerger = ""
+        if CreateFilesEnum.get() == 1:
+            filesenum.close()
         MergeStatusLbl.config(text = 'Обьединение последнего завершено !')
         print('Последний итоговый файл: ' +str(RevisedOutputPath))
         MergeProgressLbl.config(text = (str(MergeDivisor)+'/'+str(MergeDivisor)))
