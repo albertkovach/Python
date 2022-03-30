@@ -6,6 +6,7 @@ from threading import Thread
 from datetime import datetime
 from pathlib import Path
 import datetime as datetime2
+import shutil
 import time
 import os
 import re
@@ -21,6 +22,11 @@ global root
 # 23/03/2022
 # added enum merged in txt
 # dismissals awaiting
+
+# 30/03/2022
+# added file move
+# friends dismissed
+
 
 # Input folder data
 global inputdir
@@ -56,6 +62,7 @@ global MergeRemainder
 
 global CreateDocTime
 global CreateFilesEnum
+global MoveCompletedFiles
 
 MergeInProgress = False
 
@@ -81,7 +88,7 @@ def main():
     scrnh = scrnh//2
     scrnw = scrnw - 185
     scrnh = scrnh - 150
-    root.geometry('375x290+{}+{}'.format(scrnw, scrnh))
+    root.geometry('375x310+{}+{}'.format(scrnw, scrnh))
         
     app = GUI(root)
     root.mainloop()
@@ -101,6 +108,7 @@ class GUI(Frame):
         global MergeQuotient
         global MergeRemainder
         global CreateFilesEnum
+        global MoveCompletedFiles
         
         # Variables initialization
         MergeMode = IntVar()
@@ -111,7 +119,9 @@ class GUI(Frame):
         MergeRemainder = 0
         
         CreateFilesEnum = IntVar()
-        CreateFilesEnum.set(0)
+        CreateFilesEnum.set(1)        
+        MoveCompletedFiles = IntVar()
+        MoveCompletedFiles.set(1)
 
         
         # >>>>>>>> Input folder widgets block  <<<<<<<<
@@ -165,6 +175,9 @@ class GUI(Frame):
         global ModeSaveEnum
         ModeSaveEnum = Checkbutton(text="Записать имена в .txt", background="white", variable=CreateFilesEnum, onvalue=1, offvalue=0)
         
+        global ModeMoveCompleted
+        ModeMoveCompleted = Checkbutton(text="Переместить выполненные", background="white", variable=MoveCompletedFiles, onvalue=1, offvalue=0)
+        
         global ModeMergeAll
         ModeMergeAll = Radiobutton(text="В один файл", background="white", variable=MergeMode, value=0, command=RadioBtnHandler)
         
@@ -189,7 +202,7 @@ class GUI(Frame):
 
 
 
-        ay = 60
+        ay = 85
         global MergeBtn
         MergeBtn = Button(text="Выполнить сборку", command=StartMergingThread)
         MergeBtn.place(x=20, y=ay+175, height=20)
@@ -249,9 +262,10 @@ def RadioBtnStates():
     
     if CheckInputDir():
         ModeSaveEnum.place(x=177, y=138)
-        ModeMergeAll.place(x=25, y=150)
-        ModeMergeByC.place(x=25, y=170)
-        ModeMergeByE.place(x=25, y=190)
+        ModeMoveCompleted.place(x=177, y=158)
+        ModeMergeAll.place(x=25, y=138)
+        ModeMergeByC.place(x=25, y=158)
+        ModeMergeByE.place(x=25, y=178)
     
         if MergeMode.get() == 0:
             MergeDivisorLbl.place_forget()
@@ -260,23 +274,23 @@ def RadioBtnStates():
             MergeQuotientLbl.place_forget()
             MergeRemainderLbl.place_forget()
         if MergeMode.get() == 1:
-            MergeDivisorLbl.place(x=180, y=162)
+            MergeDivisorLbl.place(x=180, y=182)
             MergeDivisorLbl.config(text = 'Документов в части:')
             MergeDivisor = DefDocs
             MergeDivisorSpin.delete(0, END)
             MergeDivisorSpin.insert(0, MergeDivisor)
-            MergeDivisorSpin.place(x=300, y=164, width=40)
-            MergeQuotientLbl.place(x=180, y=183)
-            MergeRemainderLbl.place(x=180, y=203)
+            MergeDivisorSpin.place(x=300, y=184, width=40)
+            MergeQuotientLbl.place(x=180, y=203)
+            MergeRemainderLbl.place(x=180, y=223)
         if MergeMode.get() == 2:
-            MergeDivisorLbl.place(x=180, y=162)
+            MergeDivisorLbl.place(x=180, y=182)
             MergeDivisorLbl.config(text = 'Количество частей:')
             MergeDivisor = DefParts
             MergeDivisorSpin.delete(0, END)
             MergeDivisorSpin.insert(0, MergeDivisor)
-            MergeDivisorSpin.place(x=300, y=164, width=40)
-            MergeQuotientLbl.place(x=180, y=183)
-            MergeRemainderLbl.place(x=180, y=203)
+            MergeDivisorSpin.place(x=300, y=184, width=40)
+            MergeQuotientLbl.place(x=180, y=203)
+            MergeRemainderLbl.place(x=180, y=223)
     else:
         ModeSaveEnum.place_forget()
         ModeMergeAll.place_forget()
@@ -368,6 +382,7 @@ def BlockGUI(block):
         SaveDirEntry.configure(state = DISABLED)
 
         ModeSaveEnum.configure(state = DISABLED)
+        ModeMoveCompleted.configure(state = DISABLED)
         
         ModeMergeAll.configure(state = DISABLED)
         ModeMergeByC.configure(state = DISABLED)
@@ -392,6 +407,7 @@ def BlockGUI(block):
         SaveDirEntry.configure(state = NORMAL)
     
         ModeSaveEnum.configure(state = NORMAL)
+        ModeMoveCompleted.configure(state = NORMAL)
         
         ModeMergeAll.configure(state = NORMAL)
         ModeMergeByC.configure(state = NORMAL)
@@ -586,6 +602,7 @@ def PDFmerge():
     global StartedMergeTime
     global InputPath
     global OutputPath
+    global savedir
     global savename
 
     global MergeMode
@@ -597,6 +614,10 @@ def PDFmerge():
     global outputfilesenum
     global OutputPathFilesEnum
     global CreateFilesEnum
+    global MoveCompletedFiles
+    
+    global MoveFilesPath
+    global RevisedMoveFilesPath
 
 
     print('====== PDFM ======')
@@ -605,6 +626,7 @@ def PDFmerge():
     BlockGUI(True)
 
     print('PDFM: CreateFilesEnum', CreateFilesEnum.get())
+    print('PDFM: MoveCompletedFiles', MoveCompletedFiles.get())
 
     if MergeMode.get() == 0:
         print('PDFM: Merge all')
@@ -616,6 +638,7 @@ def PDFmerge():
         print('PDFM: OutputPath -', OutputPath)
         print('PDFM: RevisedOutputPath -', RevisedOutputPath)
         
+        # Creating .txt for completed files list
         if CreateFilesEnum.get() == 1:
             outputfilesenum = (SavenameGenerate(False, False, savename, 0) + " files list" + ".txt")
             OutputPathFilesEnum = Path(savedir, outputfilesenum)
@@ -627,6 +650,7 @@ def PDFmerge():
                 print("PDFM: No enum file!")
             filesenum = open(RevisedOutputPathFilesEnum, 'a')
         
+        # Adding files to merge task
         MergeProgressLbl.config(text = '')
         pdfmerger = PdfFileMerger()
         for i in range(0, len(FilesArray)):
@@ -639,12 +663,33 @@ def PDFmerge():
             print('Добавление в задачу - i: '+str(i))
             print('Файл: ' +str(FilesArray[i]))
             
+        # Starting merge task
         MergeStatusLbl.config(text = 'Обьединение документа...')
         pdfmerger.write(RevisedOutputPath)
         pdfmerger = ""
         if CreateFilesEnum.get() == 1:
             filesenum.close()
+        if MoveCompletedFiles.get() == 1:
+            print('========================================')
+            MergeStatusLbl.config(text = 'Перемещение файлов...')
+            print('Перемещение файлов...')
+            MoveFilesPath = Path(savedir, savename)
+            RevisedMoveFilesPath = MoveFilesPath.as_posix()
+            ismovedirexist = os.path.exists(RevisedMoveFilesPath)
+            if not ismovedirexist:
+                os.makedirs(RevisedMoveFilesPath)
+            for i in range(0, len(FilesArray)):
+                #print('Начальный файл: ' +str(FilesArray[i]))
+                filename = Path(FilesArray[i])
+                MoveFilesPath = Path(savedir, savename, filename.name)
+                RevisedMoveFilesPath = MoveFilesPath.as_posix()
+                #print('Конечный файл: ' +str(RevisedMoveFilesPath))
+                #shutil.move(FilesArray[i], RevisedMoveFilesPath)
+                shutil.copyfile(FilesArray[i], RevisedMoveFilesPath)
         MergeStatusLbl.config(text = 'Обьединение завершено !')
+        
+
+        
 
 
 
@@ -654,10 +699,13 @@ def PDFmerge():
         print('PDFM: Merge by parts')
         print('MergeDivisor: '+str(MergeDivisor))
         print('Loop part:')
-        print('== Zero K ==')
+
         BlockStart = 1
         BlockEnd = 1
         MergeProgressLbl.config(text = ('0'+'/'+str(MergeDivisor)))
+        
+           
+        print('=================== Zero K =======================')
         for k in range(0, MergeDivisor):
             pdfmerger = PdfFileMerger()
             BlockStart = BlockEnd
@@ -667,6 +715,7 @@ def PDFmerge():
             print('BlockStart: '+str(BlockStart))
             print('BlockEnd: '+str(BlockEnd))
             i = BlockStart + 1
+            l =  i
             
             if k > 0:
             
@@ -687,12 +736,11 @@ def PDFmerge():
                         filesenum.write(FilesArray[i-1])
                         filesenum.write('\n')
                     MergeStatusLbl.config(text = ('Добавление в задачу: '+str(i+1)))
-                    print('========================================')
+                    print('======================')
                     print('Добавление в задачу - i: '+str(i))
                     print('Добавление в задачу - pos: '+str(i-1))
                     print('Файл: ' +str(FilesArray[i-1]))
                     i += 1
-                print('=================== Next K =======================')
                 
                 MergeStatusLbl.config(text = ('Обьединение документа № ' +str(k)))
                 outputfile = (SavenameGenerate(False, False, savename, k) + ".pdf")
@@ -703,7 +751,29 @@ def PDFmerge():
                 if CreateFilesEnum.get() == 1:
                     filesenum.close()
                 print('Итоговый файл: ' +str(RevisedOutputPath))
+                
+                if MoveCompletedFiles.get() == 1:
+                    print('========================================')
+                    print('Создание папки под файлы...')
+                    MoveFilesPath = Path(savedir, SavenameGenerate(False, False, savename, k))
+                    RevisedMoveFilesPath = MoveFilesPath.as_posix()
+                    ismovedirexist = os.path.exists(RevisedMoveFilesPath)
+                    if not ismovedirexist:
+                        os.makedirs(RevisedMoveFilesPath)
+                    MergeStatusLbl.config(text = 'Перемещение файлов...')
+                    print('Перемещение файлов...')
+                    while l <= BlockEnd:
+                        #print('Начальный файл: ' +str(FilesArray[l-1]))
+                        filename = Path(FilesArray[l-1])
+                        MoveFilesPath = Path(savedir, SavenameGenerate(False, False, savename, k), filename.name)
+                        RevisedMoveFilesPath = MoveFilesPath.as_posix()
+                        #print('Конечный файл: ' +str(RevisedMoveFilesPath))
+                        #shutil.move(FilesArray[l-1], RevisedMoveFilesPath)
+                        shutil.copyfile(FilesArray[l-1], RevisedMoveFilesPath)
+                        l += 1
+                        
                 MergeProgressLbl.config(text = (str(k)+'/'+str(MergeDivisor)))
+                print('=================== Next K =======================')
         
         # Main remainder part
         print('Remainder part:')
@@ -730,7 +800,7 @@ def PDFmerge():
                 filesenum.write(FilesArray[i-1])
                 filesenum.write('\n')
             MergeStatusLbl.config(text = ('Добавление в задачу: '+str(i+1)))
-            print('========================================')
+            print('======================')
             print('Добавление в задачу - i: '+str(i))
             print('Добавление в задачу - pos: '+str(i-1))
             print('Файл: ' +str(FilesArray[i-1]))
@@ -743,15 +813,31 @@ def PDFmerge():
         pdfmerger = ""
         if CreateFilesEnum.get() == 1:
             filesenum.close()
-        MergeStatusLbl.config(text = 'Обьединение последнего завершено !')
         print('Последний итоговый файл: ' +str(RevisedOutputPath))
+            
+        if MoveCompletedFiles.get() == 1:
+            print('========================================')
+            print('Создание папки под файлы...')
+            MoveFilesPath = Path(savedir, SavenameGenerate(False, False, savename, MergeDivisor))
+            RevisedMoveFilesPath = MoveFilesPath.as_posix()
+            ismovedirexist = os.path.exists(RevisedMoveFilesPath)
+            if not ismovedirexist:
+                os.makedirs(RevisedMoveFilesPath)
+            MergeStatusLbl.config(text = 'Перемещение файлов...')
+            print('Перемещение файлов...')
+            for l in range(BlockStart, BlockEnd):
+                #print('Начальный файл: ' +str(FilesArray[l-1]))
+                filename = Path(FilesArray[l-1])
+                MoveFilesPath = Path(savedir, SavenameGenerate(False, False, savename, MergeDivisor), filename.name)
+                RevisedMoveFilesPath = MoveFilesPath.as_posix()
+                #print('Конечный файл: ' +str(RevisedMoveFilesPath))
+                #shutil.move(FilesArray[l-1], RevisedMoveFilesPath)
+                shutil.copyfile(FilesArray[l-1], RevisedMoveFilesPath)
+        MergeStatusLbl.config(text = 'Выполнение завершено !')
+        
         MergeProgressLbl.config(text = (str(MergeDivisor)+'/'+str(MergeDivisor)))
 
-
-
-    
-    
-    #if MergeMode.get() == 2:
+    print('========== PDFM: tasks finished ! ============')
     MergeInProgress = False
     BlockGUI(False)
 
