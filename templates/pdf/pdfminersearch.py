@@ -140,6 +140,13 @@ def Miner():
         
     print('============ Miner ended =============')
     print('')
+    
+    pdftomine = ''
+    manager = ''
+    laparams = ''
+    dev = ''
+    interpreter = ''
+    pages = ''
 
 
 
@@ -147,11 +154,13 @@ def Miner():
 def ArrayInterpreter():
     print('====== ArrayInterpreter started ======')
     
-    origpdf = PyPDF2.PdfFileReader(filename)
-    NumPages = origpdf.getNumPages()
+    originalpdf = PyPDF2.PdfFileReader(filename)
+    pdf_writer = PyPDF2.PdfFileWriter()
+    NumPages = originalpdf.getNumPages()
     print('NumPages: ' + str(NumPages))
     
-    pdf_writer1 = PdfFileWriter()
+    
+
     
     for k in range(len(FirstPagesArray)):
         if k+1 < len(FirstPagesArray):

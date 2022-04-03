@@ -38,6 +38,8 @@ def main():
     app = GUI(root)
     root.mainloop()
 
+
+
 class GUI(Frame):
     def __init__(self, parent):
         Frame.__init__(self, parent, background="white")   
@@ -66,6 +68,7 @@ class GUI(Frame):
         global ShowAllBtn
         ShowAllBtn = Button(text='\/', command=Miner)
         ShowAllBtn.place(x=253, y=45, height=20)
+
 
 
 def BtnCmd1():
