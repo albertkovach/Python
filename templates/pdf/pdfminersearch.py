@@ -5,6 +5,7 @@ from tkinter import filedialog
 import win32api
 import win32print
 import PyPDF2
+from pathlib import Path
 global root
 import os
 
@@ -75,22 +76,37 @@ def BtnCmd1():
 
 
 def BtnCmd2():
-    global filename
-
-    pdf = PyPDF2.PdfFileReader(filename)
-    NumPages = pdf.getNumPages()
-    SearchText = SearchTextEntry.get()
-    #SearchText = "1"
-
-    if SearchText:
-        for i in range(0, NumPages):
-            PageObj = pdf.getPage(i)
-            print("this is page " + str(i)) 
-            Text = PageObj.extractText() 
-            ResSearch = re.search(SearchText, Text)
-            print(ResSearch)
+    print('BtnCmd2:', filename)
+    originalpdf = PyPDF2.PdfFileReader(filename)
     
-    print('End of search')
+    outputfile = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop', 'Divider', 'aaa.pdf')
+    outputfilepath = Path(outputfile)
+    
+    pdf_writer = PyPDF2.PdfFileWriter()
+    
+    pdf_writer.addPage(originalpdf.getPage(1))
+    pdf_writer.addPage(originalpdf.getPage(2))
+    pdf_writer.addPage(originalpdf.getPage(3))
+    pdf_writer.addPage(originalpdf.getPage(4))
+    pdf_writer.addPage(originalpdf.getPage(5))
+    
+    pdf_writer.write(open(outputfile, 'wb'))
+    pdf_writer = ''
+    
+    
+    outputfile = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop', 'Divider', 'bbb.pdf')
+    outputfilepath = Path(outputfile)
+    
+    pdf_writer = PyPDF2.PdfFileWriter()
+    
+    pdf_writer.addPage(originalpdf.getPage(6))
+    pdf_writer.addPage(originalpdf.getPage(7))
+    pdf_writer.addPage(originalpdf.getPage(8))
+    pdf_writer.addPage(originalpdf.getPage(9))
+    #pdf_writer.addPage(originalpdf.getPage(10))
+    
+    pdf_writer.write(open(outputfile, 'wb'))
+    pdf_writer = ''
 
     
 def BtnCmd3():
@@ -155,29 +171,81 @@ def ArrayInterpreter():
     print('====== ArrayInterpreter started ======')
     
     originalpdf = PyPDF2.PdfFileReader(filename)
-    pdf_writer = PyPDF2.PdfFileWriter()
     NumPages = originalpdf.getNumPages()
-    print('NumPages: ' + str(NumPages))
-    
-    
 
+    
+    print('NumPages: ' + str(NumPages))
+    print('')
+    
+    savedir = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop', 'Merger') 
+    
     
     for k in range(len(FirstPagesArray)):
         if k+1 < len(FirstPagesArray):
-            print('==========')
-            print(str(FirstPagesArray[k]))
-            print(str(FirstPagesArray[k+1]))
+            print('**** Документ №: ', str(k+1))
+            #outputfile = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop', 'Divider', (str(FirstPagesArray[k])+'.pdf'))
+            outputfile = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop', 'Divider', (str(k+1)+'.pdf'))
+            outputfilepath = Path(outputfile)
+            print("Номер первой стр: {0}, номер сл.первой {1}".format(FirstPagesArray[k],FirstPagesArray[k+1]))
+            print("Итоговый файл: {0}".format(outputfile))
+
+            print('Список страниц документа:')
             
-            print('----')
+            temparray = []
+            temparray.clear()
             for x in range(FirstPagesArray[k], FirstPagesArray[k+1]):
                 print(x)
-            print('----')
+                temparray.append(x)
+                
+            print('Оъединение:')
+            pdf_writer = PyPDF2.PdfFileWriter()
+            
+            for x in range(len(temparray)):
+                pdf_writer.addPage(originalpdf.getPage(temparray[x]-1))
+                
+            pdf_writer.write(open(outputfile, 'wb'))
+            pdf_writer = ''
+            print('*******************')
             print('')
             
-    print('== Last ==')
+    print('**** Последний документ, ', str(len(FirstPagesArray)))
+    #outputfile = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop', 'Divider', (str(FirstPagesArray[len(FirstPagesArray)-1])+'.pdf'))
+    outputfile = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop', 'Divider', (str(len(FirstPagesArray))+'.pdf'))
+    outputfilepath = Path(outputfile)
+    print("Итоговый файл: {0}".format(outputfile))
+    print('Список страниц документа:')
+    
+
+    temparray.clear()
+    
     for x in range(FirstPagesArray[len(FirstPagesArray)-1], NumPages+1):
         print(x)
+        temparray.append(x)
+        
+    print('Оъединение:')
+    pdf_writer = PyPDF2.PdfFileWriter()
+    for x in range(len(temparray)):
+        print("temparray: {0}".format(temparray[x]))
+        pdf_writer.addPage(originalpdf.getPage(temparray[x]-1))
+        
+    pdf_writer.write(open(outputfile, 'wb'))
+    pdf_writer = ''
+    
+    
+    
+    
 
+    
+    
+    
+    
+    
+    print('****************************')
+
+
+    print('')
+    print(' Documents on file: ' + str(len(FirstPagesArray)))
+    print('')
     print('====== ArrayInterpreter ended ======')
     print('')
 
