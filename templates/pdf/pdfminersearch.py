@@ -182,15 +182,13 @@ def ArrayInterpreter():
     
     for k in range(len(FirstPagesArray)):
         if k+1 < len(FirstPagesArray):
+        
             print('**** Документ №: ', str(k+1))
-            #outputfile = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop', 'Divider', (str(FirstPagesArray[k])+'.pdf'))
-            outputfile = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop', 'Divider', (str(k+1)+'.pdf'))
-            outputfilepath = Path(outputfile)
+            outputfile = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop', 'Divider', 'onepage', (str(FirstPagesArray[k])+'.pdf'))
+            outputfilemp = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop', 'Divider', 'multipage', (str(FirstPagesArray[k])+'.pdf'))
             print("Номер первой стр: {0}, номер сл.первой {1}".format(FirstPagesArray[k],FirstPagesArray[k+1]))
             print("Итоговый файл: {0}".format(outputfile))
-
             print('Список страниц документа:')
-            
             temparray = []
             temparray.clear()
             for x in range(FirstPagesArray[k], FirstPagesArray[k+1]):
@@ -207,17 +205,14 @@ def ArrayInterpreter():
             pdf_writer = ''
             print('*******************')
             print('')
-            
+
+
     print('**** Последний документ, ', str(len(FirstPagesArray)))
-    #outputfile = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop', 'Divider', (str(FirstPagesArray[len(FirstPagesArray)-1])+'.pdf'))
-    outputfile = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop', 'Divider', (str(len(FirstPagesArray))+'.pdf'))
-    outputfilepath = Path(outputfile)
+    outputfile = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop', 'Divider', (str(FirstPagesArray[len(FirstPagesArray)-1])+'.pdf'))
     print("Итоговый файл: {0}".format(outputfile))
     print('Список страниц документа:')
     
-
     temparray.clear()
-    
     for x in range(FirstPagesArray[len(FirstPagesArray)-1], NumPages+1):
         print(x)
         temparray.append(x)
@@ -227,19 +222,8 @@ def ArrayInterpreter():
     for x in range(len(temparray)):
         print("temparray: {0}".format(temparray[x]))
         pdf_writer.addPage(originalpdf.getPage(temparray[x]-1))
-        
     pdf_writer.write(open(outputfile, 'wb'))
     pdf_writer = ''
-    
-    
-    
-    
-
-    
-    
-    
-    
-    
     print('****************************')
 
 
@@ -252,6 +236,16 @@ def ArrayInterpreter():
 
 
 
+def make_even_page(in_fpath, out_fpath):
+    reader = PyPDF2.PdfFileReader(in_fpath)
+    writer = PyPDF2.PdfFileWriter()
+    for i in range(reader.getNumPages()):
+        writer.addPage(reader.getPage(i))
+    if reader.getNumPages() % 2 == 1:
+        _, _, w, h = reader.getPage(0)['/MediaBox']
+        writer.addBlankPage(w, h)
+    with open(out_fpath, 'wb') as fd:
+        writer.write(fd)
 
 
 
