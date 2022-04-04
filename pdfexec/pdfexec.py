@@ -212,6 +212,7 @@ def SetModeSortAndMerge():
     UIswitcher()
     
 def SetModePageBack():
+    FlushAll()
     global CurrentUIpage
     CurrentUIpage = 0
     UIswitcher()
@@ -317,8 +318,6 @@ def UIswitcher():
 def MoveInputDirChoose():
     global MoveInputDir
 
-    print('-------------------------------------')
-    print('MOVER: ******* InputDirChoose *******')
     MoveInputDir = filedialog.askdirectory()
     if MoveInputDir:
         MoveInputDirTxt.set(str(MoveInputDir))
@@ -326,17 +325,14 @@ def MoveInputDirChoose():
         MoveInputDirCheck()
     else:
         print('MOVER: InputDirChoose: MoveInputDir not selected')
-    print('MOVER: END InputDirChoose ***********')
-    print('-------------------------------------')
+
         
 def MoveOutputDirChoose():
     global MoveSaveDir
     global MoveSaveDirTxt
     global MoveIsOutputSel
-    MoveSaveDir = filedialog.askdirectory()
     
-    print('-------------------------------------')
-    print('MOVER: ******* OutputDirChoose ******')
+    MoveSaveDir = filedialog.askdirectory()
     if MoveSaveDir:
         MoveSaveDirTxt.set(str(MoveSaveDir))
         print('MOVER: OutputDirChoose: MoveSaveDir :', MoveSaveDir)
@@ -345,21 +341,17 @@ def MoveOutputDirChoose():
         MoveCheckIfReady()
     else:
         print('MOVER: OutputDirChoose: MoveSaveDir not selected')
-    print('MOVER: END OutputDirChoose **********')
-    print('-------------------------------------')
+
 
 def MoveBarcodeFileChoose():
     global MoveBarcodeFile
     
-    print('-------------------------------------')
-    print('MOVER: ****** BarcodeFileChoose *****')
     MoveBarcodeFile = filedialog.askopenfilename(filetypes=(('text files', 'txt'),))
     if MoveBarcodeFile:
         MoveBarcodeFileCheck()
     else:
         print('MOVER: BarcodeFileChoose: MoveBarcodeFile not selected')
-    print('MOVER: END BarcodeFileChoose ********')
-    print('-------------------------------------')
+
 
 
 def MoveInputDirCheck():
@@ -374,8 +366,7 @@ def MoveInputDirCheck():
     global MoveAvlFullFolders
     global MoveAvlFolderRestFiles
     
-    print('-------------------------------------')
-    print('MOVER: ******** InputDirCheck *******')
+    
     direxists = os.path.isdir(MoveInputDir)
     if direxists:
         MoveInputDirTxt.set(str(MoveInputDir))
@@ -422,16 +413,13 @@ def MoveInputDirCheck():
         MoveFilesCountLbl.config(text = 'Папка не существует !')
         MoveIsInputSel = False
         MoveCheckIfReady()
-    print('MOVER: END InputDirCheck ************')
-    print('-------------------------------------')
+
 
 def MoveOutputDirCheck():
     global MoveSaveDir
     global MoveSaveDirTxt
     global MoveIsOutputSel
     
-    print('-------------------------------------')
-    print('MOVER: ******* OutputDirCheck *******')
     direxists = os.path.isdir(MoveSaveDir)
     if not direxists:
         MoveSaveDir = ""
@@ -439,8 +427,7 @@ def MoveOutputDirCheck():
         print('MOVER: OutputDirCheck: MoveSaveDir doesnt exist')
         MoveIsOutputSel = False
         MoveCheckIfReady()
-    print('MOVER: END OutputDirCheck ***********')
-    print('-------------------------------------')
+
 
 def MoveBarcodeFileCheck():
     global MoveBarcodeFile
@@ -450,8 +437,7 @@ def MoveBarcodeFileCheck():
     global MoveAvlFolders
     global MoveIsInputSel
     
-    print('-------------------------------------')
-    print('MOVER: **** MoveBarcodeFileCheck ****')
+
     fileexists = os.path.isfile(MoveBarcodeFile)
     if fileexists:
         MoveBarcodeTxt.set(str(MoveBarcodeFile))
@@ -494,15 +480,12 @@ def MoveBarcodeFileCheck():
         print('MOVER: MoveBarcodeFileCheck: MoveBarcodeFile doesnt exist !')
         MoveIsBarcodeSel = False
         MoveCheckIfReady()
-    print('MOVER: END MoveBarcodeFileCheck *****')
-    print('-------------------------------------')
+
         
 def MoveBarcodeFileRecount():
     global MoveBarcodeArray
     global MoveAvlFolders
     
-    print('-------------------------------------')
-    print('MOVER: *** MoveBarcodeFileRecount ***')
     restcodes = len(MoveBarcodeArray) - MoveAvlFolders
     if restcodes > 0:
         countlbl = ("Кодов в файле: {0}, лишних кодов: {1} ".format(len(MoveBarcodeArray),restcodes))
@@ -512,14 +495,10 @@ def MoveBarcodeFileRecount():
         restcodes = restcodes * (-1)
         countlbl = ("Кодов в файле: {0}, не хватило еще {1} кодов".format(len(MoveBarcodeArray),restcodes))
     MoveBarcodeCountLbl.config(text = countlbl)
-    print('MOVER: END MoveBarcodeFileRecount ***')
-    print('-------------------------------------')
+
 
 
 def MoveRefresh():
-
-    print('-------------------------------------')
-    print('MOVER: ******** MoveRefresh *********')
     try:
         MoveInputDirCheck()
     except:
@@ -534,8 +513,7 @@ def MoveRefresh():
         MoveBarcodeFileCheck()
     except:
         print("MOVER: MoveRefresh: Error refreshing BarcodeFileCheck")
-    print('MOVER: END MoveRefresh **************')
-    print('-------------------------------------')
+
 
 def MoveCheckIfReady():
     global MoveSaveDir
@@ -548,10 +526,7 @@ def MoveCheckIfReady():
     global MoveReadyToGo
     
     
-    print('-------------------------------------')
-    print('MOVER: ****** MoveCheckIfReady ******')
     print("MOVER: CheckIfReady: {0}, {1}, {2}".format(MoveIsInputSel,MoveIsOutputSel,MoveIsBarcodeSel))
-    
     if MoveIsInputSel and MoveIsOutputSel and MoveIsBarcodeSel:
     
         # Checking existing folders from savedir and barcodearray
@@ -607,8 +582,7 @@ def MoveCheckIfReady():
     else:
         MoveRunDivisionBtn.configure(state = DISABLED)
         MoveReadyToGo = False
-    print('MOVER: END MoveCheckIfReady *********')
-    print('-------------------------------------')
+
         
     
    
@@ -630,8 +604,6 @@ def MoveStartMoving():
     folderstocreate = 0
     
 
-    print('-------------------------------------')
-    print('MOVER: ******* MoveStartMoving ******')
     MoveRefresh()
     MoveCheckIfReady()
     
@@ -720,15 +692,69 @@ def MoveStartMoving():
         MoveRunDivisionBtn.configure(state = DISABLED)
         
         MoveRefresh()
-    print('MOVER: END MoveStartMoving **********')
-    print('-------------------------------------')
 
 
-def MoveFlushAll():
-    
+def FlushAll():
+    global MoveInputDir
+    global MoveInputDirTxt
+    global MoveAvlFolders
+    global MoveAvlFullFolders
+    global MoveAvlFolderRestFiles
+    MoveInputDir = ""
+    MoveInputDirTxt = ""
+    MoveAvlFolders = 0
+    MoveAvlFullFolders = 0
+    MoveAvlFolderRestFiles = 0.0
+
+    global MoveSaveDir
+    global MoveSaveDirTxt
+    global MoveBarcodeFile
+    global MoveBarcodeTxt
+    MoveSaveDir = ""
+    MoveSaveDirTxt = ""
+    MoveBarcodeFile = ""
+    MoveBarcodeTxt = ""
+
+    global MoveIsInputSel
+    global MoveIsOutputSel
+    global MoveIsBarcodeSel
+    global MoveReadyToGo
+    MoveIsInputSel = False
+    MoveIsOutputSel = False
+    MoveIsBarcodeSel = False
+    MoveReadyToGo = False
+
+    global MoveFilesArray
+    global MoveValidFilesCount
+    MoveFilesArray = []
+    MoveFilesArray.clear
+    MoveValidFilesCount = 0
+
+    global MoveBarcodeArray
+    global MoveBarcodeCount
+    MoveBarcodeArray = []
+    MoveBarcodeArray.clear
+    MoveBarcodeCount = 0
         
-
-
+    MoveInputDirTxt = StringVar()
+    MoveInputDirTxt.set("")
+    MoveFilesCountLbl.config(text = "")
+    MoveInputDirEntry.configure(state = NORMAL)
+    MoveInputDirEntry.delete(0,END)
+    MoveInputDirEntry.configure(state = DISABLED)
+    
+    MoveSaveDirTxt = StringVar()
+    MoveSaveDirTxt.set("")
+    MoveSaveDirEntry.configure(state = NORMAL)
+    MoveSaveDirEntry.delete(0,END)
+    MoveSaveDirEntry.configure(state = DISABLED)
+    
+    MoveBarcodeTxt = StringVar()
+    MoveBarcodeTxt.set("")
+    MoveBarcodeCountLbl.config(text = "")
+    MoveBarcodeSelEntry.configure(state = NORMAL)
+    MoveBarcodeSelEntry.delete(0,END)
+    MoveBarcodeSelEntry.configure(state = DISABLED)
 
 
 
