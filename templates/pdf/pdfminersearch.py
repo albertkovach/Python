@@ -184,10 +184,10 @@ def ArrayInterpreter():
         if k+1 < len(FirstPagesArray):
         
             print('**** Документ №: ', str(k+1))
-            outputfile = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop', 'Divider', 'onepage', (str(FirstPagesArray[k])+'.pdf'))
+            outputfileop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop', 'Divider', 'onepage', (str(FirstPagesArray[k])+'.pdf'))
             outputfilemp = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop', 'Divider', 'multipage', (str(FirstPagesArray[k])+'.pdf'))
             print("Номер первой стр: {0}, номер сл.первой {1}".format(FirstPagesArray[k],FirstPagesArray[k+1]))
-            print("Итоговый файл: {0}".format(outputfile))
+            #print("Итоговый файл: {0}".format(outputfile))
             print('Список страниц документа:')
             temparray = []
             temparray.clear()
@@ -195,21 +195,33 @@ def ArrayInterpreter():
                 print(x)
                 temparray.append(x)
                 
-            print('Оъединение:')
+            
             pdf_writer = PyPDF2.PdfFileWriter()
             
             for x in range(len(temparray)):
                 pdf_writer.addPage(originalpdf.getPage(temparray[x]-1))
                 
-            pdf_writer.write(open(outputfile, 'wb'))
+                
+            if len(temparray) == 1:
+                pdf_writer.write(open(outputfileop, 'wb'))            
+            elif len(temparray) % 2 == 1:
+                _, _, w, h = originalpdf.getPage(0)['/MediaBox']
+                pdf_writer.addBlankPage(w, h)
+                pdf_writer.write(open(outputfilemp, 'wb'))
+            else:
+                pdf_writer.write(open(outputfilemp, 'wb'))
+                
             pdf_writer = ''
+            print('Обработка завершена')
             print('*******************')
             print('')
 
 
-    print('**** Последний документ, ', str(len(FirstPagesArray)))
-    outputfile = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop', 'Divider', (str(FirstPagesArray[len(FirstPagesArray)-1])+'.pdf'))
-    print("Итоговый файл: {0}".format(outputfile))
+    print('**** Последний документ: ', str(len(FirstPagesArray)))
+    outputfileop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop', 'Divider', 'onepage', (str(FirstPagesArray[len(FirstPagesArray)-1])+'.pdf'))
+    outputfilemp = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop', 'Divider', 'multipage', (str(FirstPagesArray[len(FirstPagesArray)-1])+'.pdf'))
+
+    #print("Итоговый файл: {0}".format(outputfile))
     print('Список страниц документа:')
     
     temparray.clear()
@@ -217,13 +229,23 @@ def ArrayInterpreter():
         print(x)
         temparray.append(x)
         
-    print('Оъединение:')
     pdf_writer = PyPDF2.PdfFileWriter()
     for x in range(len(temparray)):
-        print("temparray: {0}".format(temparray[x]))
         pdf_writer.addPage(originalpdf.getPage(temparray[x]-1))
-    pdf_writer.write(open(outputfile, 'wb'))
+
+
+    if len(temparray) == 1:
+        pdf_writer.write(open(outputfileop, 'wb'))            
+    elif len(temparray) % 2 == 1:
+        _, _, w, h = originalpdf.getPage(0)['/MediaBox']
+        pdf_writer.addBlankPage(w, h)
+        pdf_writer.write(open(outputfilemp, 'wb'))
+    else:
+        pdf_writer.write(open(outputfilemp, 'wb'))
+
+
     pdf_writer = ''
+    print('Обработка завершена')
     print('****************************')
 
 

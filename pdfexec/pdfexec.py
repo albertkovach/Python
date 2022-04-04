@@ -312,17 +312,22 @@ def UIswitcher():
 
 
 
+
+
 def MoveInputDirChoose():
     global MoveInputDir
 
-    print('MOVER: ======= InputDirChoose =======')
+    print('-------------------------------------')
+    print('MOVER: ******* InputDirChoose *******')
     MoveInputDir = filedialog.askdirectory()
     if MoveInputDir:
         MoveInputDirTxt.set(str(MoveInputDir))
-        print('MOVER\InputDirChoose: MoveInputDir :', MoveInputDir)
+        print('MOVER: InputDirChoose: MoveInputDir :', MoveInputDir)
         MoveInputDirCheck()
     else:
-        print('MOVER\InputDirChoose: MoveInputDir not selected')
+        print('MOVER: InputDirChoose: MoveInputDir not selected')
+    print('MOVER: END InputDirChoose ***********')
+    print('-------------------------------------')
         
 def MoveOutputDirChoose():
     global MoveSaveDir
@@ -330,25 +335,31 @@ def MoveOutputDirChoose():
     global MoveIsOutputSel
     MoveSaveDir = filedialog.askdirectory()
     
-    print('MOVER: ======= OutputDirChoose ======')
+    print('-------------------------------------')
+    print('MOVER: ******* OutputDirChoose ******')
     if MoveSaveDir:
         MoveSaveDirTxt.set(str(MoveSaveDir))
-        print('MOVER\OutputDirChoose: MoveSaveDir :', MoveSaveDir)
+        print('MOVER: OutputDirChoose: MoveSaveDir :', MoveSaveDir)
         
         MoveIsOutputSel = True
         MoveCheckIfReady()
     else:
-        print('MOVER\OutputDirChoose: MoveSaveDir not selected')
+        print('MOVER: OutputDirChoose: MoveSaveDir not selected')
+    print('MOVER: END OutputDirChoose **********')
+    print('-------------------------------------')
 
 def MoveBarcodeFileChoose():
     global MoveBarcodeFile
     
-    print('MOVER: ====== BarcodeFileChoose =====')
+    print('-------------------------------------')
+    print('MOVER: ****** BarcodeFileChoose *****')
     MoveBarcodeFile = filedialog.askopenfilename(filetypes=(('text files', 'txt'),))
     if MoveBarcodeFile:
         MoveBarcodeFileCheck()
     else:
-        print('MOVER\BarcodeFileChoose: MoveBarcodeFile not selected')
+        print('MOVER: BarcodeFileChoose: MoveBarcodeFile not selected')
+    print('MOVER: END BarcodeFileChoose ********')
+    print('-------------------------------------')
 
 
 def MoveInputDirCheck():
@@ -363,7 +374,8 @@ def MoveInputDirCheck():
     global MoveAvlFullFolders
     global MoveAvlFolderRestFiles
     
-    print('MOVER: ======== InputDirCheck =======')
+    print('-------------------------------------')
+    print('MOVER: ******** InputDirCheck *******')
     direxists = os.path.isdir(MoveInputDir)
     if direxists:
         MoveInputDirTxt.set(str(MoveInputDir))
@@ -375,10 +387,10 @@ def MoveInputDirCheck():
         if MoveValidFilesCount > 0:
             MoveAvlFolders = 0
             MoveAvlFullFolders = len(MoveFilesArray)/MoveFileAmounToMove
-            print('MOVER\InputDirCheck: MoveAvlFullFolders:', str(MoveAvlFullFolders))
+            print('MOVER: InputDirCheck: MoveAvlFullFolders:', str(MoveAvlFullFolders))
             
             if MoveAvlFullFolders - int(MoveAvlFullFolders) > 0:
-                print('MOVER\InputDirCheck: MoveAvlFolderRestFiles: ', str(MoveAvlFullFolders - int(MoveAvlFullFolders)))
+                print('MOVER: InputDirCheck: MoveAvlFolderRestFiles: ', str(MoveAvlFullFolders - int(MoveAvlFullFolders)))
                 MoveAvlFolderRestFiles = True
                 MoveAvlFolders = int(MoveAvlFullFolders + 1)
                 lbltext = ("Файлов PDF: {0}, нужно {1} кодов, последний - неполный".format(len(MoveFilesArray),MoveAvlFolders))
@@ -386,11 +398,11 @@ def MoveInputDirCheck():
                 MoveAvlFolders = int(MoveAvlFullFolders)
                 lbltext = ("Файлов PDF: {0}, нужно {1} кодов".format(len(MoveFilesArray),MoveAvlFolders))
             MoveAvlFullFolders = int(MoveAvlFullFolders)
-            print('MOVER\InputDirCheck: MoveAvlFolders:', str(MoveAvlFolders))
+            print('MOVER: InputDirCheck: MoveAvlFolders:', str(MoveAvlFolders))
             
         
             MoveFilesCountLbl.config(text = lbltext)
-            print('MOVER\InputDirCheck: Number of valid files -', str(MoveValidFilesCount))
+            print('MOVER: InputDirCheck: Number of valid files -', str(MoveValidFilesCount))
             MoveIsInputSel = True
             MoveCheckIfReady()
         else:
@@ -410,20 +422,25 @@ def MoveInputDirCheck():
         MoveFilesCountLbl.config(text = 'Папка не существует !')
         MoveIsInputSel = False
         MoveCheckIfReady()
+    print('MOVER: END InputDirCheck ************')
+    print('-------------------------------------')
 
 def MoveOutputDirCheck():
     global MoveSaveDir
     global MoveSaveDirTxt
     global MoveIsOutputSel
     
-    print('MOVER: ======= OutputDirCheck =======')
+    print('-------------------------------------')
+    print('MOVER: ******* OutputDirCheck *******')
     direxists = os.path.isdir(MoveSaveDir)
     if not direxists:
         MoveSaveDir = ""
         MoveSaveDirTxt.set("")
-        print('MOVER\OutputDirCheck: MoveSaveDir doesnt exist')
+        print('MOVER: OutputDirCheck: MoveSaveDir doesnt exist')
         MoveIsOutputSel = False
         MoveCheckIfReady()
+    print('MOVER: END OutputDirCheck ***********')
+    print('-------------------------------------')
 
 def MoveBarcodeFileCheck():
     global MoveBarcodeFile
@@ -433,10 +450,12 @@ def MoveBarcodeFileCheck():
     global MoveAvlFolders
     global MoveIsInputSel
     
+    print('-------------------------------------')
+    print('MOVER: **** MoveBarcodeFileCheck ****')
     fileexists = os.path.isfile(MoveBarcodeFile)
     if fileexists:
         MoveBarcodeTxt.set(str(MoveBarcodeFile))
-        print('MOVER: MoveBarcodeTxt :', MoveBarcodeFile)
+        print('MOVER: MoveBarcodeFileCheck: MoveBarcodeTxt :', MoveBarcodeFile)
         
         file = open(MoveBarcodeFile,'r')
         MoveBarcodeArray = []
@@ -449,7 +468,7 @@ def MoveBarcodeFileCheck():
             
             if result:
                 MoveBarcodeCountLbl.config(text = 'Есть повторяющиеся коды !')
-                print('MOVER: MoveBarcodeFile contain duplicates !')
+                print('MOVER: MoveBarcodeFileCheck: MoveBarcodeFile contain duplicates !')
                 MoveIsBarcodeSel = False
                 MoveCheckIfReady()
             else:
@@ -459,27 +478,31 @@ def MoveBarcodeFileCheck():
                 else:
                     MoveBarcodeCountLbl.config(text = 'Кодов в файле: ' + str(len(MoveBarcodeArray)))
                 for i in range(len(MoveBarcodeArray)):
-                    print('MOVER:   - bar:', str(MoveBarcodeArray[i]))
+                    print('MOVER: MoveBarcodeFileCheck:   - bar:', str(MoveBarcodeArray[i]))
                     
                 MoveIsBarcodeSel = True
                 MoveCheckIfReady()
         else:
             MoveBarcodeCountLbl.config(text = 'Штрихкодов не найдено!')
-            print('MOVER: MoveBarcodeFile is empty !')
+            print('MOVER: MoveBarcodeFileCheck: MoveBarcodeFile is empty !')
             MoveIsBarcodeSel = False
             MoveCheckIfReady()
     else:
         MoveBarcodeFile = ""
         MoveBarcodeTxt.set("")
         MoveBarcodeArray.clear()
-        print('MOVER: MoveBarcodeFile doesnt exist !')
+        print('MOVER: MoveBarcodeFileCheck: MoveBarcodeFile doesnt exist !')
         MoveIsBarcodeSel = False
         MoveCheckIfReady()
+    print('MOVER: END MoveBarcodeFileCheck *****')
+    print('-------------------------------------')
         
 def MoveBarcodeFileRecount():
     global MoveBarcodeArray
     global MoveAvlFolders
     
+    print('-------------------------------------')
+    print('MOVER: *** MoveBarcodeFileRecount ***')
     restcodes = len(MoveBarcodeArray) - MoveAvlFolders
     if restcodes > 0:
         countlbl = ("Кодов в файле: {0}, лишних кодов: {1} ".format(len(MoveBarcodeArray),restcodes))
@@ -489,23 +512,30 @@ def MoveBarcodeFileRecount():
         restcodes = restcodes * (-1)
         countlbl = ("Кодов в файле: {0}, не хватило еще {1} кодов".format(len(MoveBarcodeArray),restcodes))
     MoveBarcodeCountLbl.config(text = countlbl)
+    print('MOVER: END MoveBarcodeFileRecount ***')
+    print('-------------------------------------')
 
 
 def MoveRefresh():
+
+    print('-------------------------------------')
+    print('MOVER: ******** MoveRefresh *********')
     try:
         MoveInputDirCheck()
     except:
-        print("MOVER: Error refreshing InputDirCheck")
+        print("MOVER: MoveRefresh: Error refreshing InputDirCheck")
 
     try:
         MoveOutputDirCheck()
     except:
-        print("MOVER: Error refreshing OutputDirCheck") 
+        print("MOVER: MoveRefresh: Error refreshing OutputDirCheck") 
 
     try:
         MoveBarcodeFileCheck()
     except:
-        print("MOVER: Error refreshing BarcodeFileCheck")
+        print("MOVER: MoveRefresh: Error refreshing BarcodeFileCheck")
+    print('MOVER: END MoveRefresh **************')
+    print('-------------------------------------')
 
 def MoveCheckIfReady():
     global MoveSaveDir
@@ -517,6 +547,9 @@ def MoveCheckIfReady():
     global MoveIsBarcodeSel
     global MoveReadyToGo
     
+    
+    print('-------------------------------------')
+    print('MOVER: ****** MoveCheckIfReady ******')
     print("MOVER: CheckIfReady: {0}, {1}, {2}".format(MoveIsInputSel,MoveIsOutputSel,MoveIsBarcodeSel))
     
     if MoveIsInputSel and MoveIsOutputSel and MoveIsBarcodeSel:
@@ -532,20 +565,20 @@ def MoveCheckIfReady():
                 directoriesarray.append(str(Path(allfilesarray[i]).as_posix()))
 
         if len(directoriesarray) > 0:
-            print('MOVER: ==== Present folders:', str(len(directoriesarray)))
+            print('MOVER: MoveCheckIfReady: ==== Present folders:', str(len(directoriesarray)))
             for i in range(len(directoriesarray)):
                 ScanFolder(directoriesarray[i], ".pdf", temparray)
-                print("MOVER:  - PDFs: {0}, Folder {1}".format(len(temparray),directoriesarray[i]))
+                print("MOVER: MoveCheckIfReady:  - PDFs: {0}, Folder {1}".format(len(temparray),directoriesarray[i]))
      
             temparray.clear
             temparray = MoveBarcodeArray
-            print('MOVER: ==== Target folders:', str(len(temparray)))
+            print('MOVER: MoveCheckIfReady: ==== Target folders:', str(len(temparray)))
             for i in range(len(temparray)):
                 temparray[i] = Path(MoveSaveDir, temparray[i]).as_posix()
-                print('MOVER:  = Folder', str(temparray[i]))
+                print('MOVER: MoveCheckIfReady:  = Folder', str(temparray[i]))
 
             intersect = bool(set(temparray) & set(directoriesarray))
-            print('MOVER: Folders intersect:', str(intersect))
+            print('MOVER: MoveCheckIfReady: Folders intersect:', str(intersect))
         
             if intersect:
                 messagebox.showerror("", "Некоторые короба из списка штрихкодов уже созданы ! Переместите их или загрузите другой список")
@@ -574,7 +607,8 @@ def MoveCheckIfReady():
     else:
         MoveRunDivisionBtn.configure(state = DISABLED)
         MoveReadyToGo = False
-        
+    print('MOVER: END MoveCheckIfReady *********')
+    print('-------------------------------------')
         
     
    
@@ -595,15 +629,16 @@ def MoveStartMoving():
     global MoveAvlFolders
     folderstocreate = 0
     
-    
-    print('MOVER: StartMoving')
+
+    print('-------------------------------------')
+    print('MOVER: ******* MoveStartMoving ******')
     MoveRefresh()
     MoveCheckIfReady()
     
     if MoveReadyToGo:
         if MoveAvlFolders < len(MoveBarcodeArray):
             # Codes will remain uncompleted
-            print('MOVER: New BarcodeFile content')
+            print('MOVER: MoveStartMoving: New BarcodeFile content')
             folderstocreate = MoveAvlFolders
             
             restcodes = len(MoveBarcodeArray) - MoveAvlFolders
@@ -614,7 +649,7 @@ def MoveStartMoving():
                 newbarcodearray.append(MoveBarcodeArray[i+MoveAvlFolders])
                 newbarcodeline = (str(newbarcodearray[i])+'\n')
                 barfile.write(newbarcodeline)
-                print('MOVER:  - new bar', str(newbarcodearray[i]))
+                print('MOVER: MoveStartMoving:  - new bar', str(newbarcodearray[i]))
                 
             barfile.close()
             newbarcodearray.clear
@@ -625,7 +660,7 @@ def MoveStartMoving():
         for i in range(folderstocreate):
             MoveOutputPath = Path(MoveSaveDir, MoveBarcodeArray[i])
             ismovedirexist = os.path.exists(MoveOutputPath)
-            print('MOVER: ==== New folder:', str(MoveBarcodeArray[i]))
+            print('MOVER: MoveStartMoving:    ==== New folder:', str(MoveBarcodeArray[i]))
             
             if not ismovedirexist:
                 os.makedirs(MoveOutputPath)
@@ -642,7 +677,7 @@ def MoveStartMoving():
                 filename = Path(MoveFilesArray[k])
                 MoveFilesPath = Path(MoveSaveDir, MoveBarcodeArray[i], filename.name)
                 RevisedMoveFilesPath = MoveFilesPath.as_posix()
-                print("MOVER: Folder: {0}, Num {1}, file: {2}".format(MoveBarcodeArray[i],k,str(filename.name)))
+                print("MOVER: MoveStartMoving: Folder: {0}, Num {1}, file: {2}".format(MoveBarcodeArray[i],k,str(filename.name)))
                 shutil.move(MoveFilesArray[k], RevisedMoveFilesPath)
                 #shutil.copyfile(MoveFilesArray[k], RevisedMoveFilesPath)
         
@@ -685,10 +720,12 @@ def MoveStartMoving():
         MoveRunDivisionBtn.configure(state = DISABLED)
         
         MoveRefresh()
+    print('MOVER: END MoveStartMoving **********')
+    print('-------------------------------------')
 
 
-
-     
+def MoveFlushAll():
+    
         
 
 
