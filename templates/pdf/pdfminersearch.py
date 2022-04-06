@@ -256,7 +256,8 @@ def ArrayInterpreter():
     print('')
 
 
-
+#outputfileop = Path(DividerOutputDir, 'onepage', (str(FirstPagesArray[k])+'.pdf'))
+#outputfilemp = Path(DividerOutputDir, 'onepage', (str(FirstPagesArray[k])+'.pdf'))
 
 def make_even_page(in_fpath, out_fpath):
     reader = PyPDF2.PdfFileReader(in_fpath)

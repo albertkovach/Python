@@ -461,7 +461,7 @@ def CountFiles():
         
         if MergeMode.get() == 1:
             ValidFilesCountDivb = int(ValidFilesCount)
-            while ValidFilesCountDivb%MergeDivisor != 0:
+            while ValidFilesCountDivb % MergeDivisor != 0:
                 ValidFilesCountDivb = ValidFilesCountDivb - 1
                 
             if MergeDivisor > ValidFilesCount:
