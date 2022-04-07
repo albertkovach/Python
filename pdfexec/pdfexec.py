@@ -26,7 +26,7 @@ from pdfminer.converter import PDFPageAggregator
 from difflib import SequenceMatcher
 
 
-# печать уже существующих коробов
+# текстовый файл в неполном коробе
 
 
 
@@ -79,13 +79,24 @@ global MoveReadyToGo
 global MoveFilesArray
 global MoveValidFilesCount
 global MoveFileAmounToMove
-MoveFileAmounToMove = 10
+MoveFileAmounToMove = 100
 
 global MoveBarcodeArray
 global MoveBarcodeCount
 # -------------------------
 
 
+
+# >>>>> Sort variables <<<<
+# -------------------------
+global SortInputDir
+global SortInputDirsArray
+global SortInputDirsCount
+global SortIsInputSel
+
+global SortIsRunning
+global SortStartedTime
+# -------------------------
 
 
 
@@ -156,6 +167,24 @@ class GUI(Frame):
         
         global MoveFilesArray
         MoveFilesArray = ""
+        # ----------------------
+        
+        
+        
+        
+        # >>> Sort var init <<<<
+        # ----------------------
+        global SortInputDir
+        global SortInputDirsArray
+        global SortInputDirsCount
+        SortInputDir = ""
+        SortInputDirsArray = []
+        SortInputDirsCount = 0
+        
+        global SortIsInputSel
+        global SortIsRunning
+        SortIsInputSel = False
+        SortIsRunning = False
         # ----------------------
         
         
@@ -263,9 +292,6 @@ class GUI(Frame):
         global MoveFilesCountLbl
         MoveFilesCountLbl = Label(text="", background="white")
         
-        global MoveRefreshBtn
-        MoveRefreshBtn = Button(text='Обновить', command=MoveRefresh)
-        
         
         # >>>>> Move output folder widgets block <<<<
         # ===========================================
@@ -289,14 +315,17 @@ class GUI(Frame):
         MoveBarcodeSelBtn = Button(text="Выбор", command=MoveBarcodeFileChoose)
         
         global MoveBarcodeFileOpenBtn
-        MoveBarcodeFileOpenBtn = Button(text="Создать файл", command=MoveBarcodeFileOpen)
+        MoveBarcodeFileOpenBtn = Button(text="Создать", command=MoveBarcodeFileOpen)
 
         global MoveBarcodeSelEntry
-        MoveBarcodeSelEntry = Entry(fg="black", bg="white", width=46)
+        MoveBarcodeSelEntry = Entry(fg="black", bg="white", width=32)
         MoveBarcodeSelEntry.configure(state = DISABLED)
         
         global MoveBarcodeCountLbl
         MoveBarcodeCountLbl = Label(text="", background="white")
+        
+        global MoveRefreshBtn
+        MoveRefreshBtn = Button(text='⟳', command=MoveRefresh, font=("Arial", 12))
         
         global MoveStartMovingBtn
         MoveStartMovingBtn = Button(text="Выполнить", command=MoveStartMoving)
@@ -323,28 +352,26 @@ class GUI(Frame):
         SortInputDirChooseBtn = Button(text='Выбор', command=SortInputDirChoose)
 
         global SortValidDirsCountLbl
-        SortValidDirsCountLbl = Label(text="Необработанных папок: 23", background="white")
+        SortValidDirsCountLbl = Label(text="", background="white")
         
         
-        global SortStartCombiningBtn
-        SortStartCombiningBtn = Button(text='Запуск обработки', command=SortInputDirChoose)
-        SortStartCombiningBtn.configure(state = DISABLED)
+        global SortStartCombineBtn
+        SortStartCombineBtn = Button(text='Запуск обработки', command=SortStartCombineThread)
+        SortStartCombineBtn.configure(state = DISABLED)
 
         global SortStatus1Lbl
-        SortStatus1Lbl = Label(text="Обработка короба 8 из 34: № 2600044444411", background="white")
+        SortStatus1Lbl = Label(text="", background="white")
         
         global SortStatus2Lbl
-        SortStatus2Lbl = Label(text="Сортировка файлов: 2 из 70", background="white")
+        SortStatus2Lbl = Label(text="", background="white")
         
         global SortTimeLbl
-        SortTimeLbl = Label(text="0:03:24", background="white")
+        SortTimeLbl = Label(text="", background="white")
         
 
         
-        
-        
         global CurrentUIpage
-        CurrentUIpage = 3
+        CurrentUIpage = 0
         UIswitcher()
 
 
@@ -384,11 +411,11 @@ def UIswitcher():
         
         scrnw = (root.winfo_screenwidth()//2) - scrnwparam
         scrnh = (root.winfo_screenheight()//2) - scrnhparam
-        root.geometry('375x310+{}+{}'.format(scrnw, scrnh))
+        root.geometry('375x245+{}+{}'.format(scrnw, scrnh))
         
-        SetModeDividePdfBtn.place(x=55, y=60, width = 300, height=27)
-        SetModeMoveByBoxBtn.place(x=55, y=110, width = 300, height=27)
-        SetModeSortAndMergeBtn.place(x=55, y=160, width = 300, height=27)
+        SetModeDividePdfBtn.place(x=55, y=60+10, width = 300, height=27)
+        SetModeMoveByBoxBtn.place(x=55, y=110+10, width = 300, height=27)
+        SetModeSortAndMergeBtn.place(x=55, y=160+10, width = 300, height=27)
 
         DivideInputFileLbl.place_forget()
         DivideInputFileEntry.place_forget()
@@ -420,7 +447,7 @@ def UIswitcher():
         SortInputDirEntry.place_forget()
         SortInputDirChooseBtn.place_forget()
         SortValidDirsCountLbl.place_forget()
-        SortStartCombiningBtn.place_forget()
+        SortStartCombineBtn.place_forget()
         SortStatus1Lbl.place_forget()
         SortStatus2Lbl.place_forget()
         SortTimeLbl.place_forget()
@@ -468,7 +495,7 @@ def UIswitcher():
         SortInputDirEntry.place_forget()
         SortInputDirChooseBtn.place_forget()
         SortValidDirsCountLbl.place_forget()
-        SortStartCombiningBtn.place_forget()
+        SortStartCombineBtn.place_forget()
         SortStatus1Lbl.place_forget()
         SortStatus2Lbl.place_forget()
         SortTimeLbl.place_forget()
@@ -499,15 +526,15 @@ def UIswitcher():
 
         MoveInputDirPathLbl.place       (x=16, y=7+40)
         MoveInputDirEntry.place         (x=20, y=30+40)
-        MoveInputDirChooseBtn.place     (x=305, y=29+40, height=20)
-        MoveRefreshBtn.place            (x=289, y=85+40, height=20)
+        MoveInputDirChooseBtn.place     (x=305, y=28+40, height=20)
+        MoveRefreshBtn.place            (x=335, y=163+40, width = 20, height=20)
         MoveFilesCountLbl.place         (x=17, y=49+40)
         MoveOutputDirBtnLbl.place       (x=17, y=87+40)
         MoveOutputDirBtn.place          (x=20, y=110+40, height=20)
         MoveOutputDirEntry.place        (x=75, y=111+40)
         MoveBarcodeSelLbl.place         (x=17, y=141+40)
         MoveBarcodeSelBtn.place         (x=20, y=164+40, height=20)
-        MoveBarcodeFileOpenBtn.place    (x=263, y=139+40, height=20)
+        MoveBarcodeFileOpenBtn.place    (x=275, y=163+40, width = 55, height=20)
         MoveBarcodeSelEntry.place       (x=75, y=165+40)
         MoveBarcodeCountLbl.place       (x=17, y=185+40)
         MoveStartMovingBtn.place        (x=20, y=225+40, width=90, height=25)
@@ -516,7 +543,7 @@ def UIswitcher():
         SortInputDirEntry.place_forget()
         SortInputDirChooseBtn.place_forget()
         SortValidDirsCountLbl.place_forget()
-        SortStartCombiningBtn.place_forget()
+        SortStartCombineBtn.place_forget()
         SortStatus1Lbl.place_forget()
         SortStatus2Lbl.place_forget()
         SortTimeLbl.place_forget()
@@ -563,13 +590,15 @@ def UIswitcher():
         SortInputDirEntry.place         (x=20, y=30+40)
         SortInputDirChooseBtn.place     (x=305, y=29+40, height=20)
         SortValidDirsCountLbl.place     (x=17, y=49+40)
-        SortStartCombiningBtn.place     (x=17, y=100+40, width=130, height=25)
+        SortStartCombineBtn.place       (x=17, y=100+40, width=120, height=25)
         SortStatus1Lbl.place            (x=17, y=115+0)
-        SortStatus2Lbl.place            (x=155, y=125+10)
-        SortTimeLbl.place               (x=155, y=145+10)
+        SortStatus2Lbl.place            (x=145, y=140+10)
+        SortTimeLbl.place               (x=145, y=125+10)
         
 
 def FlushAll():
+    # >>> Divide var flush <<
+    # -----------------------
     global DivideInputFile
     global DivideOutputDir
     DivideInputFile = ""  
@@ -598,10 +627,12 @@ def FlushAll():
     DivideOutputDirEntry.configure(state = DISABLED)
     
     DivideStartDivisionBtn.configure(state = DISABLED)
-
-
-
-
+    # -----------------------
+    
+    
+    
+    # >>> Move var flush <<<<
+    # -----------------------
     global MoveInputDir
     global MoveAvlFolders
     global MoveAvlFullFolders
@@ -650,10 +681,37 @@ def FlushAll():
     MoveBarcodeSelEntry.configure(state = NORMAL)
     MoveBarcodeSelEntry.delete(0,END)
     MoveBarcodeSelEntry.configure(state = DISABLED)
-    MoveBarcodeFileOpenBtn["text"] = "Создать файл"
+    MoveBarcodeFileOpenBtn["text"] = "Создать"
+    # -----------------------
     
     
-
+    
+    # >>> Sort var flush <<<<
+    # -----------------------
+    global SortInputDir
+    global SortInputDirsArray
+    global SortInputDirsCount
+    global SortIsInputSel
+    global SortIsRunning
+    global SortStartedTime
+    
+    SortInputDir = ""
+    SortInputDirsArray.clear()
+    SortInputDirsCount = 0
+    SortIsInputSel = False
+    SortIsRunning = False
+    SortStartedTime = ""
+    
+    SortValidDirsCountLbl.config(text = "")
+    SortStatus1Lbl.config(text = "")
+    SortStatus2Lbl.config(text = "")
+    SortTimeLbl.config(text = "")
+    
+    SortInputDirEntry.configure(state = NORMAL)
+    SortInputDirEntry.delete(0,END)
+    SortInputDirEntry.configure(state = DISABLED)
+    
+    SortStartCombineBtn.configure(state = DISABLED)
 
 
     
@@ -667,7 +725,7 @@ def DivideInputFileChoose():
     global DivideIsInputSel
     global DivideAllPagesCount
 
-    DivideInputFile = filedialog.askopenfilename(filetypes=(('PDF document', 'pdf'),))
+    DivideInputFile = filedialog.askopenfilename(title='Выберите файл на обработку', filetypes=(('PDF document', 'pdf'),))
     if DivideInputFile:
         DivideInputFileEntry.configure(state = NORMAL)
         DivideInputFileEntry.delete(0,END)
@@ -686,9 +744,8 @@ def DivideInputFileChoose():
 
 def DivideOutputDirChoose():
     global DivideOutputDir
-    global DivideIsOutputSel
     
-    DivideOutputDir = filedialog.askdirectory()
+    DivideOutputDir = filedialog.askdirectory(title='Выберите папку для счет-фактур')
     if DivideOutputDir:
         DivideOutputDirEntry.configure(state = NORMAL)
         DivideOutputDirEntry.delete(0,END)
@@ -709,17 +766,18 @@ def DivideOutputDirCheck():
     global DivideOutputDir
     global DivideIsOutputSel
     
-    
-    for k in range(5000):
-        outputfile = Path (DivideOutputDir, (str(Path(DivideInputFile).name)+" - стр."+str(k)+'.pdf'))
-        fileexists = os.path.isfile(outputfile)
-        if fileexists:
-            DivideIsOutputSel = False
-            msgbxlbl = 'В этой папке уже присутствуют документы из выбранного файла! Удалите, переместите эти документы или выберите другую папку'
-            messagebox.showerror("", msgbxlbl)
-            break
-        else:
-            DivideIsOutputSel = True
+    isoutdir = os.path.isdir(DivideOutputDir)
+    if isoutdir:
+        for k in range(5000):
+            outputfile = Path (DivideOutputDir, (str(Path(DivideInputFile).name)+" - стр."+str(k)+'.pdf'))
+            fileexists = os.path.isfile(outputfile)
+            if fileexists:
+                DivideIsOutputSel = False
+                msgbxlbl = 'В этой папке уже присутствуют документы из выбранного файла! Удалите, переместите эти документы или выберите другую папку'
+                messagebox.showerror("", msgbxlbl)
+                break
+            else:
+                DivideIsOutputSel = True
 
     DivideCheckIfReady()
     
@@ -938,7 +996,7 @@ def DivideTimeUpdater():
 def MoveInputDirChoose():
     global MoveInputDir
 
-    MoveInputDir = filedialog.askdirectory()
+    MoveInputDir = filedialog.askdirectory(title='Выберите папку с файлами на обработку')
     if MoveInputDir:
         MoveInputDirEntry.configure(state = NORMAL)
         MoveInputDirEntry.delete(0,END)
@@ -954,7 +1012,7 @@ def MoveOutputDirChoose():
     global MoveOutputDir
     global MoveIsOutputSel
     
-    MoveOutputDir = filedialog.askdirectory()
+    MoveOutputDir = filedialog.askdirectory(title='Выберите папку с коробами')
     if MoveOutputDir:
         MoveOutputDirEntry.configure(state = NORMAL)
         MoveOutputDirEntry.delete(0,END)
@@ -971,12 +1029,13 @@ def MoveOutputDirChoose():
 def MoveBarcodeFileChoose():
     global MoveBarcodeFile
     
-    MoveBarcodeFile = filedialog.askopenfilename(filetypes=(('text files', 'txt'),))
+    MoveBarcodeFile = filedialog.askopenfilename(title='Выберите файл с штрихкодами', filetypes=(('text files', 'txt'),))
     if MoveBarcodeFile:
         MoveBarcodeFileCheck()
-        MoveBarcodeFileOpenBtn["text"] = "Открыть файл"
+        MoveBarcodeFileOpenBtn["text"] = "Открыть"
     else:
         print('MOVER: BFC: MoveBarcodeFile not selected')
+
 
 
 
@@ -1073,7 +1132,7 @@ def MoveBarcodeFileCheck():
     if fileexists:
         MoveBarcodeSelEntry.configure(state = NORMAL)
         MoveBarcodeSelEntry.delete(0,END)
-        MoveBarcodeSelEntry.insert(0,str(MoveBarcodeFile))
+        MoveBarcodeSelEntry.insert(0,str(Path(MoveBarcodeFile).name))
         MoveBarcodeSelEntry.configure(state = DISABLED)
         print('MOVER: BFChk: MoveBarcodeFile :', MoveBarcodeFile)
         
@@ -1150,7 +1209,7 @@ def MoveBarcodeFileOpen():
         os.startfile(MoveBarcodeFile)
         
         MoveBarcodeFileCheck()
-        MoveBarcodeFileOpenBtn["text"] = "Открыть файл"
+        MoveBarcodeFileOpenBtn["text"] = "Открыть"
 
 
 def MoveRefresh():
@@ -1210,10 +1269,17 @@ def MoveCheckIfReady():
                 print('MOVER: CIR:  = Folder', str(temparray[i]))
 
             intersect = bool(set(temparray) & set(directoriesarray))
+            print('MOVER: CIR: sets:', str(set(temparray) & set(directoriesarray)))
             print('MOVER: CIR: Folders intersect:', str(intersect))
         
             if intersect:
-                messagebox.showerror("", "Некоторые короба из списка штрихкодов уже созданы ! Переместите их или загрузите другой список")
+                intersectboxesarray = []
+                intersectdata = list(set(temparray) & set(directoriesarray))
+                for m in range (len(intersectdata)):
+                    intersectboxesarray.append(Path(intersectdata[m]).name)
+                    print('MOVER: CIR:  = intersectdata', str(intersectboxesarray[m]))
+                msgbxlbl = ['Некоторые короба из списка штрихкодов уже созданы !', 'Список этих коробов: {0}'.format(intersectboxesarray)]
+                messagebox.showerror("", "\n".join(msgbxlbl))
                 MoveIsBarcodeSel = False
                 MoveBarcodeArray.clear
                 MoveBarcodeCountLbl.config(text = 'По некоторым штрихкодам уже созданы короба !')
@@ -1376,32 +1442,233 @@ def MoveStartMoving():
 def SortInputDirChoose():
     global SortInputDir
     global SortInputDirsArray
-    global SortInputDirsCount
 
     SortInputDirsArray = []
 
-    SortInputDir = filedialog.askdirectory()
+    SortInputDir = filedialog.askdirectory(title='Выберите папку с коробами')
     if SortInputDir:
         SortInputDirEntry.configure(state = NORMAL)
         SortInputDirEntry.delete(0,END)
         SortInputDirEntry.insert(0,str(SortInputDir))
         SortInputDirEntry.configure(state = DISABLED)
+        
         print('Sort: IDC: MoveInputDir :', SortInputDir)
-        
-        ScanFolder(SortInputDir, "", SortInputDirsArray)
-        SortInputDirsCount = len(SortInputDirsArray)
-        
-        lbltext = "Папок: {0}".format(SortInputDirsCount)
-        SortValidDirsCountLbl.config(text = lbltext)
+        SortInputDirCheck()
     else:
         print('Sort: IDC: MoveInputDir not selected')
         
+        
+def SortInputDirCheck():
+    global SortInputDir
+    global SortInputDirsArray
+    global SortInputDirsCount
+    global SortIsInputSel
 
-def ScanForFolders():
-    print('MOVER: IDChk: MoveAvlFolders:')
+    tempdirsarray = []
+    tempsubdirarray = []
+    tempsubdirpdfarray = []
+    ScanFolder(SortInputDir, "", tempdirsarray)
+    SortInputDirsArray = []
+    SortInputDirsArray.clear
+    SortInputDirsCount = 0
+    
+    if not len(tempdirsarray) > 0:
+        lbltext = "Папка не содержит коробов !"
+        SortValidDirsCountLbl.config(text = lbltext)
+        SortIsInputSel = False
+    else:
+        for i in range (len(tempdirsarray)):
+            ScanFolder(tempdirsarray[i], ".pdf", tempsubdirarray)
+            if len(tempsubdirarray) > 0:
+                print('Sort: IDC: {0} folder is NOT valid: {1}'.format(i, tempdirsarray[i]))
+            else:
+                tempsubdirpdfpath = Path(tempdirsarray[i], 'оригиналы')
+                issubdirpdfpath = os.path.isdir(tempsubdirpdfpath)
+                if issubdirpdfpath:
+                    ScanFolder(tempsubdirpdfpath, ".pdf", tempsubdirpdfarray)
+                    SortInputDirsArray.append(tempdirsarray[i])
+                    print('Sort: IDC: {0} folder is valid, PDF: {1}, path: {2}'.format(i, len(tempsubdirpdfarray), tempdirsarray[i]))
+                else:
+                    print('Sort: IDC: {0} folder is NOT valid. No PDF files in orig folder, path: {1}. '.format(i, tempdirsarray[i]))
+
+        SortInputDirsCount = len(SortInputDirsArray)
+        
+        if SortInputDirsCount > 0:
+            lbltext = "Необработанных коробов: {0}, обработано {1}".format(SortInputDirsCount, len(tempdirsarray)-SortInputDirsCount)
+            SortIsInputSel = True
+            SortStartCombineBtn.configure(state = NORMAL)
+            
+        else:
+            lbltext = "Нет коробов для обработки !"
+            SortIsInputSel = False
+            SortStartCombineBtn.configure(state = DISABLED)
+        
+        SortValidDirsCountLbl.config(text = lbltext)
+
+
+def SortStartCombineThread():
+    DivideBlockGUI(True)
+
+    sortthread = Thread(target=SortStartCombine)
+    sortthread.start()
+    timethread = Thread(target=SortTimeUpdater)
+    timethread.start()
+    sortthread = ""
+    timethread = ""
+
+
+def SortStartCombine():
+    global SortInputDirsArray
+    global SortInputDirsCount
+    global SortIsInputSel
+    
+    global SortIsRunning
+    global SortStartedTime
+    
+    SortIsRunning = True
+    SortStartedTime = time.time()
+    SortBlockGUI(True)
+
+    print('Sort: SC: started !')
+    for i in range (SortInputDirsCount):
+        print('Sort: SC: working in: {0}'.format(SortInputDirsArray[i]))
+        stts1lbl = "Обработка короба {0}: {1} из {2}".format(Path(SortInputDirsArray[i]).name, i, len(SortInputDirsArray))
+        SortStatus1Lbl.config(text = stts1lbl)
+        origfilespath = Path(SortInputDirsArray[i], 'оригиналы')
+        
+        # Create temp folder and copy PDFs
+        tempfolderpath = Path(SortInputDirsArray[i], 'временные')
+        istempfolderpath = os.path.isdir(tempfolderpath)
+        if istempfolderpath:
+            shutil.rmtree(tempfolderpath)
+            os.makedirs(tempfolderpath)
+        else:
+            os.makedirs(tempfolderpath)
+
+        pdfarray = []
+        ScanFolder(origfilespath, ".pdf", pdfarray)
+        for m in range(len(pdfarray)):
+            outputfile = Path(tempfolderpath, Path(pdfarray[m]).name).as_posix()
+            shutil.copyfile(pdfarray[m], outputfile)
+             
+             
+        # Sort by folders and convert to even
+        onepagedirpath = Path(SortInputDirsArray[i], 'onepage')
+        isonepagedirpath = os.path.isdir(onepagedirpath)
+        if isonepagedirpath:
+            shutil.rmtree(onepagedirpath)
+            os.makedirs(onepagedirpath)
+        else:
+            os.makedirs(onepagedirpath)
+            
+        multipagedirpath = Path(SortInputDirsArray[i], 'multipage')
+        ismultipagedirpath = os.path.isdir(multipagedirpath)
+        if ismultipagedirpath:
+            shutil.rmtree(multipagedirpath)
+            os.makedirs(multipagedirpath)
+        else:
+            os.makedirs(multipagedirpath)
+
+        pdfarray = []
+        pdfile = ""
+        ScanFolder(tempfolderpath, ".pdf", pdfarray)
+        for k in range (len(pdfarray)):
+            stts2lbl = "Сортировка файлов: {0} из {1}".format(k, len(pdfarray))
+            SortStatus2Lbl.config(text = stts2lbl)
+        
+            pdfile = PdfFileReader(pdfarray[k])
+            filepagecount = pdfile.getNumPages()
+            
+            if filepagecount == 1:
+                outputfile = Path(onepagedirpath, Path(pdfarray[k]).name).as_posix()
+                print('Sort: SC: onepage - '+str(pdfarray[k]))
+                shutil.move(pdfarray[k], outputfile)
+                pdfile = ""
+            elif filepagecount % 2 == 1:
+                _, _, w, h = pdfile.getPage(0)['/MediaBox']
+                pdfile = ""
+                print('Sort: SC: odd - ' + str(pdfarray[k]))
+                outputfile = Path(multipagedirpath, Path(pdfarray[k]).name).as_posix()
+                PDFmakeEvenPage(pdfarray[k], outputfile)
+                os.remove(pdfarray[k])
+            else:
+                outputfile = Path(multipagedirpath, Path(pdfarray[k]).name).as_posix()
+                print('Sort: SC: even - '+str(pdfarray[k]))
+                shutil.move(pdfarray[k], outputfile)
+                pdfile = ""
+        shutil.rmtree(tempfolderpath)
+        
+        # Merging sorted files
+        stts2lbl = "Сборка одностраничных документов"
+        SortStatus2Lbl.config(text = stts2lbl)
+        pdfarray = []
+        pdfile = ""
+        ScanFolder(onepagedirpath, ".pdf", pdfarray)
+        if len(pdfarray) > 0:
+            pdfmerger = PdfFileMerger()
+            for h in range (len(pdfarray)):
+                pdfmerger.append(pdfarray[h])
+            onepagepdfpath = Path(SortInputDirsArray[i], (str(Path(SortInputDirsArray[i]).name) + " - Односторонняя печать.pdf")).as_posix()
+            pdfmerger.write(onepagepdfpath)
+            pdfmerger.close()
+            pdfmerger = ""
+        shutil.rmtree(onepagedirpath)
+            
+        stts2lbl = "Сборка многостраничных документов"
+        SortStatus2Lbl.config(text = stts2lbl)
+        pdfarray = []
+        pdfile = ""
+        ScanFolder(multipagedirpath, ".pdf", pdfarray)
+        if len(pdfarray) > 0:
+            pdfmerger = PdfFileMerger()
+            for h in range (len(pdfarray)):
+                pdfmerger.append(pdfarray[h])
+            multipagepdfpath = Path(SortInputDirsArray[i], (str(Path(SortInputDirsArray[i]).name) + " - Двухсторонняя печать.pdf")).as_posix()
+            pdfmerger.write(multipagepdfpath)
+            pdfmerger.close()
+            pdfmerger = ""
+        shutil.rmtree(multipagedirpath)
+        
+        stts2lbl = "Короб завершен !"
+        SortStatus2Lbl.config(text = stts2lbl)
+        
+
+    print('Sort: SC: ended !')
+    SortInputDirCheck()
+    
+    SortIsRunning = False
+    SortBlockGUI(False)
+    
+    stts1lbl = "Обработка коробов завершена !"
+    SortStatus1Lbl.config(text = stts1lbl)
+    stts2lbl = ""
+    SortStatus2Lbl.config(text = stts2lbl)
+    
+    msgbxlbl = 'Обработка коробов завершена !'
+    messagebox.showinfo("", msgbxlbl)
 
 
 
+def SortTimeUpdater():
+    global SortIsRunning
+    global SortStartedTime
+
+    while SortIsRunning:
+        result = time.time() - SortStartedTime
+        result = datetime2.timedelta(seconds=round(result))
+        SortTimeLbl.config(text = str(result))
+        time.sleep(0.01)
+
+
+def SortBlockGUI(yes):
+    if yes:
+        MainModeBackBtn.configure(state = DISABLED)
+        SortInputDirChooseBtn.configure(state = DISABLED)
+        SortStartCombineBtn.configure(state = DISABLED)
+    else:
+        MainModeBackBtn.configure(state = NORMAL)
+        SortInputDirChooseBtn.configure(state = NORMAL)
+        SortStartCombineBtn.configure(state = NORMAL)
 
 
 
@@ -1425,6 +1692,19 @@ def CheckListDuplicates(listOfElems):
         return False
     else:
         return True
+
+def PDFmakeEvenPage(in_fpath, out_fpath):
+    reader = PyPDF2.PdfFileReader(in_fpath)
+    writer = PyPDF2.PdfFileWriter()
+    for i in range(reader.getNumPages()):
+        writer.addPage(reader.getPage(i))
+    if reader.getNumPages() % 2 == 1:
+        _, _, w, h = reader.getPage(0)['/MediaBox']
+        writer.addBlankPage(w, h)
+    with open(out_fpath, 'wb') as fd:
+        writer.write(fd)
+    fd.close()
+
 
 def ScanFolder(folder, extension, filearray):
         filearray.clear()
