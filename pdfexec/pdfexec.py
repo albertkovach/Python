@@ -44,19 +44,19 @@ global CurrentUIpage
 
 
 
-# >>> Divider variables <<<
+# >>> Divide variables <<<
 # -------------------------
-global DividerInputFile
-global DividerIsInputSel
+global DivideInputFile
+global DivideIsInputSel
 
-global DividerOutputDir
-global DividerIsOutputSel
+global DivideOutputDir
+global DivideIsOutputSel
 
-global DividerAllPagesCount
-global DividerFirstPagesArray
+global DivideAllPagesCount
+global DivideFirstPagesArray
 
-global DividerIsRunning
-global DividerStartedTime
+global DivideIsRunning
+global DivideStartedTime
 # -------------------------
 
 
@@ -116,22 +116,22 @@ class GUI(Frame):
         self.initUI()
     
     def initUI(self):
-        # >> Divider var init <<
+        # >> Divide var init <<
         # ----------------------
-        global DividerInputFile
-        global DividerOutputDir
-        DividerInputFile = ""  
-        DividerOutputDir = ""  
+        global DivideInputFile
+        global DivideOutputDir
+        DivideInputFile = ""  
+        DivideOutputDir = ""  
                 
-        global DividerIsInputSel
-        global DividerIsOutputSel
-        global DividerIsRunning
-        DividerIsInputSel = False
-        DividerIsOutputSel = False
-        DividerIsRunning = False
+        global DivideIsInputSel
+        global DivideIsOutputSel
+        global DivideIsRunning
+        DivideIsInputSel = False
+        DivideIsOutputSel = False
+        DivideIsRunning = False
         
-        global DividerFirstPagesArray
-        DividerFirstPagesArray = []
+        global DivideFirstPagesArray
+        DivideFirstPagesArray = []
         # ----------------------
     
     
@@ -194,52 +194,52 @@ class GUI(Frame):
 
 
 
-                ######## Divider widgets #######
+                ######## Divide widgets #######
                 ################################
                 
-        # >>>>> Divider input file widgets block <<<<
+        # >>>>> Divide input file widgets block <<<<
         # ===========================================
         
-        global DividerInputFileLbl
-        DividerInputFileLbl = Label(text="Выберите файл для разделения:", background="white", font=("Arial", 10))
+        global DivideInputFileLbl
+        DivideInputFileLbl = Label(text="Выберите файл для разделения:", background="white", font=("Arial", 10))
         
-        global DividerInputFileEntry
-        DividerInputFileEntry = Entry(fg="black", bg="white", width=46)
-        DividerInputFileEntry.configure(state = DISABLED)
+        global DivideInputFileEntry
+        DivideInputFileEntry = Entry(fg="black", bg="white", width=46)
+        DivideInputFileEntry.configure(state = DISABLED)
         
-        global DividerInputFileChooseBtn
-        DividerInputFileChooseBtn = Button(text='Выбор', command=DividerInputFileChoose)
+        global DivideInputFileChooseBtn
+        DivideInputFileChooseBtn = Button(text='Выбор', command=DivideInputFileChoose)
         
-        global DividerInputFilePCountLbl
-        DividerInputFilePCountLbl = Label(text="", background="white")
+        global DivideInputFilePCountLbl
+        DivideInputFilePCountLbl = Label(text="", background="white")
         
         
-        # >>>>>>> Divider output widgets block <<<<<<
+        # >>>>>>> Divide output widgets block <<<<<<
         # ===========================================
         
-        global DividerOutputDirBtnLbl
-        DividerOutputDirBtnLbl = Label(text="Папка для разделенных счет-фактур:", background="white", font=("Arial", 10))
+        global DivideOutputDirBtnLbl
+        DivideOutputDirBtnLbl = Label(text="Папка для разделенных счет-фактур:", background="white", font=("Arial", 10))
         
-        global DividerOutputDirBtn
-        DividerOutputDirBtn = Button(text="Выбор", command=DividerOutputDirChoose)
+        global DivideOutputDirBtn
+        DivideOutputDirBtn = Button(text="Выбор", command=DivideOutputDirChoose)
 
-        global DividerOutputDirEntry
-        DividerOutputDirEntry = Entry(fg="black", bg="white", width=46)
-        DividerOutputDirEntry.configure(state = DISABLED)
+        global DivideOutputDirEntry
+        DivideOutputDirEntry = Entry(fg="black", bg="white", width=46)
+        DivideOutputDirEntry.configure(state = DISABLED)
         
         
-        global DividerStartDivisionBtn
-        DividerStartDivisionBtn = Button(text='Выполнить разделение', command=DividerStartDivision)
-        DividerStartDivisionBtn.configure(state = DISABLED)
+        global DivideStartDivisionBtn
+        DivideStartDivisionBtn = Button(text='Выполнить разделение', command=DivideStartDivision)
+        DivideStartDivisionBtn.configure(state = DISABLED)
 
-        global DividerStatusLbl
-        DividerStatusLbl = Label(text="", background="white")
+        global DivideStatusLbl
+        DivideStatusLbl = Label(text="", background="white")
         
-        global DividerTimeLbl
-        DividerTimeLbl = Label(text="", background="white")
+        global DivideTimeLbl
+        DivideTimeLbl = Label(text="", background="white")
         
-        global DividerProgressLbl # Reserved for multiple files select
-        DividerProgressLbl = Label(text="", background="white")
+        global DivideProgressLbl # Reserved for multiple files select
+        DivideProgressLbl = Label(text="", background="white")
         
 
                 
@@ -309,32 +309,42 @@ class GUI(Frame):
                 ######### Merge widgets ########
                 ################################
                 
-        # >>>>> Merge input folder widgets block <<<<
+        # >>>>>>>>>>> Merge widgets block <<<<<<<<<<<
         # ===========================================
         
-        global MergeInputDirPathLbl
-        MergeInputDirPathLbl = Label(text="Выберите папку с файлами:", background="white", font=("Arial", 10))
+        global SortInputDirPathLbl
+        SortInputDirPathLbl = Label(text="Выберите папку с коробами:", background="white", font=("Arial", 10))
         
-        global MergeInputDirEntry
-        MergeInputDirEntry = Entry(fg="black", bg="white", width=46)
-        MergeInputDirEntry.configure(state = DISABLED)
+        global SortInputDirEntry
+        SortInputDirEntry = Entry(fg="black", bg="white", width=46)
+        SortInputDirEntry.configure(state = DISABLED)
         
-        global MergeInputDirChooseBtn
-        MergeInputDirChooseBtn = Button(text='Выбор', command=MoveInputDirChoose)
+        global SortInputDirChooseBtn
+        SortInputDirChooseBtn = Button(text='Выбор', command=SortInputDirChoose)
 
-        global MergeValidDirsCountLbl
-        MergeValidDirsCountLbl = Label(text="Необработанных папок: 23", background="white")
+        global SortValidDirsCountLbl
+        SortValidDirsCountLbl = Label(text="Необработанных папок: 23", background="white")
         
         
-MergeInputDirPathLbl
-MergeInputDirEntry
-MergeInputDirChooseBtn
-MergeValidDirsCountLbl
+        global SortStartCombiningBtn
+        SortStartCombiningBtn = Button(text='Запуск обработки', command=SortInputDirChoose)
+        SortStartCombiningBtn.configure(state = DISABLED)
+
+        global SortStatus1Lbl
+        SortStatus1Lbl = Label(text="Обработка короба 8 из 34: № 2600044444411", background="white")
+        
+        global SortStatus2Lbl
+        SortStatus2Lbl = Label(text="Сортировка файлов: 2 из 70", background="white")
+        
+        global SortTimeLbl
+        SortTimeLbl = Label(text="0:03:24", background="white")
+        
+
         
         
         
         global CurrentUIpage
-        CurrentUIpage = 0
+        CurrentUIpage = 3
         UIswitcher()
 
 
@@ -380,16 +390,16 @@ def UIswitcher():
         SetModeMoveByBoxBtn.place(x=55, y=110, width = 300, height=27)
         SetModeSortAndMergeBtn.place(x=55, y=160, width = 300, height=27)
 
-        DividerInputFileLbl.place_forget()
-        DividerInputFileEntry.place_forget()
-        DividerInputFileChooseBtn.place_forget()
-        DividerInputFilePCountLbl.place_forget()
-        DividerOutputDirBtnLbl.place_forget()
-        DividerOutputDirBtn.place_forget()
-        DividerOutputDirEntry.place_forget()
-        DividerStartDivisionBtn.place_forget()
-        DividerStatusLbl.place_forget()
-        DividerTimeLbl.place_forget()
+        DivideInputFileLbl.place_forget()
+        DivideInputFileEntry.place_forget()
+        DivideInputFileChooseBtn.place_forget()
+        DivideInputFilePCountLbl.place_forget()
+        DivideOutputDirBtnLbl.place_forget()
+        DivideOutputDirBtn.place_forget()
+        DivideOutputDirEntry.place_forget()
+        DivideStartDivisionBtn.place_forget()
+        DivideStatusLbl.place_forget()
+        DivideTimeLbl.place_forget()
 
         MoveInputDirPathLbl.place_forget()
         MoveInputDirEntry.place_forget()
@@ -405,6 +415,16 @@ def UIswitcher():
         MoveBarcodeSelEntry.place_forget()
         MoveBarcodeCountLbl.place_forget()
         MoveStartMovingBtn.place_forget()
+        
+        SortInputDirPathLbl.place_forget()
+        SortInputDirEntry.place_forget()
+        SortInputDirChooseBtn.place_forget()
+        SortValidDirsCountLbl.place_forget()
+        SortStartCombiningBtn.place_forget()
+        SortStatus1Lbl.place_forget()
+        SortStatus2Lbl.place_forget()
+        SortTimeLbl.place_forget()
+
         
     if CurrentUIpage == 1:
         MainModeLbl.config(text = 'Разделение по счет-фактурам:')
@@ -418,16 +438,16 @@ def UIswitcher():
         SetModeMoveByBoxBtn.place_forget()
         SetModeSortAndMergeBtn.place_forget()
         
-        DividerInputFileLbl.place       (x=16, y=7+40)
-        DividerInputFileEntry.place     (x=20, y=30+40)
-        DividerInputFileChooseBtn.place (x=305, y=29+40, height=20)
-        DividerInputFilePCountLbl.place (x=16, y=49+40)
-        DividerOutputDirBtnLbl.place    (x=17, y=87+35)
-        DividerOutputDirBtn.place       (x=20, y=110+35, height=20)
-        DividerOutputDirEntry.place     (x=75, y=111+35)
-        DividerStartDivisionBtn.place   (x=20, y=145+37, width=150, height=25)
-        DividerStatusLbl.place          (x=20, y=170+37)
-        DividerTimeLbl.place            (x=20, y=180+44)
+        DivideInputFileLbl.place       (x=16, y=7+40)
+        DivideInputFileEntry.place     (x=20, y=30+40)
+        DivideInputFileChooseBtn.place (x=305, y=29+40, height=20)
+        DivideInputFilePCountLbl.place (x=16, y=49+40)
+        DivideOutputDirBtnLbl.place    (x=17, y=87+35)
+        DivideOutputDirBtn.place       (x=20, y=110+35, height=20)
+        DivideOutputDirEntry.place     (x=75, y=111+35)
+        DivideStartDivisionBtn.place   (x=20, y=145+37, width=150, height=25)
+        DivideStatusLbl.place          (x=20, y=170+37)
+        DivideTimeLbl.place            (x=20, y=180+44)
 
         MoveInputDirPathLbl.place_forget()
         MoveInputDirEntry.place_forget()
@@ -444,6 +464,16 @@ def UIswitcher():
         MoveBarcodeCountLbl.place_forget()
         MoveStartMovingBtn.place_forget()
         
+        SortInputDirPathLbl.place_forget()
+        SortInputDirEntry.place_forget()
+        SortInputDirChooseBtn.place_forget()
+        SortValidDirsCountLbl.place_forget()
+        SortStartCombiningBtn.place_forget()
+        SortStatus1Lbl.place_forget()
+        SortStatus2Lbl.place_forget()
+        SortTimeLbl.place_forget()
+
+        
     if CurrentUIpage == 2:
         MainModeLbl.config(text = 'Разделение по коробам:')
         MainModeBackBtn.place(x=310, y=6, height=20)
@@ -456,16 +486,16 @@ def UIswitcher():
         SetModeMoveByBoxBtn.place_forget()
         SetModeSortAndMergeBtn.place_forget()
         
-        DividerInputFileLbl.place_forget()
-        DividerInputFileEntry.place_forget()
-        DividerInputFileChooseBtn.place_forget()
-        DividerInputFilePCountLbl.place_forget()
-        DividerOutputDirBtnLbl.place_forget()
-        DividerOutputDirBtn.place_forget()
-        DividerOutputDirEntry.place_forget()
-        DividerStartDivisionBtn.place_forget()
-        DividerStatusLbl.place_forget()
-        DividerTimeLbl.place_forget()
+        DivideInputFileLbl.place_forget()
+        DivideInputFileEntry.place_forget()
+        DivideInputFileChooseBtn.place_forget()
+        DivideInputFilePCountLbl.place_forget()
+        DivideOutputDirBtnLbl.place_forget()
+        DivideOutputDirBtn.place_forget()
+        DivideOutputDirEntry.place_forget()
+        DivideStartDivisionBtn.place_forget()
+        DivideStatusLbl.place_forget()
+        DivideTimeLbl.place_forget()
 
         MoveInputDirPathLbl.place       (x=16, y=7+40)
         MoveInputDirEntry.place         (x=20, y=30+40)
@@ -482,28 +512,37 @@ def UIswitcher():
         MoveBarcodeCountLbl.place       (x=17, y=185+40)
         MoveStartMovingBtn.place        (x=20, y=225+40, width=90, height=25)
         
+        SortInputDirPathLbl.place_forget()
+        SortInputDirEntry.place_forget()
+        SortInputDirChooseBtn.place_forget()
+        SortValidDirsCountLbl.place_forget()
+        SortStartCombiningBtn.place_forget()
+        SortStatus1Lbl.place_forget()
+        SortStatus2Lbl.place_forget()
+        SortTimeLbl.place_forget()
+        
     if CurrentUIpage == 3:
         MainModeLbl.config(text = 'Объединение счет-фактур:')
         MainModeBackBtn.place(x=310, y=6, height=20)
         
         scrnw = (root.winfo_screenwidth()//2) - scrnwparam
         scrnh = (root.winfo_screenheight()//2) - scrnhparam
-        root.geometry('375x310+{}+{}'.format(scrnw, scrnh))
+        root.geometry('375x180+{}+{}'.format(scrnw, scrnh))
         
         SetModeDividePdfBtn.place_forget()
         SetModeMoveByBoxBtn.place_forget()
         SetModeSortAndMergeBtn.place_forget()
 
-        DividerInputFileLbl.place_forget()
-        DividerInputFileEntry.place_forget()
-        DividerInputFileChooseBtn.place_forget()
-        DividerInputFilePCountLbl.place_forget()
-        DividerOutputDirBtnLbl.place_forget()
-        DividerOutputDirBtn.place_forget()
-        DividerOutputDirEntry.place_forget()
-        DividerStartDivisionBtn.place_forget()
-        DividerStatusLbl.place_forget()
-        DividerTimeLbl.place_forget()
+        DivideInputFileLbl.place_forget()
+        DivideInputFileEntry.place_forget()
+        DivideInputFileChooseBtn.place_forget()
+        DivideInputFilePCountLbl.place_forget()
+        DivideOutputDirBtnLbl.place_forget()
+        DivideOutputDirBtn.place_forget()
+        DivideOutputDirEntry.place_forget()
+        DivideStartDivisionBtn.place_forget()
+        DivideStatusLbl.place_forget()
+        DivideTimeLbl.place_forget()
 
         MoveInputDirPathLbl.place_forget()
         MoveInputDirEntry.place_forget()
@@ -519,36 +558,46 @@ def UIswitcher():
         MoveBarcodeSelEntry.place_forget()
         MoveBarcodeCountLbl.place_forget()
         MoveStartMovingBtn.place_forget()
+        
+        SortInputDirPathLbl.place       (x=16, y=7+40)
+        SortInputDirEntry.place         (x=20, y=30+40)
+        SortInputDirChooseBtn.place     (x=305, y=29+40, height=20)
+        SortValidDirsCountLbl.place     (x=17, y=49+40)
+        SortStartCombiningBtn.place     (x=17, y=100+40, width=130, height=25)
+        SortStatus1Lbl.place            (x=17, y=115+0)
+        SortStatus2Lbl.place            (x=155, y=125+10)
+        SortTimeLbl.place               (x=155, y=145+10)
+        
 
 def FlushAll():
-    global DividerInputFile
-    global DividerOutputDir
-    DividerInputFile = ""  
-    DividerOutputDir = ""  
+    global DivideInputFile
+    global DivideOutputDir
+    DivideInputFile = ""  
+    DivideOutputDir = ""  
 
-    global DividerIsInputSel
-    global DividerIsOutputSel
-    global DividerIsRunning
-    DividerIsInputSel = False
-    DividerIsOutputSel = False
-    DividerIsRunning = False
+    global DivideIsInputSel
+    global DivideIsOutputSel
+    global DivideIsRunning
+    DivideIsInputSel = False
+    DivideIsOutputSel = False
+    DivideIsRunning = False
     
-    global DividerFirstPagesArray
-    DividerFirstPagesArray = []
+    global DivideFirstPagesArray
+    DivideFirstPagesArray = []
     
-    DividerInputFilePCountLbl.config(text = "")
-    DividerStatusLbl.config(text = "")
-    DividerTimeLbl.config(text = "")
+    DivideInputFilePCountLbl.config(text = "")
+    DivideStatusLbl.config(text = "")
+    DivideTimeLbl.config(text = "")
     
-    DividerInputFileEntry.configure(state = NORMAL)
-    DividerInputFileEntry.delete(0,END)
-    DividerInputFileEntry.configure(state = DISABLED)
+    DivideInputFileEntry.configure(state = NORMAL)
+    DivideInputFileEntry.delete(0,END)
+    DivideInputFileEntry.configure(state = DISABLED)
     
-    DividerOutputDirEntry.configure(state = NORMAL)
-    DividerOutputDirEntry.delete(0,END)
-    DividerOutputDirEntry.configure(state = DISABLED)
+    DivideOutputDirEntry.configure(state = NORMAL)
+    DivideOutputDirEntry.delete(0,END)
+    DivideOutputDirEntry.configure(state = DISABLED)
     
-    DividerStartDivisionBtn.configure(state = DISABLED)
+    DivideStartDivisionBtn.configure(state = DISABLED)
 
 
 
@@ -610,129 +659,129 @@ def FlushAll():
     
 
 
-####### Divider functions
+####### Divide functions
 #########################
 
-def DividerInputFileChoose():
-    global DividerInputFile
-    global DividerIsInputSel
-    global DividerAllPagesCount
+def DivideInputFileChoose():
+    global DivideInputFile
+    global DivideIsInputSel
+    global DivideAllPagesCount
 
-    DividerInputFile = filedialog.askopenfilename(filetypes=(('PDF document', 'pdf'),))
-    if DividerInputFile:
-        DividerInputFileEntry.configure(state = NORMAL)
-        DividerInputFileEntry.delete(0,END)
-        DividerInputFileEntry.insert(0,str(DividerInputFile))
-        DividerInputFileEntry.configure(state = DISABLED)
-        print('DIVIDER: IFC: DividerInputFile :', DividerInputFile)
-        DividerAllPagesCount = PDFCountPages(DividerInputFile)
-        DividerInputFilePCountLbl.config(text = 'Страниц в файле: ' + str(DividerAllPagesCount))
+    DivideInputFile = filedialog.askopenfilename(filetypes=(('PDF document', 'pdf'),))
+    if DivideInputFile:
+        DivideInputFileEntry.configure(state = NORMAL)
+        DivideInputFileEntry.delete(0,END)
+        DivideInputFileEntry.insert(0,str(DivideInputFile))
+        DivideInputFileEntry.configure(state = DISABLED)
+        print('Divide: IFC: DivideInputFile :', DivideInputFile)
+        DivideAllPagesCount = PDFCountPages(DivideInputFile)
+        DivideInputFilePCountLbl.config(text = 'Страниц в файле: ' + str(DivideAllPagesCount))
         
-        DividerIsInputSel = True
-        DividerOutputDirCheck()
-        DividerCheckIfReady()
+        DivideIsInputSel = True
+        DivideOutputDirCheck()
+        DivideCheckIfReady()
     else:
-        print('DIVIDER: IFC: DividerInputFile not selected')
+        print('Divide: IFC: DivideInputFile not selected')
 
 
-def DividerOutputDirChoose():
-    global DividerOutputDir
-    global DividerIsOutputSel
+def DivideOutputDirChoose():
+    global DivideOutputDir
+    global DivideIsOutputSel
     
-    DividerOutputDir = filedialog.askdirectory()
-    if DividerOutputDir:
-        DividerOutputDirEntry.configure(state = NORMAL)
-        DividerOutputDirEntry.delete(0,END)
-        DividerOutputDirEntry.insert(0,str(DividerOutputDir))
-        DividerOutputDirEntry.configure(state = DISABLED)
-        print('DIVIDER: ODC: DividerOutputDir :', DividerOutputDir)
+    DivideOutputDir = filedialog.askdirectory()
+    if DivideOutputDir:
+        DivideOutputDirEntry.configure(state = NORMAL)
+        DivideOutputDirEntry.delete(0,END)
+        DivideOutputDirEntry.insert(0,str(DivideOutputDir))
+        DivideOutputDirEntry.configure(state = DISABLED)
+        print('Divide: ODC: DivideOutputDir :', DivideOutputDir)
         
-        DividerOutputDirCheck()
+        DivideOutputDirCheck()
     else:
-        print('DIVIDER: ODC: DividerOutputDir not selected')
+        print('Divide: ODC: DivideOutputDir not selected')
 
 
-def DividerOutputDirCheck():
-    global DividerInputFile
-    global DividerIsInputSel
-    global DividerAllPagesCount
+def DivideOutputDirCheck():
+    global DivideInputFile
+    global DivideIsInputSel
+    global DivideAllPagesCount
 
-    global DividerOutputDir
-    global DividerIsOutputSel
+    global DivideOutputDir
+    global DivideIsOutputSel
     
     
     for k in range(5000):
-        outputfile = Path (DividerOutputDir, (str(Path(DividerInputFile).name)+" - стр."+str(k)+'.pdf'))
+        outputfile = Path (DivideOutputDir, (str(Path(DivideInputFile).name)+" - стр."+str(k)+'.pdf'))
         fileexists = os.path.isfile(outputfile)
         if fileexists:
-            DividerIsOutputSel = False
+            DivideIsOutputSel = False
             msgbxlbl = 'В этой папке уже присутствуют документы из выбранного файла! Удалите, переместите эти документы или выберите другую папку'
             messagebox.showerror("", msgbxlbl)
             break
         else:
-            DividerIsOutputSel = True
+            DivideIsOutputSel = True
 
-    DividerCheckIfReady()
+    DivideCheckIfReady()
     
 
-def DividerCheckIfReady():
-    global DividerIsInputSel
-    global DividerIsOutputSel
+def DivideCheckIfReady():
+    global DivideIsInputSel
+    global DivideIsOutputSel
     
-    print("DIVIDER: CIR: {0}, {1}".format(DividerIsInputSel,DividerIsOutputSel))
-    if DividerIsInputSel and DividerIsOutputSel:
-        DividerStartDivisionBtn.configure(state = NORMAL)
-        DividerReadyToGo = True
+    print("Divide: CIR: {0}, {1}".format(DivideIsInputSel,DivideIsOutputSel))
+    if DivideIsInputSel and DivideIsOutputSel:
+        DivideStartDivisionBtn.configure(state = NORMAL)
+        DivideReadyToGo = True
     else:
-        DividerStartDivisionBtn.configure(state = DISABLED)
+        DivideStartDivisionBtn.configure(state = DISABLED)
 
 
-def DividerBlockGUI(yes):
+def DivideBlockGUI(yes):
     if yes:
         MainModeBackBtn.configure(state = DISABLED)
-        DividerInputFileChooseBtn.configure(state = DISABLED)
-        DividerOutputDirBtn.configure(state = DISABLED)
-        DividerStartDivisionBtn.configure(state = DISABLED)
+        DivideInputFileChooseBtn.configure(state = DISABLED)
+        DivideOutputDirBtn.configure(state = DISABLED)
+        DivideStartDivisionBtn.configure(state = DISABLED)
     else:
         MainModeBackBtn.configure(state = NORMAL)
-        DividerInputFileChooseBtn.configure(state = NORMAL)
-        DividerOutputDirBtn.configure(state = NORMAL)
-        DividerStartDivisionBtn.configure(state = NORMAL)
+        DivideInputFileChooseBtn.configure(state = NORMAL)
+        DivideOutputDirBtn.configure(state = NORMAL)
+        DivideStartDivisionBtn.configure(state = NORMAL)
 
 
 
 
-def DividerStartDivision():
+def DivideStartDivision():
 
-    DividerBlockGUI(True)
+    DivideBlockGUI(True)
 
-    minerthread = Thread(target=DividerMiner)
+    minerthread = Thread(target=DivideMiner)
     minerthread.start()
-    timethread = Thread(target=DividerTimeUpdater)
+    timethread = Thread(target=DivideTimeUpdater)
     timethread.start()
     minerthread = ""
     timethread = ""
 
 
-def DividerMiner():
-    global DividerInputFile
-    global DividerAllPagesCount
-    global DividerFirstPagesArray
+def DivideMiner():
+    global DivideInputFile
+    global DivideAllPagesCount
+    global DivideFirstPagesArray
     
-    global DividerIsRunning
-    global DividerStartedTime
-    print('DIVIDER: Miner: Started !')
+    global DivideIsRunning
+    global DivideStartedTime
+    print('Divide: Miner: Started !')
     
     word = 'Счет-фактура №'
     pagecounter = 1
     finded = False
-    DividerFirstPagesArray = []
-    DividerFirstPagesArray.clear
+    DivideFirstPagesArray = []
+    DivideFirstPagesArray.clear
 
-    DividerIsRunning = True
-    DividerStartedTime = time.time()
+    DivideIsRunning = True
+    DivideStartedTime = time.time()
     
-    pdftomine = open(DividerInputFile, 'rb')
+    pdftomine = open(DivideInputFile, 'rb')
     manager = PDFResourceManager()
     laparams = LAParams()
     dev = PDFPageAggregator(manager, laparams=laparams)
@@ -748,19 +797,19 @@ def DividerMiner():
                     text = line.get_text()
                     similarity = Similar(text, word)
                     if similarity > 0.9:
-                        DividerFirstPagesArray.append(pagecounter)
-                        print('DIVIDER: Miner:    finded! page ' + str(pagecounter))
+                        DivideFirstPagesArray.append(pagecounter)
+                        print('Divide: Miner:    finded! page ' + str(pagecounter))
                         finded = True
         if finded:
             finded = False
         else:
-            print('DIVIDER: Miner:    page ' + str(pagecounter))
+            print('Divide: Miner:    page ' + str(pagecounter))
             
-        progresslbltxt = "Поиск первых страниц... Чтение {0} из {1}, найдено: {2}".format(pagecounter, DividerAllPagesCount, len(DividerFirstPagesArray))
-        DividerStatusLbl.config(text = progresslbltxt)
+        progresslbltxt = "Поиск первых страниц... Чтение {0} из {1}, найдено: {2}".format(pagecounter, DivideAllPagesCount, len(DivideFirstPagesArray))
+        DivideStatusLbl.config(text = progresslbltxt)
         pagecounter = pagecounter + 1
         
-    print('DIVIDER: Miner: Ended !')
+    print('Divide: Miner: Ended !')
     
     pdftomine = ''
     manager = ''
@@ -769,43 +818,43 @@ def DividerMiner():
     interpreter = ''
     pages = ''
     
-    if len(DividerFirstPagesArray) > 0:
-        DividerFileMaker()
+    if len(DivideFirstPagesArray) > 0:
+        DivideFileMaker()
     else:
         progresslbltxt = "Поиск завершен, счет-фактур не найдено !"
-        DividerStatusLbl.config(text = progresslbltxt)
-        DividerIsRunning = False
-        DividerBlockGUI(False)
+        DivideStatusLbl.config(text = progresslbltxt)
+        DivideIsRunning = False
+        DivideBlockGUI(False)
         msgbxlbl = 'В выбранном документе не найдено счет-фактур !'
         messagebox.showerror("", msgbxlbl)
 
 
-def DividerFileMaker():
-    global DividerInputFile
-    global DividerAllPagesCount
-    global DividerFirstPagesArray
+def DivideFileMaker():
+    global DivideInputFile
+    global DivideAllPagesCount
+    global DivideFirstPagesArray
     
-    global DividerOutputDir
+    global DivideOutputDir
     
-    global DividerIsRunning
+    global DivideIsRunning
     
     
     print('')
-    print('DIVIDER: FM: Started !')
-    originalpdf = PyPDF2.PdfFileReader(DividerInputFile)
+    print('Divide: FM: Started !')
+    originalpdf = PyPDF2.PdfFileReader(DivideInputFile)
    
-    for k in range(len(DividerFirstPagesArray)):
-        if k+1 < len(DividerFirstPagesArray):
+    for k in range(len(DivideFirstPagesArray)):
+        if k+1 < len(DivideFirstPagesArray):
         
             print('**** Документ №: ', str(k+1))
-            outputfile = Path (DividerOutputDir, (str(Path(DividerInputFile).name)+" - стр."+str(DividerFirstPagesArray[k])+'.pdf'))
-            print("Номер первой стр: {0}, номер сл.первой {1}".format(DividerFirstPagesArray[k],DividerFirstPagesArray[k+1]))
+            outputfile = Path (DivideOutputDir, (str(Path(DivideInputFile).name)+" - стр."+str(DivideFirstPagesArray[k])+'.pdf'))
+            print("Номер первой стр: {0}, номер сл.первой {1}".format(DivideFirstPagesArray[k],DivideFirstPagesArray[k+1]))
             print("Итоговый файл: {0}".format(outputfile))
             print('Список страниц документа:')
             
             temparray = []
             temparray.clear()
-            for x in range(DividerFirstPagesArray[k], DividerFirstPagesArray[k+1]):
+            for x in range(DivideFirstPagesArray[k], DivideFirstPagesArray[k+1]):
                 print(x)
                 temparray.append(x)
             
@@ -813,8 +862,8 @@ def DividerFileMaker():
             for x in range(len(temparray)):
                 pdf_writer.addPage(originalpdf.getPage(temparray[x]-1))
 
-            progresslbltxt = "Создание документов... Обработка {0} из {1}".format(k, len(DividerFirstPagesArray))
-            DividerStatusLbl.config(text = progresslbltxt)
+            progresslbltxt = "Создание документов... Обработка {0} из {1}".format(k, len(DivideFirstPagesArray))
+            DivideStatusLbl.config(text = progresslbltxt)
 
             pdf_writer.write(open(outputfile, 'wb'))
             pdf_writer = ''
@@ -824,13 +873,13 @@ def DividerFileMaker():
             print('')
 
 
-    print('**** Последний документ: ', str(len(DividerFirstPagesArray)))
-    outputfile = Path (DividerOutputDir, (str(Path(DividerInputFile).name)+" - стр."+str(DividerFirstPagesArray[k])+'.pdf'))
+    print('**** Последний документ: ', str(len(DivideFirstPagesArray)))
+    outputfile = Path (DivideOutputDir, (str(Path(DivideInputFile).name)+" - стр."+str(DivideFirstPagesArray[k])+'.pdf'))
     print("Итоговый файл: {0}".format(outputfile))
     print('Список страниц документа:')
     
     temparray.clear()
-    for x in range(DividerFirstPagesArray[len(DividerFirstPagesArray)-1], DividerAllPagesCount+1):
+    for x in range(DivideFirstPagesArray[len(DivideFirstPagesArray)-1], DivideAllPagesCount+1):
         print(x)
         temparray.append(x)
         
@@ -838,39 +887,46 @@ def DividerFileMaker():
     for x in range(len(temparray)):
         pdf_writer.addPage(originalpdf.getPage(temparray[x]-1))
 
-    progresslbltxt = "Создание документов... Обработка {0} из {1}".format(len(DividerFirstPagesArray), len(DividerFirstPagesArray))
-    DividerStatusLbl.config(text = progresslbltxt)
+    progresslbltxt = "Создание документов... Обработка {0} из {1}".format(len(DivideFirstPagesArray), len(DivideFirstPagesArray))
+    DivideStatusLbl.config(text = progresslbltxt)
 
     pdf_writer.write(open(outputfile, 'wb'))
     pdf_writer = ''
     
-    progresslbltxt = "Обработка файла завершена! Извлечено документов: {0}".format(len(DividerFirstPagesArray))
-    DividerStatusLbl.config(text = progresslbltxt)
+    progresslbltxt = "Обработка файла завершена! Извлечено документов: {0}".format(len(DivideFirstPagesArray))
+    DivideStatusLbl.config(text = progresslbltxt)
 
     print('Обработка завершена')
     print('****************************')
 
-    DividerIsRunning = False
-    DividerBlockGUI(False)
+    DivideIsRunning = False
+    DivideBlockGUI(False)
     
-    print('Documents in file: ' + str(len(DividerFirstPagesArray)))
-    print('DIVIDER: FM: Ended !')
+    print('Documents in file: ' + str(len(DivideFirstPagesArray)))
+    print('Divide: FM: Ended !')
     
     msgbxlbl = 'Обработка файла завершена!'
     messagebox.showinfo("", msgbxlbl)
     
 
-def DividerTimeUpdater():
-    global DividerIsRunning
-    global DividerStartedTime
+def DivideTimeUpdater():
+    global DivideIsRunning
+    global DivideStartedTime
 
-    while DividerIsRunning:
-        result = time.time() - DividerStartedTime
+    while DivideIsRunning:
+        result = time.time() - DivideStartedTime
         result = datetime2.timedelta(seconds=round(result))
-        DividerTimeLbl.config(text = str(result))
+        DivideTimeLbl.config(text = str(result))
         time.sleep(0.01)
 
 #########################
+
+
+
+
+
+
+
 
 
 
@@ -1305,6 +1361,57 @@ def MoveStartMoving():
         MoveRefresh()
 
 #########################
+
+
+
+
+
+
+
+
+
+######## Sort functions
+#########################
+
+def SortInputDirChoose():
+    global SortInputDir
+    global SortInputDirsArray
+    global SortInputDirsCount
+
+    SortInputDirsArray = []
+
+    SortInputDir = filedialog.askdirectory()
+    if SortInputDir:
+        SortInputDirEntry.configure(state = NORMAL)
+        SortInputDirEntry.delete(0,END)
+        SortInputDirEntry.insert(0,str(SortInputDir))
+        SortInputDirEntry.configure(state = DISABLED)
+        print('Sort: IDC: MoveInputDir :', SortInputDir)
+        
+        ScanFolder(SortInputDir, "", SortInputDirsArray)
+        SortInputDirsCount = len(SortInputDirsArray)
+        
+        lbltext = "Папок: {0}".format(SortInputDirsCount)
+        SortValidDirsCountLbl.config(text = lbltext)
+    else:
+        print('Sort: IDC: MoveInputDir not selected')
+        
+
+def ScanForFolders():
+    print('MOVER: IDChk: MoveAvlFolders:')
+
+
+
+
+
+
+#########################
+
+
+
+
+
+
 
 
 
