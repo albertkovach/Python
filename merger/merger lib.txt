@@ -3,7 +3,16 @@ pip install pathlib
 pip install pywin32
 pip install pdfminer.six
 
+pip install -U click
+pip install pyfiglet
+pip install clint
+pip install six
+pip install termcolor
+pip install colorama
+pip install tqdm
+
 pip install auto-py-to-exe
+pip install PyInstaller
 auto-py-to-exe
 
 https://habr.com/ru/company/vdsina/blog/557316/
