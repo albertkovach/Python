@@ -4,6 +4,7 @@ from tkinter import filedialog
 
 from threading import Thread
 from multiprocessing import Process, Queue, current_process
+import psutil
 
 import time
 
@@ -48,9 +49,9 @@ class GUI(Frame):
         SBtn = Button(text='Button', command=BtnCmd)
         SBtn.place(x=20, y=20, width=80, height=20)
         
-        global SBtn2
-        SBtn2 = Button(text='Button2', command=Btn2Cmd)
-        SBtn2.place(x=20, y=130, width=80, height=20)
+        #global SBtn2
+        #SBtn2 = Button(text='Button2', command=Btn2Cmd)
+        #SBtn2.place(x=20, y=130, width=80, height=20)
         
         global thrlbl
         thrlbl = Label(text="Thread", background="white")
@@ -74,7 +75,7 @@ class GUI(Frame):
         process3lbl.place(x=20, y=85)
         
         global process4lbl
-        process4lbl = Label(text="Process 3", background="white")
+        process4lbl = Label(text="Process 4", background="white")
         process4lbl.place(x=20, y=105)
 
 
@@ -124,7 +125,7 @@ def ProcessManager():
     DivideInputFilesArray = []
     MaxProcessCount = 3
     
-### process just started var
+
 
     # ProcessManager:
     runningprocessescount = 0
@@ -139,62 +140,97 @@ def ProcessManager():
 
 
     processguinumarray = []
-    #for i in range (MaxProcessCount):
-    #    processguinumarray.append(0)
         
+        
+    processjustterminated = False
     firstloop = True
     while True:
-        #print('ProcessManager: Loop started')
-        
+
         # Checking if data received
         if not dataq.empty():
-            # dataq - processnum, status, message
+            #### dataq: processnum, status, message
             processresult = dataq.get()
-            print('ProcessManager: data received: {0}'.format(processresult))
 
             # Refreshing GUI with received data
             for g in range (len(processguinumarray)):
-                if processguinumarray[g] == processresult[0]:
+                if processresult[0] == processguinumarray[g]:
                     processguinum = g
                     #print('ProcessManager: processguinum: {0}'.format(processguinum))
-                    print('ProcessManager: processguinumarray: {0}'.format(processguinumarray))
+                    #print('ProcessManager: processguinumarray: {0}'.format(processguinumarray))
                     break
 
             if processguinum == 0:
-                #process1lbl.config(text = str(processresult[2]))
                 process1lbl.config(text = str(processresult))
             elif processguinum == 1:
-                #process2lbl.config(text = str(processresult[2]))
                 process2lbl.config(text = str(processresult))
             elif processguinum == 2:
-                #process3lbl.config(text = str(processresult[2]))
                 process3lbl.config(text = str(processresult))
             elif processguinum == 3:
-                #process4lbl.config(text = str(processresult[2]))
                 process4lbl.config(text = str(processresult))
                 
             if processresult[1] == 0: # process terminated
-                runningprocessescount = runningprocessescount - 1
-                print('ProcessManager: process {0} terminated'.format(processresult[0]))
                 processjustterminated = True
+                print('ProcessManager: reciever: process {0} terminated'.format(processresult[0]))
                 
-                # Resort guinumarray, because of process end
+                runningprocessescount = runningprocessescount - 1
+                fileresultarray[processresult[0]] = 0
+                print('ProcessManager: reciever: fileresultarray {0}'.format(fileresultarray))
+                
+                #print('ProcessManager: GUI refresh: before processguinumarray {0}'.format(processguinumarray))
+                #print('ProcessManager: GUI refresh: fileresultarray {0}'.format(fileresultarray))
+                processguinumarray.clear()
+                filesinwork = 0
                 filesawaiting = 0
                 for u in range (len(fileresultarray)): # Scanning for awaiting files
-                    if fileresultarray[u] == 2:
+                    if fileresultarray[u] == 1:
+                        filesinwork = filesinwork + 1
+                    elif fileresultarray[u] == 2:
                         filesawaiting = filesawaiting + 1
-                if not filesawaiting <= MaxProcessCount: # Checking if there are last 4 processes
-                    processguinumarray[processguinum] = 0
-                    processguinumtemparray = []
-                    for t in range (len(processguinumarray)):
-                        if processguinumarray[t] != 0:
-                            processguinumtemparray.append(processguinumarray[t])
-                    processguinumarray.clear()
-                    for h in range (len(processguinumtemparray)):
-                        processguinumarray.append(processguinumtemparray[h])
-                    
+                if filesawaiting <= MaxProcessCount:
+                    for p in range (len(fileresultarray)):
+                        if fileresultarray[p] == 1:
+                            processguinumarray.append(p)
+                #print('ProcessManager: GUI refresh: after processguinumarray {0}'.format(processguinumarray))
+                
+                
+                #fileresultarray[processresult[]]
+                #processjustterminated = True
+                
+                # Resort guinumarray, because of process end
+                #filesinwork = 0
+                #filesawaiting = 0
+                #for u in range (len(fileresultarray)): # Scanning for awaiting files
+                #    if fileresultarray[u] == 1:
+                #        filesinwork = filesinwork + 1
+                #    elif fileresultarray[u] == 2:
+                #        filesawaiting = filesawaiting + 1
+
+
+                #if not filesawaiting <= MaxProcessCount: # Checking if there are last 4 processes
+                #if not filesawaiting == 0 and filesinwork == MaxProcessCount: # Checking if there are last 4 processes
+                #if not filesawaiting == 0:
+
+                
+                #processguinumarray[processguinum] = 0
+                #if not filesawaiting <= MaxProcessCount:
+                #processguinumtemparray = []
+                #for t in range (len(processguinumarray)):
+                #    if processguinumarray[t] != 0:
+                #        processguinumtemparray.append(processguinumarray[t])
+                #processguinumarray.clear()
+                #for h in range (len(processguinumtemparray)):
+                #    processguinumarray.append(processguinumtemparray[h])
+                
                 # Writing status of file in resultarray
-                fileresultarray[processresult[0]] = 0
+                
+                
+                
+
+                
+                
+                        
+                    
+
         
         # Checking amount of files that remains for exec
         filesawaiting = 0
@@ -203,22 +239,30 @@ def ProcessManager():
                 filesawaiting = filesawaiting + 1
         
         # Checking space for new process start
-        if runningprocessescount < MaxProcessCount or firstloop == True:
-            print('ProcessManager: runningprocessescount: {0}, MaxProcessCount: {1}'.format(runningprocessescount, MaxProcessCount))
+        # if runningprocessescount < MaxProcessCount or firstloop == True:
+        if processjustterminated or firstloop == True:
+            processjustterminated = False
+            #print('ProcessManager: *** Checking procnum: runningprocessescount: {0}, MaxProcessCount: {1}'.format(runningprocessescount, MaxProcessCount))
+            #print('ProcessManager: ** fileresultarray: {0}'.format(fileresultarray))
             if firstloop:
                 firstloop = False
-                processguinumarray.clear()
                 processestostart = MaxProcessCount
-                print('ProcessManager: first loop !')
-                print('ProcessManager: processestostart: {0}'.format(processestostart))
+                print('ProcessManager: +++ First loop !')
+                print('ProcessManager: ++ processestostart: {0}'.format(processestostart))
             elif runningprocessescount < filesawaiting and filesawaiting != 0:
-                print('ProcessManager: more files awaiting than MaxProcessCount')
-                print('ProcessManager: processestostart: {0}'.format(processestostart))
-                processestostart = runningprocessescount
+                processestostart = MaxProcessCount - runningprocessescount + 1
+                print('ProcessManager: +++ Need to start new: more files awaiting than MaxProcessCount')
+                print('ProcessManager: ++ runningprocessescount: {0}'.format(runningprocessescount))
+                print('ProcessManager: ++ processestostart: {0}'.format(processestostart))
+                
             elif runningprocessescount > filesawaiting and filesawaiting != 0:
-                print('ProcessManager: runningprocessescount > filesawaiting')
-                print('ProcessManager: processestostart: {0}'.format(processestostart))
                 processestostart = filesawaiting
+                print('ProcessManager: +++ Need to start new: runningprocessescount > filesawaiting')
+                print('ProcessManager: ++ runningprocessescount: {0}'.format(runningprocessescount))
+                print('ProcessManager: ++ processestostart: {0}'.format(processestostart))
+                
+            else:
+                processestostart = 0
             
             if processestostart != 0:
                 # Iterations for process start
@@ -227,18 +271,27 @@ def ProcessManager():
                         if fileresultarray[j] == 2: # Scanning for awaiting files
                             fileresultarray[j] = 1 # Mark this file to "1 -> in work"
                             runningprocessescount = runningprocessescount + 1
-                            print('ProcessManager: runningprocessescount: {0}'.format(runningprocessescount))
-                            processguinumarray.append(j)
                             creatingprocessfilenum = j
-                            print('ProcessManager: processguinumarray: {0}'.format(processguinumarray))
-                            print('ProcessManager: creatingprocessfilenum: {0}'.format(creatingprocessfilenum))
+                            
+                            
+                            #print('ProcessManager: Process start: before processguinumarray {0}'.format(processguinumarray))
+                            #
+                            processguinumarray.clear()
+                            for z in range (len(fileresultarray)):
+                                if fileresultarray[z] == 1:
+                                    processguinumarray.append(z)
+                            #print('ProcessManager: Process start: after processguinumarray {0}'.format(processguinumarray))
+
+
                             break
-                    # DividerEm(processnum, dataq, inputfile, outputdir)
+                    #### DividerEm: (processnum, dataq, inputfile, outputdir)
                     subprocess = Process(target=DividerEm, args=(creatingprocessfilenum, dataq, DivideInputFilesArray[creatingprocessfilenum], DivideOutputDir))
                     subprocess.start()
+                    print('ProcessManager: +++++ Just started new process ! {0}'.format(j))
+                    print('ProcessManager: +++ runningprocessescount: {0}'.format(runningprocessescount))
+                    print('ProcessManager: +++ fileresultarray {0}'.format(fileresultarray))
         
         # Checking if all is done
-        #print('ProcessManager: end fileresultarray: {0}'.format(fileresultarray))
         filesready = 0
         for e in range (len(fileresultarray)): # Scanning for ready files
             if fileresultarray[e] == 0:
@@ -247,28 +300,6 @@ def ProcessManager():
             print('ProcessManager: All done !!!')
             break
                 
-
-        # чтение dataq если не пустой
-            # запись в gui
-            # if status == 0:
-                # по procnum записать состояние "0 -> ready" в fileresultarray
-                # уменьшить runningprocessescount
-                
-        # просканить fileresultarray на "2 -> awaiting" в filesawaiting
-        
-        # if runningprocessescount < MaxProcessCount
-            # if runningprocessescount < filesawaiting ->> iterator = runningprocessescount
-            #   else iterator = filesawaiting
-                # for iterator на запуск процессов
-                    # for, пробежать fileresultarray, найти первый с "2 -> awaiting"
-                    # запуск процесса
-                    # взвести его в "1 -> in work"
-                    # break
-
-        # просканить fileresultarray на "0 -> ready" в filesready
-        # if filesready = len(fileresultarray)
-            # break
-            
 
     DivideIsRunning = False
 
@@ -279,7 +310,7 @@ def DividerEm(processnum, dataq, inputfile, outputdir):
     processname = current_process().name
     print("==== Divider №{0}--{1} STARTED: {2}, {3}".format(processnum, processname, inputfile, outputdir))
     
-    length = 5
+    length = 20
     for i in range(length):
         #print("== {0} exec data: {1}".format(processnum, i))
         message = "Поиск первых страниц... Чтение {0} из {1}, найдено: {2}".format(i, length, i)
@@ -311,3 +342,28 @@ def DivideTimeUpdater():
 
 if __name__ == '__main__':
     main()
+    
+    
+    
+    
+##### ProcessManager: 
+# чтение dataq если не пустой
+    # запись в gui
+    # if status == 0:
+        # по procnum записать состояние "0 -> ready" в fileresultarray
+        # уменьшить runningprocessescount
+        
+# просканить fileresultarray на "2 -> awaiting" в filesawaiting
+
+# if runningprocessescount < MaxProcessCount
+    # if runningprocessescount < filesawaiting ->> iterator = runningprocessescount
+    #   else iterator = filesawaiting
+        # for iterator на запуск процессов
+            # for, пробежать fileresultarray, найти первый с "2 -> awaiting"
+            # запуск процесса
+            # взвести его в "1 -> in work"
+            # break
+
+# просканить fileresultarray на "0 -> ready" в filesready
+# if filesready = len(fileresultarray)
+    # break

@@ -3,6 +3,10 @@ pip install pathlib
 pip install pywin32
 pip install pdfminer.six
 
+pip install psutil
+
+pip install textract
+
 pip install -U click
 pip install pyfiglet
 pip install clint
