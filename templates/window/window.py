@@ -2,18 +2,20 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter import filedialog
 
+global root
+global scrnwparam
+global scrnhparam
+scrnwparam = 185
+scrnhparam = 150
+
 def main():
     global root
 
     root = Tk()
     root.resizable(False, False)
         
-    scrnw = root.winfo_screenwidth()
-    scrnh = root.winfo_screenheight()
-    scrnw = scrnw//2
-    scrnh = scrnh//2
-    scrnw = scrnw - 185
-    scrnh = scrnh - 150
+    scrnw = (root.winfo_screenwidth()//2) - scrnwparam
+    scrnh = (root.winfo_screenheight()//2) - scrnhparam
     root.geometry('170x130+{}+{}'.format(scrnw, scrnh))
         
     app = GUI(root)
