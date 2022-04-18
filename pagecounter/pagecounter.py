@@ -161,14 +161,16 @@ def SelectDir():
         InputDirEntry.configure(state = DISABLED)
         print('IDC: InputDir : {0}'.format(InputDir))
         
-        FilesCount()
+        FilesCountLbl.config(text = ('Поиск фалов PDF...'))
+        filescanthread = Thread(target=FilesCount)
+        filescanthread.start()
 
         ProgressMainLbl.config(text = "")  
         ProgressFileLbl.config(text = "")  
         ProgressPagesLbl.config(text = "")
         TimeLbl.config(text = "")
         
-        OpenReportBtn.forget()
+        OpenReportBtn.place_forget()
         ResizeGUI(False)
     else:
         print('IDC: InputFile not selected')
@@ -218,6 +220,7 @@ def FilesCount():
 
 def CounterStart():
     global IsInputDirSel
+    OpenReportBtn.place_forget()
 
     if IsInputDirSel:
         ResizeGUI(True)
@@ -257,8 +260,6 @@ def Counter():
     CurrentPageCount = 0
     CurrentWordsCount = 0
     
-    OpenReportBtn.forget()
-    
     
     for f in range (len(InputFilesArray)):
         ProgressMainLbl.config(text = "Обработка файла {0} из {1}".format(f+1, len(InputFilesArray)))
@@ -285,26 +286,28 @@ def Counter():
             else:
                 CSVrows.append([Path(InputFilesArray[f]).name, CurrentPageCount])
             
+    try:
+        with open(CSVfile, 'w', newline='') as f:
+            writer = csv.writer(f, delimiter=';')
+
+            writer.writerow(["Папка:"])
+            writer.writerow([str(InputDir)])
+            writer.writerow(["", "Файлов :", str(len(InputFilesArray))])
+            writer.writerow(["", "Страниц :", str(AllPageCount)])
             
-    with open(CSVfile, 'w', newline='') as f:
-        writer = csv.writer(f, delimiter=';')
+            if CountWordsMode.get() == 1:
+                writer.writerow(["", "Слов:", str(AllWordsCount)])
+                writer.writerow([""])
+                writer.writerow(["Файл", "Страниц", "Слов"])
+            else:
+                writer.writerow([""])
+                writer.writerow(["Файл", "Страниц"])
+                
+            writer.writerows(CSVrows)
+    except:
+        messagebox.showerror("", "Невозможно создать отчет CSV !")
 
-        writer.writerow(["Папка:"])
-        writer.writerow([str(InputDir)])
-        writer.writerow(["", "Файлов :", str(len(InputFilesArray))])
-        writer.writerow(["", "Страниц :", str(AllPageCount)])
-        
-        if CountWordsMode.get() == 1:
-            writer.writerow(["", "Слов:", str(AllWordsCount)])
-            writer.writerow([""])
-            writer.writerow(["Файл", "Страниц", "Слов"])
-        else:
-            writer.writerow([""])
-            writer.writerow(["Файл", "Страниц"])
-            
-        writer.writerows(CSVrows)
-
-
+    OpenReportBtn.place(x=158, y=132, height=20)
 
     ProgressMainLbl.config(text = "")  
     ProgressFileLbl.config(text = "Завершено !")
@@ -328,12 +331,12 @@ def BlockGUI(yes):
         CountPagesBtn.configure(state = DISABLED)
         SelectFileBtn.configure(state = DISABLED)
         ModeCountWordscbtn.configure(state = DISABLED)
-        OpenReportBtn.forget()
+        ModeSubdircbtn.configure(state = DISABLED)
     else:
         CountPagesBtn.configure(state = NORMAL)
         SelectFileBtn.configure(state = NORMAL)
         ModeCountWordscbtn.configure(state = NORMAL)
-        OpenReportBtn.place(x=158, y=132, height=20)
+        ModeSubdircbtn.configure(state = NORMAL)
 
 
 def CountWords(file): 
@@ -347,7 +350,12 @@ def CountWords(file):
     
 def CountPages(file):
     pdf = PdfFileReader(file)
-    pagecount = pdf.getNumPages()
+    try:
+        pagecount = pdf.getNumPages()
+    except:
+        msgbxlbl = ['Ошибка открытия файла !', str(file)]
+        messagebox.showerror("", "\n".join(msgbxlbl))
+        return 0
     pdf = ""
     return pagecount
     

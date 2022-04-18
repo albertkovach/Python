@@ -121,9 +121,9 @@ def ProcessManager():
 
     
     DivideOutputDir = "output"
-    filearrayleng = 8
+    filearrayleng = 16
     DivideInputFilesArray = []
-    MaxProcessCount = 3
+    MaxProcessCount = 3 # from zero
     
 
 
@@ -222,14 +222,6 @@ def ProcessManager():
                 #    processguinumarray.append(processguinumtemparray[h])
                 
                 # Writing status of file in resultarray
-                
-                
-                
-
-                
-                
-                        
-                    
 
         
         # Checking amount of files that remains for exec
@@ -247,24 +239,28 @@ def ProcessManager():
             if firstloop:
                 firstloop = False
                 processestostart = MaxProcessCount
+                needtostartprocess = True
                 print('ProcessManager: +++ First loop !')
                 print('ProcessManager: ++ processestostart: {0}'.format(processestostart))
             elif runningprocessescount < filesawaiting and filesawaiting != 0:
-                processestostart = MaxProcessCount - runningprocessescount + 1
+                processestostart = MaxProcessCount - runningprocessescount
+                needtostartprocess = True
                 print('ProcessManager: +++ Need to start new: more files awaiting than MaxProcessCount')
+                print('ProcessManager: ++ MaxProcessCount: {0}'.format(MaxProcessCount))
                 print('ProcessManager: ++ runningprocessescount: {0}'.format(runningprocessescount))
                 print('ProcessManager: ++ processestostart: {0}'.format(processestostart))
                 
             elif runningprocessescount > filesawaiting and filesawaiting != 0:
                 processestostart = filesawaiting
+                needtostartprocess = True
                 print('ProcessManager: +++ Need to start new: runningprocessescount > filesawaiting')
                 print('ProcessManager: ++ runningprocessescount: {0}'.format(runningprocessescount))
                 print('ProcessManager: ++ processestostart: {0}'.format(processestostart))
                 
             else:
-                processestostart = 0
+                needtostartprocess = False
             
-            if processestostart != 0:
+            if needtostartprocess:
                 # Iterations for process start
                 for s in range (processestostart+1):
                     for j in range (len(fileresultarray)):
@@ -287,9 +283,9 @@ def ProcessManager():
                     #### DividerEm: (processnum, dataq, inputfile, outputdir)
                     subprocess = Process(target=DividerEm, args=(creatingprocessfilenum, dataq, DivideInputFilesArray[creatingprocessfilenum], DivideOutputDir))
                     subprocess.start()
-                    print('ProcessManager: +++++ Just started new process ! {0}'.format(j))
-                    print('ProcessManager: +++ runningprocessescount: {0}'.format(runningprocessescount))
-                    print('ProcessManager: +++ fileresultarray {0}'.format(fileresultarray))
+                    print('ProcessManager: ***** Just started new process ! {0}'.format(j))
+                    print('ProcessManager: **** runningprocessescount: {0}'.format(runningprocessescount))
+                    print('ProcessManager: **** fileresultarray {0}'.format(fileresultarray))
         
         # Checking if all is done
         filesready = 0
