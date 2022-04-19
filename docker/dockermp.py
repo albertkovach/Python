@@ -5,6 +5,8 @@ from tkinter import ttk
 import ctypes as ct
 
 from threading import Thread
+from multiprocessing import Process, Queue, current_process
+import psutil
 
 import time
 import datetime as datetime2
@@ -56,11 +58,10 @@ global DivideReadyToGo
 global DivideOutputDir
 global DivideIsOutputSel
 
-global DivideAllPagesCount
-global DivideFirstPagesArray
-
 global DivideIsRunning
 global DivideStartedTime
+global DivideGUIisResized
+global MaxProcessCount
 # -------------------------
 
 
@@ -150,10 +151,12 @@ class GUI(Frame):
         global DivideIsOutputSel
         global DivideIsRunning
         global DivideReadyToGo
+        global DivideGUIisResized
         DivideIsInputSel = False
         DivideIsOutputSel = False
         DivideIsRunning = False
         DivideReadyToGo = False
+        DivideGUIisResized = False
         
         global DivideFirstPagesArray
         DivideFirstPagesArray = []
@@ -275,14 +278,35 @@ class GUI(Frame):
         DivideStartDivisionBtn = Button(text='Выполнить разделение', command=DivideStartDivision)
         DivideStartDivisionBtn.configure(state = DISABLED)
         
-        global DivideCurrentFileLbl
-        DivideCurrentFileLbl = Label(text="", background="white")
 
         global DivideStatusLbl
         DivideStatusLbl = Label(text="", background="white")
         
         global DivideTimeLbl
         DivideTimeLbl = Label(text="", background="white")
+        
+        
+        global DivideResizeGUIBtn
+        DivideResizeGUIBtn = Button(text="➘", command=DivideResizeGUI)
+        
+        
+        global DivideProcess1StatusLbl
+        DivideProcess1StatusLbl = Label(text="Поток 1...", background="white", justify=LEFT)
+        
+        global DivideProcess2StatusLbl
+        DivideProcess2StatusLbl = Label(text="Поток 2...", background="white", justify=LEFT)
+        
+        global DivideProcess3StatusLbl
+        DivideProcess3StatusLbl = Label(text="Поток 3...", background="white", justify=LEFT)
+        
+        global DivideProcess4StatusLbl
+        DivideProcess4StatusLbl = Label(text="Поток 4...", background="white", justify=LEFT)
+        
+        global DivideProcess5StatusLbl
+        DivideProcess5StatusLbl = Label(text="Поток 5...", background="white", justify=LEFT)
+        
+        global DivideProcess6StatusLbl
+        DivideProcess6StatusLbl = Label(text="Поток 6...", background="white", justify=LEFT)
         
         
 
@@ -440,9 +464,15 @@ def UIswitcher():
         DivideOutputDirBtn.place_forget()
         DivideOutputDirEntry.place_forget()
         DivideStartDivisionBtn.place_forget()
-        DivideCurrentFileLbl.place_forget()
         DivideStatusLbl.place_forget()
         DivideTimeLbl.place_forget()
+        DivideResizeGUIBtn.place_forget()
+        DivideProcess1StatusLbl.place_forget()
+        DivideProcess2StatusLbl.place_forget()
+        DivideProcess3StatusLbl.place_forget()
+        DivideProcess4StatusLbl.place_forget()
+        DivideProcess5StatusLbl.place_forget()
+        DivideProcess6StatusLbl.place_forget()
 
         MoveInputDirPathLbl.place_forget()
         MoveInputDirEntry.place_forget()
@@ -475,7 +505,7 @@ def UIswitcher():
     
         scrnw = (root.winfo_screenwidth()//2) - scrnwparam
         scrnh = (root.winfo_screenheight()//2) - scrnhparam
-        root.geometry('375x255+{}+{}'.format(scrnw, scrnh))
+        root.geometry('375x225+{}+{}'.format(scrnw, scrnh))
         
         SetModeDividePdfBtn.place_forget()
         SetModeMoveByBoxBtn.place_forget()
@@ -489,9 +519,15 @@ def UIswitcher():
         DivideOutputDirBtn.place       (x=20, y=110+35, height=20)
         DivideOutputDirEntry.place     (x=75, y=111+35)
         DivideStartDivisionBtn.place   (x=20, y=145+37, width=150, height=25)
-        DivideCurrentFileLbl.place     (x=175, y=184)
-        DivideStatusLbl.place          (x=20, y=170+37)
-        DivideTimeLbl.place            (x=20, y=180+44)
+        DivideStatusLbl.place          (x=175, y=184)
+        DivideTimeLbl.place            (x=285, y=200)
+        DivideResizeGUIBtn.place       (x=340, y=202, height=16)
+        DivideProcess1StatusLbl.place     (x=20, y=230)
+        DivideProcess2StatusLbl.place     (x=20, y=270)
+        DivideProcess3StatusLbl.place     (x=20, y=310)
+        DivideProcess4StatusLbl.place     (x=20, y=350)
+        DivideProcess5StatusLbl.place     (x=20, y=390)
+        DivideProcess6StatusLbl.place     (x=20, y=430)
 
         MoveInputDirPathLbl.place_forget()
         MoveInputDirEntry.place_forget()
@@ -538,9 +574,15 @@ def UIswitcher():
         DivideOutputDirBtn.place_forget()
         DivideOutputDirEntry.place_forget()
         DivideStartDivisionBtn.place_forget()
-        DivideCurrentFileLbl.place_forget()
         DivideStatusLbl.place_forget()
         DivideTimeLbl.place_forget()
+        DivideResizeGUIBtn.place_forget()
+        DivideProcess1StatusLbl.place_forget()
+        DivideProcess2StatusLbl.place_forget()
+        DivideProcess3StatusLbl.place_forget()
+        DivideProcess4StatusLbl.place_forget()
+        DivideProcess5StatusLbl.place_forget()
+        DivideProcess6StatusLbl.place_forget()
 
         MoveInputDirPathLbl.place       (x=16, y=7+40)
         MoveInputDirEntry.place         (x=20, y=30+40)
@@ -586,9 +628,15 @@ def UIswitcher():
         DivideOutputDirBtn.place_forget()
         DivideOutputDirEntry.place_forget()
         DivideStartDivisionBtn.place_forget()
-        DivideCurrentFileLbl.place_forget()
         DivideStatusLbl.place_forget()
         DivideTimeLbl.place_forget()
+        DivideResizeGUIBtn.place_forget()
+        DivideProcess1StatusLbl.place_forget()
+        DivideProcess2StatusLbl.place_forget()
+        DivideProcess3StatusLbl.place_forget()
+        DivideProcess4StatusLbl.place_forget()
+        DivideProcess5StatusLbl.place_forget()
+        DivideProcess6StatusLbl.place_forget()
 
         MoveInputDirPathLbl.place_forget()
         MoveInputDirEntry.place_forget()
@@ -627,10 +675,12 @@ def FlushAll():
     global DivideIsOutputSel
     global DivideReadyToGo
     global DivideIsRunning
+    global DivideGUIisResized
     DivideIsInputSel = False
     DivideIsOutputSel = False
     DivideReadyToGo = False
     DivideIsRunning = False
+    DivideGUIisResized = False
     
     global DivideFirstPagesArray
     global DivideInputFilesArray
@@ -640,7 +690,12 @@ def FlushAll():
     DivideInputDirPCountLbl.config(text = "")
     DivideStatusLbl.config(text = "")
     DivideTimeLbl.config(text = "")
-    DivideCurrentFileLbl.config(text = "")
+    DivideProcess1StatusLbl.config(text = "Поток 1...")
+    DivideProcess2StatusLbl.config(text = "Поток 2...")
+    DivideProcess3StatusLbl.config(text = "Поток 3...")
+    DivideProcess4StatusLbl.config(text = "Поток 4...")
+    DivideProcess5StatusLbl.config(text = "Поток 5...")
+    DivideProcess6StatusLbl.config(text = "Поток 6...")
     
     DivideInputDirEntry.configure(state = NORMAL)
     DivideInputDirEntry.delete(0,END)
@@ -766,7 +821,6 @@ def DivideInputFileChoose():
         print('Divide: IFC: DivideInputFile not selected')
 
 
-
 def DivideInputDirChoose():
     global DivideInputFilesArray
     global DivideIsInputSel
@@ -814,8 +868,7 @@ def DividerPageCountThread():
     inputfolderinfolbl = ('Файлов в папке: {0}, страниц: {1}'.format(len(DivideInputFilesArray), allpagecount))
     DivideInputDirPCountLbl.config(text = inputfolderinfolbl)
     MainModeBackBtn.configure(state = NORMAL)
-    
-    
+
 
 def DivideOutputDirChoose():
     global DivideOutputDir
@@ -871,19 +924,6 @@ def DivideCheckIfReady():
         DivideStartDivisionBtn.configure(state = DISABLED)
 
 
-def DivideBlockGUI(yes):
-    if yes:
-        MainModeBackBtn.configure(state = DISABLED)
-        DivideInputDirChooseBtn.configure(state = DISABLED)
-        DivideOutputDirBtn.configure(state = DISABLED)
-        DivideStartDivisionBtn.configure(state = DISABLED)
-    else:
-        MainModeBackBtn.configure(state = NORMAL)
-        DivideInputDirChooseBtn.configure(state = NORMAL)
-        DivideOutputDirBtn.configure(state = NORMAL)
-        DivideStartDivisionBtn.configure(state = NORMAL)
-
-
 
 
 def DivideStartDivision():
@@ -893,55 +933,178 @@ def DivideStartDivision():
     print(DivideReadyToGo)
     
     if DivideReadyToGo:
-        DivideBlockGUI(True)
-
-        minerthread = Thread(target=DivideFolderExec)
-        minerthread.start()
         timethread = Thread(target=DivideTimeUpdater)
         timethread.start()
+        minerthread = Thread(target=DividerProcessManager)
+        minerthread.start()
         minerthread = ""
         timethread = ""
 
 
-def DivideFolderExec():
+def DividerProcessManager():
     global DivideInputFilesArray
-    global DivideInputFile
-    
+    global DivideOutputDir
     global DivideIsRunning
     global DivideStartedTime
+    global MaxProcessCount
+
+    MaxProcessCount = 5 # from zero
     
+    DivideBlockGUI(True)
     DivideIsRunning = True
     DivideStartedTime = time.time()
     
+    # ProcessManager:
+    runningprocessescount = 0
+    fileresultarray = []
+    dataq = Queue()
+
     for i in range (len(DivideInputFilesArray)):
-        print(DivideInputFilesArray[i])
-        currfilelbltxt = ("Файл {0} из {1}: {2}".format(i+1, len(DivideInputFilesArray), Path(DivideInputFilesArray[i]).name))
-        DivideCurrentFileLbl.config(text = currfilelbltxt)
-        DivideInputFile = DivideInputFilesArray[i]
-        DivideMiner()
+        fileresultarray.append(2) # 2 -> awaiting, 1 -> in work, 0 -> ready
+    print('ProcessManager: fileresultarray: {0}'.format(fileresultarray))
+
+    processguinumarray = []
+    processjustterminated = False
+    firstloop = True
+    while True:
+
+        # Checking if data received
+        if not dataq.empty():
+            #### dataq: processnum, status, inputfile, message
+            processresult = dataq.get()
+
+            # Refreshing GUI with received data
+            for g in range (len(processguinumarray)):
+                if processresult[0] == processguinumarray[g]:
+                    processguinum = g
+                    break
+                    
+            processresultlbl = ['Документ №{0}: {1}'.format(processresult[0]+1, Path(processresult[2]).name), str(processresult[3])]
+            if processguinum == 0:
+                DivideProcess1StatusLbl.config(text = "\n".join(processresultlbl))
+            elif processguinum == 1:
+                DivideProcess2StatusLbl.config(text = "\n".join(processresultlbl))
+            elif processguinum == 2:
+                DivideProcess3StatusLbl.config(text = "\n".join(processresultlbl))
+            elif processguinum == 3:
+                DivideProcess4StatusLbl.config(text = "\n".join(processresultlbl))
+            elif processguinum == 4:
+                DivideProcess5StatusLbl.config(text = "\n".join(processresultlbl))
+            elif processguinum == 5:
+                DivideProcess6StatusLbl.config(text = "\n".join(processresultlbl))
+                
+                
+            if processresult[1] == 0: # process terminated
+                processjustterminated = True
+                print('ProcessManager: reciever: process {0} terminated'.format(processresult[0]))
+                
+                runningprocessescount = runningprocessescount - 1
+                fileresultarray[processresult[0]] = 0
+                
+                
+                
+        # Checking space for new process start
+        if processjustterminated or firstloop == True:
+            processjustterminated = False
+            
+            processestostart = MaxProcessCount - runningprocessescount
+            
+            # Checking amount of files that remains for exec
+            filesawaiting = 0
+            for r in range (len(fileresultarray)): # Scanning for awaiting files
+                if fileresultarray[r] == 2:
+                    filesawaiting = filesawaiting + 1
+                    
+            print('')
+            print('')
+            print('processjustterminated or firstloop')
+            print('ProcessManager: runningprocessescount: {0}'.format(runningprocessescount))
+            print('ProcessManager: filesawaiting: {0}'.format(filesawaiting))
+            print('ProcessManager: processestostart: {0} ({1})'.format(processestostart, processestostart+1))
+
+            if firstloop:
+                firstloop = False
+                if filesawaiting <= MaxProcessCount:
+                    processestostart = filesawaiting - 1
+                else:
+                    processestostart = MaxProcessCount
+                    
+                if filesawaiting == 1:
+                    processguinumarray.clear()
+                    processguinumarray.append(0)
+                    
+                needtostartprocess = True
+                print('ProcessManager: +++ First loop !')
+            elif processestostart <= filesawaiting and  filesawaiting!=0 :
+                needtostartprocess = True
+                print('ProcessManager: +++ Need to start new process')
+            else:
+                needtostartprocess = False
+            
+            if needtostartprocess:
+                needtostartprocess = False
+                # Iterations for process start
+                for s in range (processestostart+1):
+                    for j in range (len(fileresultarray)):
+                        if fileresultarray[j] == 2: # Scanning for awaiting files
+                            fileresultarray[j] = 1 # Mark this file to "1 -> in work"
+                            runningprocessescount = runningprocessescount + 1
+                            creatingprocessfilenum = j
+                            
+                            print('ProcessManager: GUI procstart: before processguinumarray {0}'.format(processguinumarray))
+                            if runningprocessescount > 1:
+                                processguinumarray.clear()
+                                for z in range (len(fileresultarray)):
+                                    if fileresultarray[z] == 1:
+                                        processguinumarray.append(z)
+                            print('ProcessManager: GUI procstart: after processguinumarray {0}'.format(processguinumarray))
+                            
+                            break
+                    #### DividerEm: (processnum, dataq, inputfile, outputdir)
+                    subprocess = Process(target=DivideMiner, args=(creatingprocessfilenum, dataq, DivideInputFilesArray[creatingprocessfilenum], DivideOutputDir))
+                    subprocess.start()
+                    print('ProcessManager: ***** Just started new process ! {0}'.format(j))
+                    print('ProcessManager: **** runningprocessescount: {0}'.format(runningprocessescount))
+                    print('ProcessManager: **** fileresultarray {0}'.format(fileresultarray))
+            print('')
+            print('')
+            
+            
+            
+        # Checking if all is done
+        filesready = 0
+        for e in range (len(fileresultarray)): # Scanning for ready files
+            if fileresultarray[e] == 0:
+                filesready = filesready + 1
+                
         
+        
+        if filesready == len(fileresultarray):
+            DivideStatusLbl.config(text = 'Завершено! {0} из {1}'.format(filesready, len(fileresultarray)))
+            messagebox.showinfo("", "Обработка завершена !")
+            print('ProcessManager: All done !!!')
+            break
+        else:
+            DivideStatusLbl.config(text = 'Выполнено {0} из {1}'.format(filesready, len(fileresultarray)))
+
     DivideIsRunning = False
     DivideBlockGUI(False)
-    
-    msgbxlbl = 'Обработка файлов завершена!'
-    messagebox.showinfo("", msgbxlbl)
 
 
-def DivideMiner():
-    global DivideInputFile
-    global DivideInputPagesCount
-    global DivideFirstPagesArray
+def DivideMiner(processnum, dataq, DivideInputFile, DivideOutputDir):
 
-    print('Divide: Miner: Started !')
+    processname = current_process().name
+    print("= Divider №{0}--{1} STARTED !: {2}".format(processnum, processname, DivideInputFile))
     
     word = 'Счет-фактура №'
     pagecounter = 1
     finded = False
-    DivideFirstPagesArray = []
-    DivideFirstPagesArray.clear
+    firstpagesarray = []
+    firstpagesarray.clear
 
-    DivideInputPagesCount = PDFCountPages(DivideInputFile)
-    
+    pdf = PdfFileReader(DivideInputFile)
+    DivideInputPagesCount = pdf.getNumPages()
+
     pdftomine = open(DivideInputFile, 'rb')
     manager = PDFResourceManager()
     laparams = LAParams()
@@ -958,19 +1121,20 @@ def DivideMiner():
                     text = line.get_text()
                     similarity = Similar(text, word)
                     if similarity > 0.9:
-                        DivideFirstPagesArray.append(pagecounter)
-                        print('Divide: Miner:    finded! page ' + str(pagecounter))
+                        firstpagesarray.append(pagecounter)
+                        print("= Divider №{0}--{1}, file: {2}    finded! page {3}".format(processnum, processname, DivideInputFile, pagecounter))
                         finded = True
         if finded:
             finded = False
         else:
-            print('Divide: Miner:    page ' + str(pagecounter))
+            print("= Divider №{0}--{1}, file: {2}    page {3}".format(processnum, processname, DivideInputFile, pagecounter))
             
-        progresslbltxt = "Поиск первых страниц... Чтение {0} из {1}, найдено: {2}".format(pagecounter, DivideInputPagesCount, len(DivideFirstPagesArray))
-        DivideStatusLbl.config(text = progresslbltxt)
+        progresslbltxt = "Поиск первых страниц... Чтение {0} из {1}, найдено: {2}".format(pagecounter, DivideInputPagesCount, len(firstpagesarray))
+        dataq.put([processnum, 1, DivideInputFile, progresslbltxt])
+        #DivideStatusLbl.config(text = progresslbltxt)
         pagecounter = pagecounter + 1
         
-    print('Divide: Miner: Ended !')
+    print("= Divider №{0}--{1}, ENDED !: {2}".format(processnum, processname, DivideInputFile))
     
     pdftomine = ''
     manager = ''
@@ -979,98 +1143,120 @@ def DivideMiner():
     interpreter = ''
     pages = ''
     
-    if len(DivideFirstPagesArray) > 0:
-        DivideFileMaker()
-    else:
+    
+    if len(firstpagesarray) == 0:
         progresslbltxt = "Поиск завершен, счет-фактур не найдено !"
-        DivideStatusLbl.config(text = progresslbltxt)
-        DivideIsRunning = False
-        DivideBlockGUI(False)
+        dataq.put([processnum, 1, DivideInputFile, progresslbltxt])
+        #DivideStatusLbl.config(text = progresslbltxt)
         msgbxlbl = 'В выбранном документе не найдено счет-фактур !'
         messagebox.showerror("", msgbxlbl)
-
-
-def DivideFileMaker():
-    global DivideInputFile
-    global DivideInputPagesCount
-    global DivideFirstPagesArray
-    
-    global DivideOutputDir
-    
-    global DivideIsRunning
-    
-    
-    print('')
-    print('Divide: FM: Started !')
-    originalpdf = PyPDF2.PdfFileReader(DivideInputFile)
-   
-    for k in range(len(DivideFirstPagesArray)):
-        if k+1 < len(DivideFirstPagesArray):
+    else:
+        print("= Divider №{0}--{1}, FM Started !: {2}".format(processnum, processname, DivideInputFile))
         
-            print('**** Документ №: ', str(k+1))
-            outputfile = Path (DivideOutputDir, (str(Path(DivideInputFile).name)+" - стр."+str(DivideFirstPagesArray[k])+'.pdf'))
-            print("Номер первой стр: {0}, номер сл.первой {1}".format(DivideFirstPagesArray[k],DivideFirstPagesArray[k+1]))
-            print("Итоговый файл: {0}".format(outputfile))
-            print('Список страниц документа:')
+        originalpdf = PdfFileReader(DivideInputFile)
+       
+        for k in range(len(firstpagesarray)):
+            if k+1 < len(firstpagesarray):
             
-            temparray = []
-            temparray.clear()
-            for x in range(DivideFirstPagesArray[k], DivideFirstPagesArray[k+1]):
-                print(x)
-                temparray.append(x)
-            
-            pdf_writer = PyPDF2.PdfFileWriter()
-            for x in range(len(temparray)):
-                pdf_writer.addPage(originalpdf.getPage(temparray[x]-1))
+                print('**** Документ №: ', str(k+1))
+                outputfile = Path (DivideOutputDir, (str(Path(DivideInputFile).name)+" - стр."+str(firstpagesarray[k])+'.pdf'))
+                print("Номер первой стр: {0}, номер сл.первой {1}".format(firstpagesarray[k],firstpagesarray[k+1]))
+                print("Итоговый файл: {0}".format(outputfile))
+                print('Список страниц документа:')
+                
+                temparray = []
+                temparray.clear()
+                for x in range(firstpagesarray[k], firstpagesarray[k+1]):
+                    print(x)
+                    temparray.append(x)
+                
+                pdf_writer = PdfFileWriter()
+                for x in range(len(temparray)):
+                    pdf_writer.addPage(originalpdf.getPage(temparray[x]-1))
 
-            progresslbltxt = "Создание документов... Обработка {0} из {1}".format(k, len(DivideFirstPagesArray))
-            DivideStatusLbl.config(text = progresslbltxt)
+                progresslbltxt = "Создание документов... Обработка {0} из {1}".format(k, len(firstpagesarray))
+                dataq.put([processnum, 1, DivideInputFile, progresslbltxt])
+                #DivideStatusLbl.config(text = progresslbltxt)
 
-            pdf_writer.write(open(outputfile, 'wb'))
-            pdf_writer = ''
+                pdf_writer.write(open(outputfile, 'wb'))
+                pdf_writer = ''
 
-            print('Обработка завершена')
-            print('*******************')
-            print('')
+                print('Обработка завершена')
+                print('*******************')
+                print('')
 
 
-    print('**** Последний документ: ', str(len(DivideFirstPagesArray)))
-    outputfile = Path (DivideOutputDir, (str(Path(DivideInputFile).name)+" - стр."+str(DivideFirstPagesArray[k])+'.pdf'))
-    print("Итоговый файл: {0}".format(outputfile))
-    print('Список страниц документа:')
-    
-    temparray.clear()
-    for x in range(DivideFirstPagesArray[len(DivideFirstPagesArray)-1], DivideInputPagesCount+1):
-        print(x)
-        temparray.append(x)
+        print('**** Последний документ: ', str(len(firstpagesarray)))
+        outputfile = Path (DivideOutputDir, (str(Path(DivideInputFile).name)+" - стр."+str(firstpagesarray[k])+'.pdf'))
+        print("Итоговый файл: {0}".format(outputfile))
+        print('Список страниц документа:')
         
-    pdf_writer = PyPDF2.PdfFileWriter()
-    for x in range(len(temparray)):
-        pdf_writer.addPage(originalpdf.getPage(temparray[x]-1))
+        temparray.clear()
+        for x in range(firstpagesarray[len(firstpagesarray)-1], DivideInputPagesCount+1):
+            print(x)
+            temparray.append(x)
+            
+        pdf_writer = PdfFileWriter()
+        for x in range(len(temparray)):
+            pdf_writer.addPage(originalpdf.getPage(temparray[x]-1))
 
-    progresslbltxt = "Создание документов... Обработка {0} из {1}".format(len(DivideFirstPagesArray), len(DivideFirstPagesArray))
-    DivideStatusLbl.config(text = progresslbltxt)
+        progresslbltxt = "Создание документов... Обработка {0} из {1}".format(len(firstpagesarray), len(firstpagesarray))
+        dataq.put([processnum, 1, DivideInputFile, progresslbltxt])
+        #DivideStatusLbl.config(text = progresslbltxt)
 
-    pdf_writer.write(open(outputfile, 'wb'))
-    pdf_writer = ''
+        pdf_writer.write(open(outputfile, 'wb'))
+        pdf_writer = ''
+        
+        progresslbltxt = "Обработка завершена!"
+        dataq.put([processnum, 0, DivideInputFile, progresslbltxt])
+        #DivideStatusLbl.config(text = progresslbltxt)
+
+        print('Обработка завершена')
+        print('****************************')
+
+        print("= Divider №{0}--{1}, FM : {2},    Documents in file: {3}".format(processnum, processname, DivideInputFile, len(firstpagesarray)))
+        print("= Divider №{0}--{1}, FM Ended !: {2}".format(processnum, processname, DivideInputFile))
     
-    progresslbltxt = "Обработка завершена!"
-    DivideStatusLbl.config(text = progresslbltxt)
-
-    print('Обработка завершена')
-    print('****************************')
 
 
-    print('Documents in file: ' + str(len(DivideFirstPagesArray)))
-    print('Divide: FM: Ended !')
+
+def DivideBlockGUI(yes):
+    if yes:
+        MainModeBackBtn.configure(state = DISABLED)
+        DivideInputDirChooseBtn.configure(state = DISABLED)
+        DivideOutputDirBtn.configure(state = DISABLED)
+        DivideStartDivisionBtn.configure(state = DISABLED)
+    else:
+        MainModeBackBtn.configure(state = NORMAL)
+        DivideInputDirChooseBtn.configure(state = NORMAL)
+        DivideOutputDirBtn.configure(state = NORMAL)
+        DivideStartDivisionBtn.configure(state = NORMAL)
+
+
+def DivideResizeGUI():
+    global scrnwparam
+    global scrnhparam
+    global DivideGUIisResized
     
+    if DivideGUIisResized:
+        DivideGUIisResized = not DivideGUIisResized
+        scrnw = (root.winfo_screenwidth()//2) - scrnwparam
+        scrnh = (root.winfo_screenheight()//2) - scrnhparam
+        root.geometry('375x225+{}+{}'.format(scrnw, scrnh))
+        DivideResizeGUIBtn.config(text = '➘')
+    else:
+        DivideGUIisResized = not DivideGUIisResized
+        scrnw = (root.winfo_screenwidth()//2) - scrnwparam
+        scrnh = (root.winfo_screenheight()//2) - scrnhparam
+        root.geometry('375x475+{}+{}'.format(scrnw, scrnh))
+        DivideResizeGUIBtn.config(text = '➚')
 
-    
 
 def DivideTimeUpdater():
     global DivideIsRunning
     global DivideStartedTime
-
+    
+    time.sleep(0.5)
     while DivideIsRunning:
         result = time.time() - DivideStartedTime
         result = datetime2.timedelta(seconds=round(result))

@@ -286,7 +286,7 @@ def DividerEm(processnum, dataq, inputfile, outputdir):
         dataq.put([processnum, '1', message])
         time.sleep(0.2)
         
-    dataq.put([processnum, 0, "Обработка завершена !"])
+    dataq.put([processnum, 0, inputfile, "Обработка завершена !"])
     
     print("==== Divider №{0}--{1} ENDED".format(processnum, processname))
 
