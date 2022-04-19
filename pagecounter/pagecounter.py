@@ -16,6 +16,8 @@ from PyPDF2 import PdfFileMerger
 
 import csv
 
+from pikepdf import Pdf as pike
+
 from pathlib import Path
 import re
 import os
@@ -264,7 +266,8 @@ def Counter():
     for f in range (len(InputFilesArray)):
         ProgressMainLbl.config(text = "Обработка файла {0} из {1}".format(f+1, len(InputFilesArray)))
         ProgressFileLbl.config(text = "Подсчет страниц...")
-        CurrentPageCount = CountPages(InputFilesArray[f])
+        #CurrentPageCount = CountPages(InputFilesArray[f])
+        CurrentPageCount = PikeCountPages(InputFilesArray[f])
         AllPageCount = AllPageCount + CurrentPageCount
         
         if CountWordsMode.get() == 1:
@@ -347,6 +350,10 @@ def CountWords(file):
     #print(len(words))
     return len(words)
     
+def PikeCountPages(file):
+    pdf_doc = pike.open(file)
+    pdf_page_count = len(pdf_doc.pages)
+    return pdf_page_count
     
 def CountPages(file):
     pdf = PdfFileReader(file)

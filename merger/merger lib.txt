@@ -4,6 +4,8 @@ pip install pywin32
 pip install pdfminer.six
 
 pip install psutil
+pip install pikepdf
+
 pip install fnmatch
 
 pip install -U click
