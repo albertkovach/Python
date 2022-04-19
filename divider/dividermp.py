@@ -58,6 +58,7 @@ global DivideFirstPagesArray
 
 global DivideIsRunning
 global DivideStartedTime
+global DivideGUIisResized
 # -------------------------
 
 
@@ -106,16 +107,20 @@ class GUI(Frame):
         global DivideIsOutputSel
         global DivideIsRunning
         global DivideReadyToGo
+        global DivideGUIisResized
         DivideIsInputSel = False
         DivideIsOutputSel = False
         DivideIsRunning = False
         DivideReadyToGo = False
+        DivideGUIisResized = True
         
         global DivideFirstPagesArray
         DivideFirstPagesArray = []
         # ----------------------
     
-    
+        canvas = Canvas(self, bg='white')
+        canvas.create_line(15, 225, 360, 225)
+        canvas.pack(fill=BOTH, expand=1)
     
         # >>>>>>>>>>>>>>> Mode header <<<<<<<<<<<<<<<
         # ===========================================
@@ -167,16 +172,36 @@ class GUI(Frame):
         DivideStartDivisionBtn = Button(text='Выполнить разделение', command=DivideStartDivision)
         DivideStartDivisionBtn.configure(state = DISABLED)
         
-        global DivideCurrentFileLbl
-        DivideCurrentFileLbl = Label(text="", background="white")
 
         global DivideStatusLbl
-        DivideStatusLbl = Label(text="", background="white")
+        DivideStatusLbl = Label(text="Выполнено: 4 из 25", background="white")
         
         global DivideTimeLbl
-        DivideTimeLbl = Label(text="", background="white")
+        DivideTimeLbl = Label(text="00:12:34", background="white")
         
         
+        global DivideResizeGUIBtn
+        DivideResizeGUIBtn = Button(text="➘", command=DivideResizeGUI)
+        
+        
+        
+        global DivideProcess1StatusLbl
+        DivideProcess1StatusLbl = Label(text="", background="white", justify=LEFT)
+        
+        global DivideProcess2StatusLbl
+        DivideProcess2StatusLbl = Label(text="", background="white", justify=LEFT)
+        
+        global DivideProcess3StatusLbl
+        DivideProcess3StatusLbl = Label(text="", background="white", justify=LEFT)
+        
+        global DivideProcess4StatusLbl
+        DivideProcess4StatusLbl = Label(text="", background="white", justify=LEFT)
+        
+        global DivideProcess5StatusLbl
+        DivideProcess5StatusLbl = Label(text="", background="white", justify=LEFT)
+        
+        global DivideProcess6StatusLbl
+        DivideProcess6StatusLbl = Label(text="", background="white", justify=LEFT)
         
         
         
@@ -184,7 +209,7 @@ class GUI(Frame):
     
         scrnw = (root.winfo_screenwidth()//2) - scrnwparam
         scrnh = (root.winfo_screenheight()//2) - scrnhparam
-        root.geometry('375x255+{}+{}'.format(scrnw, scrnh))
+        root.geometry('375x225+{}+{}'.format(scrnw, scrnh))
         
         
         DivideInputDirLbl.place        (x=16, y=7+40)
@@ -195,9 +220,28 @@ class GUI(Frame):
         DivideOutputDirBtn.place       (x=20, y=110+35, height=20)
         DivideOutputDirEntry.place     (x=75, y=111+35)
         DivideStartDivisionBtn.place   (x=20, y=145+37, width=150, height=25)
-        DivideCurrentFileLbl.place     (x=175, y=184)
-        DivideStatusLbl.place          (x=20, y=170+37)
-        DivideTimeLbl.place            (x=20, y=180+44)
+        
+        DivideStatusLbl.place          (x=175, y=184)
+        DivideTimeLbl.place            (x=285, y=200)
+        DivideResizeGUIBtn.place       (x=340, y=202, height=16)
+        
+        
+        DivideProcess1StatusLbl.place     (x=20, y=230)
+        DivideProcess2StatusLbl.place     (x=20, y=270)
+        DivideProcess3StatusLbl.place     (x=20, y=310)
+        DivideProcess4StatusLbl.place     (x=20, y=350)
+        DivideProcess5StatusLbl.place     (x=20, y=390)
+        DivideProcess6StatusLbl.place     (x=20, y=430)
+        
+        msgbxlbl = ['Process 1: 383.pdf', 'Поиск страниц... Найдено 6']
+        
+        DivideProcess1StatusLbl.config(text = "\n".join(msgbxlbl))
+        DivideProcess2StatusLbl.config(text = "\n".join(msgbxlbl))
+        DivideProcess3StatusLbl.config(text = "\n".join(msgbxlbl))
+        DivideProcess4StatusLbl.config(text = "\n".join(msgbxlbl))
+        DivideProcess5StatusLbl.config(text = "\n".join(msgbxlbl))
+        DivideProcess6StatusLbl.config(text = "\n".join(msgbxlbl))
+        
         
         
         
@@ -520,8 +564,23 @@ def DivideMiner(DivideInputFile, DivideFirstPagesArray, DivideOutputDir):
 
 
 
-
-
+def DivideResizeGUI():
+    global scrnwparam
+    global scrnhparam
+    global DivideGUIisResized
+    
+    if DivideGUIisResized:
+        DivideGUIisResized = not DivideGUIisResized
+        scrnw = (root.winfo_screenwidth()//2) - scrnwparam
+        scrnh = (root.winfo_screenheight()//2) - scrnhparam
+        root.geometry('375x475+{}+{}'.format(scrnw, scrnh))
+        DivideResizeGUIBtn.config(text = '➚')
+    else:
+        DivideGUIisResized = not DivideGUIisResized
+        scrnw = (root.winfo_screenwidth()//2) - scrnwparam
+        scrnh = (root.winfo_screenheight()//2) - scrnhparam
+        root.geometry('375x225+{}+{}'.format(scrnw, scrnh))
+        DivideResizeGUIBtn.config(text = '➘')
 
 
     

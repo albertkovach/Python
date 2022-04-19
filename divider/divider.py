@@ -168,7 +168,7 @@ class GUI(Frame):
         DivideStartDivisionBtn.configure(state = DISABLED)
         
         global DivideCurrentFileLbl
-        DivideCurrentFileLbl = Label(text="", background="white")
+        DivideCurrentFileLbl = Label(text="Файл 3 из 40", background="white")
 
         global DivideStatusLbl
         DivideStatusLbl = Label(text="", background="white")
