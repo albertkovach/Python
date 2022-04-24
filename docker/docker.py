@@ -5,6 +5,8 @@ from tkinter import ttk
 import ctypes as ct
 
 from threading import Thread
+from multiprocessing import Process, Queue, current_process, freeze_support
+import psutil
 
 import time
 import datetime as datetime2
@@ -12,8 +14,7 @@ from datetime import datetime
 
 from pathlib import Path
 import shutil
-import os
-import sys
+import os, sys, re
 
 import PyPDF2
 from PyPDF2 import PdfFileReader
@@ -56,11 +57,10 @@ global DivideReadyToGo
 global DivideOutputDir
 global DivideIsOutputSel
 
-global DivideAllPagesCount
-global DivideFirstPagesArray
-
 global DivideIsRunning
 global DivideStartedTime
+global DivideGUIisResized
+global MaxProcessCount
 # -------------------------
 
 
@@ -102,6 +102,17 @@ global SortIsRunning
 global SortStartedTime
 # -------------------------
 
+
+
+# >>>>> Sort variables <<<<
+# -------------------------
+global PlaceInputDir
+global PlaceFilesArray
+global PlaceInputDirSel
+global PlaceOutputDirSel
+global PlaceWorking
+global PlaceStartTime
+# -------------------------
 
 
 def main():
@@ -150,10 +161,12 @@ class GUI(Frame):
         global DivideIsOutputSel
         global DivideIsRunning
         global DivideReadyToGo
+        global DivideGUIisResized
         DivideIsInputSel = False
         DivideIsOutputSel = False
         DivideIsRunning = False
         DivideReadyToGo = False
+        DivideGUIisResized = False
         
         global DivideFirstPagesArray
         DivideFirstPagesArray = []
@@ -203,6 +216,26 @@ class GUI(Frame):
         
         
         
+        
+        # >>> Place var init <<<
+        # ----------------------
+        global PlaceInputDir
+        global PlaceFilesArray
+        global PlaceInputDirSel
+        global PlaceOutputDirSel
+        global PlaceWorking
+        global PlaceStartTime
+        
+        PlaceInputDir = ""
+        PlaceFilesArray = []
+        
+        PlaceInputDirSel = False
+        PlaceOutputDirSel = False
+        
+        PlaceWorking = False
+        PlaceStartTime = ""
+        # ----------------------
+        
 
         s = ttk.Style()
         s.configure('.', background="white")
@@ -233,6 +266,9 @@ class GUI(Frame):
         
         global SetModeSortAndMergeBtn
         SetModeSortAndMergeBtn = Button(text='Объединение в коробах', command=SetModeSortAndMerge, font=("Arial", 11))
+        
+        global SetModePlacerBtn
+        SetModePlacerBtn = Button(text='Сортировка по КПП', command=SetModePlacerBtn, font=("Arial", 11))
 
 
 
@@ -275,14 +311,35 @@ class GUI(Frame):
         DivideStartDivisionBtn = Button(text='Выполнить разделение', command=DivideStartDivision)
         DivideStartDivisionBtn.configure(state = DISABLED)
         
-        global DivideCurrentFileLbl
-        DivideCurrentFileLbl = Label(text="", background="white")
 
         global DivideStatusLbl
         DivideStatusLbl = Label(text="", background="white")
         
         global DivideTimeLbl
         DivideTimeLbl = Label(text="", background="white")
+        
+        
+        global DivideResizeGUIBtn
+        DivideResizeGUIBtn = Button(text="➘", command=DivideResizeGUI)
+        
+        
+        global DivideProcess1StatusLbl
+        DivideProcess1StatusLbl = Label(text="Процесс 1 ожидает...", background="white", justify=LEFT)
+        
+        global DivideProcess2StatusLbl
+        DivideProcess2StatusLbl = Label(text="Процесс 2 ожидает...", background="white", justify=LEFT)
+        
+        global DivideProcess3StatusLbl
+        DivideProcess3StatusLbl = Label(text="Процесс 3 ожидает...", background="white", justify=LEFT)
+        
+        global DivideProcess4StatusLbl
+        DivideProcess4StatusLbl = Label(text="Процесс 4 ожидает...", background="white", justify=LEFT)
+        
+        global DivideProcess5StatusLbl
+        DivideProcess5StatusLbl = Label(text="Процесс 5 ожидает...", background="white", justify=LEFT)
+        
+        global DivideProcess6StatusLbl
+        DivideProcess6StatusLbl = Label(text="Процесс 6 ожидает...", background="white", justify=LEFT)
         
         
 
@@ -383,7 +440,55 @@ class GUI(Frame):
         global SortTimeLbl
         SortTimeLbl = Label(text="", background="white")
         
+        
 
+                
+                
+
+                ######### Place widgets ########
+                ################################
+
+        # >>>>>>>>>>> Place widgets block <<<<<<<<<<<
+        # ===========================================
+        
+        global PlaceInputDirLbl
+        PlaceInputDirLbl = Label(text="Выберите файлы на сортировку:", background="white", font=("Arial", 10))
+        
+        global PlaceInputDirEntry
+        PlaceInputDirEntry = Entry(fg="black", bg="white", width=20)
+        PlaceInputDirEntry.configure(state = DISABLED)
+        
+        global PlaceInputDirBtn
+        PlaceInputDirBtn = Button(text='Выбор', command=PlaceInputDirChoose)
+        
+        global PlaceInputFilesCountLbl
+        PlaceInputFilesCountLbl = Label(text="", background="white")
+        
+        
+        global PlaceOutputDirLbl
+        PlaceOutputDirLbl = Label(text="Выберите папку для отсортированных:", background="white", font=("Arial", 10))
+        
+        global PlaceOutputDirEntry
+        PlaceOutputDirEntry = Entry(fg="black", bg="white", width=20)
+        PlaceOutputDirEntry.configure(state = DISABLED)
+        
+        global PlaceOutputDirBtn
+        PlaceOutputDirBtn = Button(text='Выбор', command=PlaceOutputDirChoose)
+        
+        
+        global PlaceStartBtn
+        PlaceStartBtn = Button(text='Запуск', command=PlaceStart)
+        PlaceStartBtn.configure(state = DISABLED)
+        
+        global PlaceStatusLbl
+        PlaceStatusLbl = Label(text="", background="white")
+        
+        global PlaceTimeLbl
+        PlaceTimeLbl = Label(text="", background="white")
+        
+        
+
+        # =========================================== #
         
         global CurrentUIpage
         CurrentUIpage = 0
@@ -408,6 +513,11 @@ def SetModeSortAndMerge():
     CurrentUIpage = 3
     UIswitcher()
     
+def SetModePlacerBtn():
+    global CurrentUIpage
+    CurrentUIpage = 4
+    UIswitcher()
+    
 def SetModePageBack():
     FlushAll()
     global CurrentUIpage
@@ -426,11 +536,12 @@ def UIswitcher():
         
         scrnw = (root.winfo_screenwidth()//2) - scrnwparam
         scrnh = (root.winfo_screenheight()//2) - scrnhparam
-        root.geometry('375x245+{}+{}'.format(scrnw, scrnh))
+        root.geometry('375x285+{}+{}'.format(scrnw, scrnh))
         
         SetModeDividePdfBtn.place(x=55, y=60+10, width = 300, height=27)
         SetModeMoveByBoxBtn.place(x=55, y=110+10, width = 300, height=27)
         SetModeSortAndMergeBtn.place(x=55, y=160+10, width = 300, height=27)
+        SetModePlacerBtn.place(x=55, y=210+10, width = 300, height=27)
 
         DivideInputDirLbl.place_forget()
         DivideInputDirEntry.place_forget()
@@ -440,9 +551,18 @@ def UIswitcher():
         DivideOutputDirBtn.place_forget()
         DivideOutputDirEntry.place_forget()
         DivideStartDivisionBtn.place_forget()
-        DivideCurrentFileLbl.place_forget()
         DivideStatusLbl.place_forget()
         DivideTimeLbl.place_forget()
+        DivideResizeGUIBtn.place_forget()
+        DivideProcess1StatusLbl.place_forget()
+        DivideProcess2StatusLbl.place_forget()
+        DivideProcess3StatusLbl.place_forget()
+        DivideProcess4StatusLbl.place_forget()
+        DivideProcess5StatusLbl.place_forget()
+        DivideProcess6StatusLbl.place_forget()
+        DivideInputDirChooseBtn.configure(state = DISABLED)
+        DivideOutputDirBtn.configure(state = DISABLED)
+        DivideStartDivisionBtn.configure(state = DISABLED)
 
         MoveInputDirPathLbl.place_forget()
         MoveInputDirEntry.place_forget()
@@ -467,6 +587,17 @@ def UIswitcher():
         SortStatus1Lbl.place_forget()
         SortStatus2Lbl.place_forget()
         SortTimeLbl.place_forget()
+        
+        PlaceInputDirLbl.place_forget()
+        PlaceInputDirEntry.place_forget()
+        PlaceInputDirBtn.place_forget()
+        PlaceInputFilesCountLbl.place_forget()
+        PlaceOutputDirLbl.place_forget()
+        PlaceOutputDirEntry.place_forget()
+        PlaceOutputDirBtn.place_forget()
+        PlaceStartBtn.place_forget()
+        PlaceStatusLbl.place_forget()
+        PlaceTimeLbl.place_forget()
 
         
     if CurrentUIpage == 1:
@@ -475,11 +606,12 @@ def UIswitcher():
     
         scrnw = (root.winfo_screenwidth()//2) - scrnwparam
         scrnh = (root.winfo_screenheight()//2) - scrnhparam
-        root.geometry('375x255+{}+{}'.format(scrnw, scrnh))
+        root.geometry('375x225+{}+{}'.format(scrnw, scrnh))
         
         SetModeDividePdfBtn.place_forget()
         SetModeMoveByBoxBtn.place_forget()
         SetModeSortAndMergeBtn.place_forget()
+        SetModePlacerBtn.place_forget()
         
         DivideInputDirLbl.place        (x=16, y=7+40)
         DivideInputDirEntry.place      (x=20, y=30+40)
@@ -489,9 +621,18 @@ def UIswitcher():
         DivideOutputDirBtn.place       (x=20, y=110+35, height=20)
         DivideOutputDirEntry.place     (x=75, y=111+35)
         DivideStartDivisionBtn.place   (x=20, y=145+37, width=150, height=25)
-        DivideCurrentFileLbl.place     (x=175, y=184)
-        DivideStatusLbl.place          (x=20, y=170+37)
-        DivideTimeLbl.place            (x=20, y=180+44)
+        DivideStatusLbl.place          (x=175, y=184)
+        DivideTimeLbl.place            (x=285, y=200)
+        DivideResizeGUIBtn.place       (x=340, y=202, height=16)
+        DivideProcess1StatusLbl.place     (x=20, y=230)
+        DivideProcess2StatusLbl.place     (x=20, y=270)
+        DivideProcess3StatusLbl.place     (x=20, y=310)
+        DivideProcess4StatusLbl.place     (x=20, y=350)
+        DivideProcess5StatusLbl.place     (x=20, y=390)
+        DivideProcess6StatusLbl.place     (x=20, y=430)
+        DivideInputDirChooseBtn.configure(state = NORMAL)
+        DivideOutputDirBtn.configure(state = NORMAL)
+        DivideStartDivisionBtn.configure(state = NORMAL)
 
         MoveInputDirPathLbl.place_forget()
         MoveInputDirEntry.place_forget()
@@ -516,6 +657,17 @@ def UIswitcher():
         SortStatus1Lbl.place_forget()
         SortStatus2Lbl.place_forget()
         SortTimeLbl.place_forget()
+        
+        PlaceInputDirLbl.place_forget()
+        PlaceInputDirEntry.place_forget()
+        PlaceInputDirBtn.place_forget()
+        PlaceInputFilesCountLbl.place_forget()
+        PlaceOutputDirLbl.place_forget()
+        PlaceOutputDirEntry.place_forget()
+        PlaceOutputDirBtn.place_forget()
+        PlaceStartBtn.place_forget()
+        PlaceStatusLbl.place_forget()
+        PlaceTimeLbl.place_forget()
 
         
     if CurrentUIpage == 2:
@@ -529,6 +681,7 @@ def UIswitcher():
         SetModeDividePdfBtn.place_forget()
         SetModeMoveByBoxBtn.place_forget()
         SetModeSortAndMergeBtn.place_forget()
+        SetModePlacerBtn.place_forget()
         
         DivideInputDirLbl.place_forget()
         DivideInputDirEntry.place_forget()
@@ -538,9 +691,18 @@ def UIswitcher():
         DivideOutputDirBtn.place_forget()
         DivideOutputDirEntry.place_forget()
         DivideStartDivisionBtn.place_forget()
-        DivideCurrentFileLbl.place_forget()
         DivideStatusLbl.place_forget()
         DivideTimeLbl.place_forget()
+        DivideResizeGUIBtn.place_forget()
+        DivideProcess1StatusLbl.place_forget()
+        DivideProcess2StatusLbl.place_forget()
+        DivideProcess3StatusLbl.place_forget()
+        DivideProcess4StatusLbl.place_forget()
+        DivideProcess5StatusLbl.place_forget()
+        DivideProcess6StatusLbl.place_forget()
+        DivideInputDirChooseBtn.configure(state = DISABLED)
+        DivideOutputDirBtn.configure(state = DISABLED)
+        DivideStartDivisionBtn.configure(state = DISABLED)
 
         MoveInputDirPathLbl.place       (x=16, y=7+40)
         MoveInputDirEntry.place         (x=20, y=30+40)
@@ -566,6 +728,17 @@ def UIswitcher():
         SortStatus2Lbl.place_forget()
         SortTimeLbl.place_forget()
         
+        PlaceInputDirLbl.place_forget()
+        PlaceInputDirEntry.place_forget()
+        PlaceInputDirBtn.place_forget()
+        PlaceInputFilesCountLbl.place_forget()
+        PlaceOutputDirLbl.place_forget()
+        PlaceOutputDirEntry.place_forget()
+        PlaceOutputDirBtn.place_forget()
+        PlaceStartBtn.place_forget()
+        PlaceStatusLbl.place_forget()
+        PlaceTimeLbl.place_forget()
+        
     if CurrentUIpage == 3:
         MainModeLbl.config(text = 'Объединение счет-фактур:')
         MainModeBackBtn.place(x=310, y=6, height=20)
@@ -577,6 +750,7 @@ def UIswitcher():
         SetModeDividePdfBtn.place_forget()
         SetModeMoveByBoxBtn.place_forget()
         SetModeSortAndMergeBtn.place_forget()
+        SetModePlacerBtn.place_forget()
 
         DivideInputDirLbl.place_forget()
         DivideInputDirEntry.place_forget()
@@ -586,9 +760,18 @@ def UIswitcher():
         DivideOutputDirBtn.place_forget()
         DivideOutputDirEntry.place_forget()
         DivideStartDivisionBtn.place_forget()
-        DivideCurrentFileLbl.place_forget()
         DivideStatusLbl.place_forget()
         DivideTimeLbl.place_forget()
+        DivideResizeGUIBtn.place_forget()
+        DivideProcess1StatusLbl.place_forget()
+        DivideProcess2StatusLbl.place_forget()
+        DivideProcess3StatusLbl.place_forget()
+        DivideProcess4StatusLbl.place_forget()
+        DivideProcess5StatusLbl.place_forget()
+        DivideProcess6StatusLbl.place_forget()
+        DivideInputDirChooseBtn.configure(state = DISABLED)
+        DivideOutputDirBtn.configure(state = DISABLED)
+        DivideStartDivisionBtn.configure(state = DISABLED)
 
         MoveInputDirPathLbl.place_forget()
         MoveInputDirEntry.place_forget()
@@ -614,6 +797,88 @@ def UIswitcher():
         SortStatus2Lbl.place            (x=145, y=140+10)
         SortTimeLbl.place               (x=145, y=125+10)
         
+        PlaceInputDirLbl.place_forget()
+        PlaceInputDirEntry.place_forget()
+        PlaceInputDirBtn.place_forget()
+        PlaceInputFilesCountLbl.place_forget()
+        PlaceOutputDirLbl.place_forget()
+        PlaceOutputDirEntry.place_forget()
+        PlaceOutputDirBtn.place_forget()
+        PlaceStartBtn.place_forget()
+        PlaceStatusLbl.place_forget()
+        PlaceTimeLbl.place_forget()
+        
+    if CurrentUIpage == 4:
+        MainModeLbl.config(text = 'Сортировка счет-фактур по КПП:')
+        MainModeBackBtn.place(x=310, y=6, height=20)
+        
+        scrnw = (root.winfo_screenwidth()//2) - scrnwparam
+        scrnh = (root.winfo_screenheight()//2) - scrnhparam
+        root.geometry('375x250+{}+{}'.format(scrnw, scrnh))
+        
+        SetModeDividePdfBtn.place_forget()
+        SetModeMoveByBoxBtn.place_forget()
+        SetModeSortAndMergeBtn.place_forget()
+        SetModePlacerBtn.place_forget()
+
+        DivideInputDirLbl.place_forget()
+        DivideInputDirEntry.place_forget()
+        DivideInputDirChooseBtn.place_forget()
+        DivideInputDirPCountLbl.place_forget()
+        DivideOutputDirBtnLbl.place_forget()
+        DivideOutputDirBtn.place_forget()
+        DivideOutputDirEntry.place_forget()
+        DivideStartDivisionBtn.place_forget()
+        DivideStatusLbl.place_forget()
+        DivideTimeLbl.place_forget()
+        DivideResizeGUIBtn.place_forget()
+        DivideProcess1StatusLbl.place_forget()
+        DivideProcess2StatusLbl.place_forget()
+        DivideProcess3StatusLbl.place_forget()
+        DivideProcess4StatusLbl.place_forget()
+        DivideProcess5StatusLbl.place_forget()
+        DivideProcess6StatusLbl.place_forget()
+        DivideInputDirChooseBtn.configure(state = DISABLED)
+        DivideOutputDirBtn.configure(state = DISABLED)
+        DivideStartDivisionBtn.configure(state = DISABLED)
+
+        MoveInputDirPathLbl.place_forget()
+        MoveInputDirEntry.place_forget()
+        MoveInputDirChooseBtn.place_forget()
+        MoveRefreshBtn.place_forget()
+        MoveFilesCountLbl.place_forget()
+        MoveOutputDirBtnLbl.place_forget()
+        MoveOutputDirBtn.place_forget()
+        MoveOutputDirEntry.place_forget()
+        MoveBarcodeSelLbl.place_forget()
+        MoveBarcodeSelBtn.place_forget()
+        MoveBarcodeFileOpenBtn.place_forget()
+        MoveBarcodeSelEntry.place_forget()
+        MoveBarcodeCountLbl.place_forget()
+        MoveStartMovingBtn.place_forget()
+        
+        SortInputDirPathLbl.place_forget()
+        SortInputDirEntry.place_forget()
+        SortInputDirChooseBtn.place_forget()
+        SortValidDirsCountLbl.place_forget()
+        SortStartCombineBtn.place_forget()
+        SortStatus1Lbl.place_forget()
+        SortStatus2Lbl.place_forget()
+        SortTimeLbl.place_forget()
+        
+        PlaceInputDirLbl.place        (x=16, y=7+40)
+        PlaceInputDirEntry.place      (x=20, y=30+40, width=275)
+        PlaceInputDirBtn.place        (x=305, y=29+40, height=20)
+        PlaceInputFilesCountLbl.place (x=16, y=49+40)
+        PlaceOutputDirLbl.place       (x=17, y=87+35)
+        PlaceOutputDirEntry.place     (x=75, y=111+35, width=275)
+        PlaceOutputDirBtn.place       (x=20, y=110+35, height=20)
+        PlaceStartBtn.place           (x=20, y=190, width=85)
+        PlaceStatusLbl.place          (x=120, y=183)
+        PlaceTimeLbl.place            (x=120, y=200)
+    
+    
+        
 
 def FlushAll():
     # >>> Divide var flush <<
@@ -627,10 +892,12 @@ def FlushAll():
     global DivideIsOutputSel
     global DivideReadyToGo
     global DivideIsRunning
+    global DivideGUIisResized
     DivideIsInputSel = False
     DivideIsOutputSel = False
     DivideReadyToGo = False
     DivideIsRunning = False
+    DivideGUIisResized = False
     
     global DivideFirstPagesArray
     global DivideInputFilesArray
@@ -640,7 +907,12 @@ def FlushAll():
     DivideInputDirPCountLbl.config(text = "")
     DivideStatusLbl.config(text = "")
     DivideTimeLbl.config(text = "")
-    DivideCurrentFileLbl.config(text = "")
+    DivideProcess1StatusLbl.config(text = "Процесс 1 ожидает...")
+    DivideProcess2StatusLbl.config(text = "Процесс 2 ожидает...")
+    DivideProcess3StatusLbl.config(text = "Процесс 3 ожидает...")
+    DivideProcess4StatusLbl.config(text = "Процесс 4 ожидает...")
+    DivideProcess5StatusLbl.config(text = "Процесс 5 ожидает...")
+    DivideProcess6StatusLbl.config(text = "Процесс 6 ожидает...")
     
     DivideInputDirEntry.configure(state = NORMAL)
     DivideInputDirEntry.delete(0,END)
@@ -736,6 +1008,42 @@ def FlushAll():
     SortInputDirEntry.configure(state = DISABLED)
     
     SortStartCombineBtn.configure(state = DISABLED)
+    # -----------------------
+
+
+
+    # >>> Place var flush <<<
+    # -----------------------
+    global PlaceInputDir
+    global PlaceFilesArray
+    global PlaceInputDirSel
+    global PlaceOutputDirSel
+    global PlaceWorking
+    global PlaceStartTime
+    
+    PlaceInputDir = ""
+    PlaceFilesArray = []
+    
+    PlaceInputDirSel = False
+    PlaceOutputDirSel = False
+    
+    PlaceWorking = False
+    PlaceStartTime = ""
+    
+    PlaceStatusLbl.config(text = "")
+    PlaceTimeLbl.config(text = "")
+    PlaceInputFilesCountLbl.config(text = "")
+    
+    PlaceInputDirEntry.configure(state = NORMAL)
+    PlaceInputDirEntry.delete(0,END)
+    PlaceInputDirEntry.configure(state = DISABLED)
+    
+    PlaceOutputDirEntry.configure(state = NORMAL)
+    PlaceOutputDirEntry.delete(0,END)
+    PlaceOutputDirEntry.configure(state = DISABLED)
+    
+    PlaceStartBtn.configure(state = DISABLED)
+    # -----------------------
 
 
     
@@ -764,7 +1072,6 @@ def DivideInputFileChoose():
         DivideCheckIfReady()
     else:
         print('Divide: IFC: DivideInputFile not selected')
-
 
 
 def DivideInputDirChoose():
@@ -814,8 +1121,7 @@ def DividerPageCountThread():
     inputfolderinfolbl = ('Файлов в папке: {0}, страниц: {1}'.format(len(DivideInputFilesArray), allpagecount))
     DivideInputDirPCountLbl.config(text = inputfolderinfolbl)
     MainModeBackBtn.configure(state = NORMAL)
-    
-    
+
 
 def DivideOutputDirChoose():
     global DivideOutputDir
@@ -871,19 +1177,6 @@ def DivideCheckIfReady():
         DivideStartDivisionBtn.configure(state = DISABLED)
 
 
-def DivideBlockGUI(yes):
-    if yes:
-        MainModeBackBtn.configure(state = DISABLED)
-        DivideInputDirChooseBtn.configure(state = DISABLED)
-        DivideOutputDirBtn.configure(state = DISABLED)
-        DivideStartDivisionBtn.configure(state = DISABLED)
-    else:
-        MainModeBackBtn.configure(state = NORMAL)
-        DivideInputDirChooseBtn.configure(state = NORMAL)
-        DivideOutputDirBtn.configure(state = NORMAL)
-        DivideStartDivisionBtn.configure(state = NORMAL)
-
-
 
 
 def DivideStartDivision():
@@ -893,55 +1186,178 @@ def DivideStartDivision():
     print(DivideReadyToGo)
     
     if DivideReadyToGo:
-        DivideBlockGUI(True)
-
-        minerthread = Thread(target=DivideFolderExec)
-        minerthread.start()
         timethread = Thread(target=DivideTimeUpdater)
         timethread.start()
+        minerthread = Thread(target=DividerProcessManager)
+        minerthread.start()
         minerthread = ""
         timethread = ""
 
 
-def DivideFolderExec():
+def DividerProcessManager():
     global DivideInputFilesArray
-    global DivideInputFile
-    
+    global DivideOutputDir
     global DivideIsRunning
     global DivideStartedTime
+    global MaxProcessCount
+
+    MaxProcessCount = 5 # from zero
     
+    DivideBlockGUI(True)
     DivideIsRunning = True
     DivideStartedTime = time.time()
     
+    # ProcessManager:
+    runningprocessescount = 0
+    fileresultarray = []
+    dataq = Queue()
+
     for i in range (len(DivideInputFilesArray)):
-        print(DivideInputFilesArray[i])
-        currfilelbltxt = ("Файл {0} из {1}: {2}".format(i+1, len(DivideInputFilesArray), Path(DivideInputFilesArray[i]).name))
-        DivideCurrentFileLbl.config(text = currfilelbltxt)
-        DivideInputFile = DivideInputFilesArray[i]
-        DivideMiner()
+        fileresultarray.append(2) # 2 -> awaiting, 1 -> in work, 0 -> ready
+    print('ProcessManager: fileresultarray: {0}'.format(fileresultarray))
+
+    processguinumarray = []
+    processjustterminated = False
+    firstloop = True
+    while True:
+
+        # Checking if data received
+        if not dataq.empty():
+            #### dataq: processnum, status, inputfile, message
+            processresult = dataq.get()
+
+            # Refreshing GUI with received data
+            for g in range (len(processguinumarray)):
+                if processresult[0] == processguinumarray[g]:
+                    processguinum = g
+                    break
+                    
+            processresultlbl = ['Документ №{0}: {1}'.format(processresult[0]+1, Path(processresult[2]).name), str(processresult[3])]
+            if processguinum == 0:
+                DivideProcess1StatusLbl.config(text = "\n".join(processresultlbl))
+            elif processguinum == 1:
+                DivideProcess2StatusLbl.config(text = "\n".join(processresultlbl))
+            elif processguinum == 2:
+                DivideProcess3StatusLbl.config(text = "\n".join(processresultlbl))
+            elif processguinum == 3:
+                DivideProcess4StatusLbl.config(text = "\n".join(processresultlbl))
+            elif processguinum == 4:
+                DivideProcess5StatusLbl.config(text = "\n".join(processresultlbl))
+            elif processguinum == 5:
+                DivideProcess6StatusLbl.config(text = "\n".join(processresultlbl))
+                
+                
+            if processresult[1] == 0: # process terminated
+                processjustterminated = True
+                print('ProcessManager: reciever: process {0} terminated'.format(processresult[0]))
+                
+                runningprocessescount = runningprocessescount - 1
+                fileresultarray[processresult[0]] = 0
+                
+                
+                
+        # Checking space for new process start
+        if processjustterminated or firstloop == True:
+            processjustterminated = False
+            
+            processestostart = MaxProcessCount - runningprocessescount
+            
+            # Checking amount of files that remains for exec
+            filesawaiting = 0
+            for r in range (len(fileresultarray)): # Scanning for awaiting files
+                if fileresultarray[r] == 2:
+                    filesawaiting = filesawaiting + 1
+                    
+            print('')
+            print('')
+            print('processjustterminated or firstloop')
+            print('ProcessManager: runningprocessescount: {0}'.format(runningprocessescount))
+            print('ProcessManager: filesawaiting: {0}'.format(filesawaiting))
+            print('ProcessManager: processestostart: {0} ({1})'.format(processestostart, processestostart+1))
+
+            if firstloop:
+                firstloop = False
+                if filesawaiting <= MaxProcessCount:
+                    processestostart = filesawaiting - 1
+                else:
+                    processestostart = MaxProcessCount
+                    
+                if filesawaiting == 1:
+                    processguinumarray.clear()
+                    processguinumarray.append(0)
+                    
+                needtostartprocess = True
+                print('ProcessManager: +++ First loop !')
+            elif processestostart <= filesawaiting and  filesawaiting!=0 :
+                needtostartprocess = True
+                print('ProcessManager: +++ Need to start new process')
+            else:
+                needtostartprocess = False
+            
+            if needtostartprocess:
+                needtostartprocess = False
+                # Iterations for process start
+                for s in range (processestostart+1):
+                    for j in range (len(fileresultarray)):
+                        if fileresultarray[j] == 2: # Scanning for awaiting files
+                            fileresultarray[j] = 1 # Mark this file to "1 -> in work"
+                            runningprocessescount = runningprocessescount + 1
+                            creatingprocessfilenum = j
+                            
+                            print('ProcessManager: GUI procstart: before processguinumarray {0}'.format(processguinumarray))
+                            if runningprocessescount > 1:
+                                processguinumarray.clear()
+                                for z in range (len(fileresultarray)):
+                                    if fileresultarray[z] == 1:
+                                        processguinumarray.append(z)
+                            print('ProcessManager: GUI procstart: after processguinumarray {0}'.format(processguinumarray))
+                            
+                            break
+                    #### DividerEm: (processnum, dataq, inputfile, outputdir)
+                    subprocess = Process(target=DivideMiner, args=(creatingprocessfilenum, dataq, DivideInputFilesArray[creatingprocessfilenum], DivideOutputDir))
+                    subprocess.start()
+                    print('ProcessManager: ***** Just started new process ! {0}'.format(j))
+                    print('ProcessManager: **** runningprocessescount: {0}'.format(runningprocessescount))
+                    print('ProcessManager: **** fileresultarray {0}'.format(fileresultarray))
+            print('')
+            print('')
+            
+            
+            
+        # Checking if all is done
+        filesready = 0
+        for e in range (len(fileresultarray)): # Scanning for ready files
+            if fileresultarray[e] == 0:
+                filesready = filesready + 1
+                
         
+        
+        if filesready == len(fileresultarray):
+            DivideStatusLbl.config(text = 'Завершено! {0} из {1}'.format(filesready, len(fileresultarray)))
+            messagebox.showinfo("", "Обработка завершена !")
+            print('ProcessManager: All done !!!')
+            break
+        else:
+            DivideStatusLbl.config(text = 'Выполнено {0} из {1}'.format(filesready, len(fileresultarray)))
+
     DivideIsRunning = False
     DivideBlockGUI(False)
-    
-    msgbxlbl = 'Обработка файлов завершена!'
-    messagebox.showinfo("", msgbxlbl)
 
 
-def DivideMiner():
-    global DivideInputFile
-    global DivideInputPagesCount
-    global DivideFirstPagesArray
+def DivideMiner(processnum, dataq, DivideInputFile, DivideOutputDir):
 
-    print('Divide: Miner: Started !')
+    processname = current_process().name
+    print("= Divider №{0}--{1} STARTED !: {2}".format(processnum, processname, DivideInputFile))
     
     word = 'Счет-фактура №'
     pagecounter = 1
     finded = False
-    DivideFirstPagesArray = []
-    DivideFirstPagesArray.clear
+    firstpagesarray = []
+    firstpagesarray.clear
 
-    DivideInputPagesCount = PDFCountPages(DivideInputFile)
-    
+    pdf = PdfFileReader(DivideInputFile)
+    DivideInputPagesCount = pdf.getNumPages()
+
     pdftomine = open(DivideInputFile, 'rb')
     manager = PDFResourceManager()
     laparams = LAParams()
@@ -958,19 +1374,20 @@ def DivideMiner():
                     text = line.get_text()
                     similarity = Similar(text, word)
                     if similarity > 0.9:
-                        DivideFirstPagesArray.append(pagecounter)
-                        print('Divide: Miner:    finded! page ' + str(pagecounter))
+                        firstpagesarray.append(pagecounter)
+                        print("= Divider №{0}--{1}, file: {2}    finded! page {3}".format(processnum, processname, DivideInputFile, pagecounter))
                         finded = True
         if finded:
             finded = False
         else:
-            print('Divide: Miner:    page ' + str(pagecounter))
+            print("= Divider №{0}--{1}, file: {2}    page {3}".format(processnum, processname, DivideInputFile, pagecounter))
             
-        progresslbltxt = "Поиск первых страниц... Чтение {0} из {1}, найдено: {2}".format(pagecounter, DivideInputPagesCount, len(DivideFirstPagesArray))
-        DivideStatusLbl.config(text = progresslbltxt)
+        progresslbltxt = "Поиск первых страниц... Чтение {0} из {1}, найдено: {2}".format(pagecounter, DivideInputPagesCount, len(firstpagesarray))
+        dataq.put([processnum, 1, DivideInputFile, progresslbltxt])
+        #DivideStatusLbl.config(text = progresslbltxt)
         pagecounter = pagecounter + 1
         
-    print('Divide: Miner: Ended !')
+    print("= Divider №{0}--{1}, ENDED !: {2}".format(processnum, processname, DivideInputFile))
     
     pdftomine = ''
     manager = ''
@@ -979,98 +1396,120 @@ def DivideMiner():
     interpreter = ''
     pages = ''
     
-    if len(DivideFirstPagesArray) > 0:
-        DivideFileMaker()
-    else:
+    
+    if len(firstpagesarray) == 0:
         progresslbltxt = "Поиск завершен, счет-фактур не найдено !"
-        DivideStatusLbl.config(text = progresslbltxt)
-        DivideIsRunning = False
-        DivideBlockGUI(False)
+        dataq.put([processnum, 1, DivideInputFile, progresslbltxt])
+        #DivideStatusLbl.config(text = progresslbltxt)
         msgbxlbl = 'В выбранном документе не найдено счет-фактур !'
         messagebox.showerror("", msgbxlbl)
-
-
-def DivideFileMaker():
-    global DivideInputFile
-    global DivideInputPagesCount
-    global DivideFirstPagesArray
-    
-    global DivideOutputDir
-    
-    global DivideIsRunning
-    
-    
-    print('')
-    print('Divide: FM: Started !')
-    originalpdf = PyPDF2.PdfFileReader(DivideInputFile)
-   
-    for k in range(len(DivideFirstPagesArray)):
-        if k+1 < len(DivideFirstPagesArray):
+    else:
+        print("= Divider №{0}--{1}, FM Started !: {2}".format(processnum, processname, DivideInputFile))
         
-            print('**** Документ №: ', str(k+1))
-            outputfile = Path (DivideOutputDir, (str(Path(DivideInputFile).name)+" - стр."+str(DivideFirstPagesArray[k])+'.pdf'))
-            print("Номер первой стр: {0}, номер сл.первой {1}".format(DivideFirstPagesArray[k],DivideFirstPagesArray[k+1]))
-            print("Итоговый файл: {0}".format(outputfile))
-            print('Список страниц документа:')
+        originalpdf = PdfFileReader(DivideInputFile)
+       
+        for k in range(len(firstpagesarray)):
+            if k+1 < len(firstpagesarray):
             
-            temparray = []
-            temparray.clear()
-            for x in range(DivideFirstPagesArray[k], DivideFirstPagesArray[k+1]):
-                print(x)
-                temparray.append(x)
-            
-            pdf_writer = PyPDF2.PdfFileWriter()
-            for x in range(len(temparray)):
-                pdf_writer.addPage(originalpdf.getPage(temparray[x]-1))
+                print('**** Документ №: ', str(k+1))
+                outputfile = Path (DivideOutputDir, (str(Path(DivideInputFile).name)+" - стр."+str(firstpagesarray[k])+'.pdf'))
+                print("Номер первой стр: {0}, номер сл.первой {1}".format(firstpagesarray[k],firstpagesarray[k+1]))
+                print("Итоговый файл: {0}".format(outputfile))
+                print('Список страниц документа:')
+                
+                temparray = []
+                temparray.clear()
+                for x in range(firstpagesarray[k], firstpagesarray[k+1]):
+                    print(x)
+                    temparray.append(x)
+                
+                pdf_writer = PdfFileWriter()
+                for x in range(len(temparray)):
+                    pdf_writer.addPage(originalpdf.getPage(temparray[x]-1))
 
-            progresslbltxt = "Создание документов... Обработка {0} из {1}".format(k, len(DivideFirstPagesArray))
-            DivideStatusLbl.config(text = progresslbltxt)
+                progresslbltxt = "Создание документов... Обработка {0} из {1}".format(k, len(firstpagesarray))
+                dataq.put([processnum, 1, DivideInputFile, progresslbltxt])
+                #DivideStatusLbl.config(text = progresslbltxt)
 
-            pdf_writer.write(open(outputfile, 'wb'))
-            pdf_writer = ''
+                pdf_writer.write(open(outputfile, 'wb'))
+                pdf_writer = ''
 
-            print('Обработка завершена')
-            print('*******************')
-            print('')
+                print('Обработка завершена')
+                print('*******************')
+                print('')
 
 
-    print('**** Последний документ: ', str(len(DivideFirstPagesArray)))
-    outputfile = Path (DivideOutputDir, (str(Path(DivideInputFile).name)+" - стр."+str(DivideFirstPagesArray[k])+'.pdf'))
-    print("Итоговый файл: {0}".format(outputfile))
-    print('Список страниц документа:')
-    
-    temparray.clear()
-    for x in range(DivideFirstPagesArray[len(DivideFirstPagesArray)-1], DivideInputPagesCount+1):
-        print(x)
-        temparray.append(x)
+        print('**** Последний документ: ', str(len(firstpagesarray)))
+        outputfile = Path (DivideOutputDir, (str(Path(DivideInputFile).name)+" - стр."+str(firstpagesarray[k])+'.pdf'))
+        print("Итоговый файл: {0}".format(outputfile))
+        print('Список страниц документа:')
         
-    pdf_writer = PyPDF2.PdfFileWriter()
-    for x in range(len(temparray)):
-        pdf_writer.addPage(originalpdf.getPage(temparray[x]-1))
+        temparray.clear()
+        for x in range(firstpagesarray[len(firstpagesarray)-1], DivideInputPagesCount+1):
+            print(x)
+            temparray.append(x)
+            
+        pdf_writer = PdfFileWriter()
+        for x in range(len(temparray)):
+            pdf_writer.addPage(originalpdf.getPage(temparray[x]-1))
 
-    progresslbltxt = "Создание документов... Обработка {0} из {1}".format(len(DivideFirstPagesArray), len(DivideFirstPagesArray))
-    DivideStatusLbl.config(text = progresslbltxt)
+        progresslbltxt = "Создание документов... Обработка {0} из {1}".format(len(firstpagesarray), len(firstpagesarray))
+        dataq.put([processnum, 1, DivideInputFile, progresslbltxt])
+        #DivideStatusLbl.config(text = progresslbltxt)
 
-    pdf_writer.write(open(outputfile, 'wb'))
-    pdf_writer = ''
+        pdf_writer.write(open(outputfile, 'wb'))
+        pdf_writer = ''
+        
+        progresslbltxt = "Обработка завершена!"
+        dataq.put([processnum, 0, DivideInputFile, progresslbltxt])
+        #DivideStatusLbl.config(text = progresslbltxt)
+
+        print('Обработка завершена')
+        print('****************************')
+
+        print("= Divider №{0}--{1}, FM : {2},    Documents in file: {3}".format(processnum, processname, DivideInputFile, len(firstpagesarray)))
+        print("= Divider №{0}--{1}, FM Ended !: {2}".format(processnum, processname, DivideInputFile))
     
-    progresslbltxt = "Обработка завершена!"
-    DivideStatusLbl.config(text = progresslbltxt)
-
-    print('Обработка завершена')
-    print('****************************')
 
 
-    print('Documents in file: ' + str(len(DivideFirstPagesArray)))
-    print('Divide: FM: Ended !')
+
+def DivideBlockGUI(yes):
+    if yes:
+        MainModeBackBtn.configure(state = DISABLED)
+        DivideInputDirChooseBtn.configure(state = DISABLED)
+        DivideOutputDirBtn.configure(state = DISABLED)
+        DivideStartDivisionBtn.configure(state = DISABLED)
+    else:
+        MainModeBackBtn.configure(state = NORMAL)
+        DivideInputDirChooseBtn.configure(state = NORMAL)
+        DivideOutputDirBtn.configure(state = NORMAL)
+        DivideStartDivisionBtn.configure(state = NORMAL)
+
+
+def DivideResizeGUI():
+    global scrnwparam
+    global scrnhparam
+    global DivideGUIisResized
     
+    if DivideGUIisResized:
+        DivideGUIisResized = not DivideGUIisResized
+        scrnw = (root.winfo_screenwidth()//2) - scrnwparam
+        scrnh = (root.winfo_screenheight()//2) - scrnhparam
+        root.geometry('375x225+{}+{}'.format(scrnw, scrnh))
+        DivideResizeGUIBtn.config(text = '➘')
+    else:
+        DivideGUIisResized = not DivideGUIisResized
+        scrnw = (root.winfo_screenwidth()//2) - scrnwparam
+        scrnh = (root.winfo_screenheight()//2) - scrnhparam
+        root.geometry('375x475+{}+{}'.format(scrnw, scrnh))
+        DivideResizeGUIBtn.config(text = '➚')
 
-    
 
 def DivideTimeUpdater():
     global DivideIsRunning
     global DivideStartedTime
-
+    
+    time.sleep(0.5)
     while DivideIsRunning:
         result = time.time() - DivideStartedTime
         result = datetime2.timedelta(seconds=round(result))
@@ -1784,8 +2223,205 @@ def SortBlockGUI(yes):
         SortStartCombineBtn.configure(state = NORMAL)
 
 
+#########################
+
+
+
+
+
+
+
+
+
+######## Place functions
+#########################
+
+def PlaceInputDirChoose():
+    global PlaceInputDir
+
+    PlaceInputDir = filedialog.askdirectory(title="Выберите папку на сортировку")
+    
+    if PlaceInputDir:
+        PlaceInputDirEntry.configure(state = NORMAL)
+        PlaceInputDirEntry.delete(0,END)
+        PlaceInputDirEntry.insert(0,str(Path(PlaceInputDir).name))
+        PlaceInputDirEntry.configure(state = DISABLED)
+        
+        print('PlaceInputDir:', PlaceInputDir)
+        
+        PlaceInputDirCheck()
+    else:
+        print('PlaceInputDir is NOT defined')
+        
+
+def PlaceInputDirCheck():
+    global PlaceInputDir
+    global PlaceFilesArray
+    global PlaceInputDirSel
+    global PlaceOutputDirSel
+
+    PlaceFilesArray.clear()
+    for file in os.listdir(PlaceInputDir):
+        if file.endswith(".pdf"):
+            PlaceFilesArray.append(os.path.join(PlaceInputDir, file))
+    
+    if len(PlaceFilesArray) == 0:
+        PlaceInputFilesCountLbl.config(text = 'Нет файлов PDF !')
+        print('no pdf in folder !')
+        PlaceInputDirSel = False
+    else:
+        PlaceInputFilesCountLbl.config(text = 'Количество файлов PDF: ' + str(len(PlaceFilesArray)))
+        print('number of valid files -', str(len(PlaceFilesArray)))
+        PlaceInputDirSel = True
+
+    if PlaceInputDirSel and PlaceOutputDirSel:
+        PlaceStartBtn.configure(state = NORMAL)
+    else:
+        PlaceStartBtn.configure(state = DISABLED)
+
+
+def PlaceOutputDirChoose():
+    global PlaceOutputDir
+    global PlaceInputDirSel
+    global PlaceOutputDirSel
+    
+    PlaceOutputDir = filedialog.askdirectory(title="Выберите папку для отсортированных")
+    if PlaceInputDir:
+        PlaceOutputDirEntry.configure(state = NORMAL)
+        PlaceOutputDirEntry.delete(0,END)
+        PlaceOutputDirEntry.insert(0,str(Path(PlaceOutputDir).name))
+        PlaceOutputDirEntry.configure(state = DISABLED)
+        
+        PlaceOutputDirSel = True
+        print('PlaceOutputDir:', PlaceOutputDir)
+    else:
+        print('PlaceInputDir is NOT defined')
+        
+        
+    if PlaceInputDirSel and PlaceOutputDirSel:
+        PlaceStartBtn.configure(state = NORMAL)
+    else:
+        PlaceStartBtn.configure(state = DISABLED)
+
+
+def PlaceStart():
+
+    PlaceMainThreadthread = Thread(target=PlaceMainThread)
+    PlaceMainThreadthread.start()
+    timethread = Thread(target=PlaceTimeUpdater)
+    timethread.start()
+
+
+def PlaceMainThread():
+    global PlaceWorking
+    global PlaceStartTime
+
+    global PlaceInputDir
+    global PlaceOutputDir
+    global PlaceFilesArray
+    
+    PlaceStartTime = time.time()
+    PlaceWorking = True
+    PlaceBlockGUI(True)
+    
+    for f in range(len(PlaceFilesArray)):
+        print("_________________________")
+        print('Документ №{0}: {1}'.format(f+1, Path(PlaceFilesArray[f]).name))
+        
+        invoicedata = PlaceFileTextSearch(PlaceFilesArray[f])
+        if isinstance(invoicedata, list):
+            statustext = "Обработка {0} из {1}".format(f, len(PlaceFilesArray))
+            PlaceStatusLbl.config(text = str(statustext))
+            print('ИНН, КПП документа: {0}'.format(invoicedata))
+            
+            fileoutputdir = Path(PlaceOutputDir, invoicedata[1])
+            fileoutputdirexist = os.path.exists(fileoutputdir)
+            print('fileoutputdir: {0}, exists: {1}'.format(fileoutputdir, fileoutputdirexist))
+            
+            if not fileoutputdirexist:
+                os.makedirs(fileoutputdir)
+                
+            fileoutputpath = Path(fileoutputdir, Path(PlaceFilesArray[f]).name).as_posix()
+            shutil.move(PlaceFilesArray[f], fileoutputpath)
+            
+            
+        else:
+            print('Не найдено ИНН, КПП !')
+            msgbxlbl = ['В документе не найдено ИНН, КПП !', '{0}'.format(PlaceFilesArray[f])]
+            messagebox.showerror("", "\n".join(msgbxlbl))
+            
+    
+    PlaceStatusLbl.config(text = "Обработка завершена !")
+    PlaceWorking = False
+    PlaceBlockGUI(False)
+    PlaceInputDirCheck()
+    
+    msgbxlbl = 'Сортировка завершена !'
+    messagebox.showinfo("", msgbxlbl)
+
+
+
+def PlaceFileTextSearch(file):
+
+    with open(file, 'rb') as pdftomine:
+        manager = PDFResourceManager()
+        laparams = LAParams()
+        dev = PDFPageAggregator(manager, laparams=laparams)
+        interpreter = PDFPageInterpreter(manager, dev)
+        pages = PDFPage.get_pages(pdftomine)
+
+        for pagenumber, page in enumerate(pages):
+            if pagenumber == 0:
+                interpreter.process_page(page)
+                layout = dev.get_result()
+                
+                for textbox in layout:
+                    if isinstance(textbox, LTText):
+                        for line in textbox:
+                            text = line.get_text().replace('\n', '')
+                            if len(text) == 22 or len(text) == 20:
+                                invoiceinn = re.sub("[^0-9]", "", (text.partition("/")[0]))
+                                invoicekpp = re.sub("[^0-9]", "", (text.partition("/")[2]))
+                                if invoiceinn.isnumeric() and invoicekpp.isnumeric():
+                                    if len(invoiceinn)==10 and len(invoicekpp)==9:
+                                        #print("_________________________")
+                                        #print('ИНН документа: {0}'.format(invoiceinn))
+                                        #print('КПП документа: {0}'.format(invoicekpp))
+                                        invoicedata = [invoiceinn, invoicekpp]
+                                        return invoicedata
+                                        break
+        return "NONE"
+
+
+def PlaceBlockGUI(yes):
+    if yes:
+        MainModeBackBtn.configure(state = DISABLED)
+        PlaceInputDirBtn.configure(state = DISABLED)
+        PlaceOutputDirBtn.configure(state = DISABLED)
+        PlaceStartBtn.configure(state = DISABLED)
+    else:
+        MainModeBackBtn.configure(state = NORMAL)
+        PlaceInputDirBtn.configure(state = NORMAL)
+        PlaceOutputDirBtn.configure(state = NORMAL)
+        PlaceStartBtn.configure(state = NORMAL)
+
+
+def PlaceTimeUpdater():
+    global PlaceWorking
+    global PlaceStartTime
+
+    time.sleep(0.01)
+    while PlaceWorking:
+        CreateDocTime = time.time()
+        result = CreateDocTime - PlaceStartTime
+        result = datetime2.timedelta(seconds=round(result))
+        PlaceTimeLbl.config(text = str(result))
+        time.sleep(0.01)
+
 
 #########################
+
+
 
 
 
@@ -1844,4 +2480,5 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 if __name__ == '__main__':
+    freeze_support()
     main()

@@ -8,7 +8,7 @@ global scrnhparam
 scrnwparam = 185
 scrnhparam = 150
 
-import os, sys, re
+import os, sys, re, shutil
 from pathlib import Path
 from threading import Thread
 import time
@@ -23,12 +23,12 @@ from pdfminer.converter import PDFPageAggregator
 global root
 
 
-global SorterInputDir
-global SorterFilesArray
-global SorterInputDirSel
-global SorterOutputDirSel
-global SorterWorking
-global SorterStartTime
+global PlaceInputDir
+global PlaceFilesArray
+global PlaceInputDirSel
+global PlaceOutputDirSel
+global PlaceWorking
+global PlaceStartTime
 
 
 
@@ -48,6 +48,9 @@ def main():
     app = GUI(root)
     root.mainloop()
 
+
+
+
 class GUI(Frame):
     def __init__(self, parent):
         Frame.__init__(self, parent, background="white")   
@@ -57,196 +60,196 @@ class GUI(Frame):
         self.initUI()
     
     def initUI(self):
-        global SorterInputDirLbl
-        SorterInputDirLbl = Label(text="Выберите файлы на сортировку:", background="white", font=("Arial", 10))
+        global PlaceInputDirLbl
+        PlaceInputDirLbl = Label(text="Выберите файлы на сортировку:", background="white", font=("Arial", 10))
         
-        global SorterInputDirEntry
-        SorterInputDirEntry = Entry(fg="black", bg="white", width=20)
-        SorterInputDirEntry.configure(state = DISABLED)
+        global PlaceInputDirEntry
+        PlaceInputDirEntry = Entry(fg="black", bg="white", width=20)
+        PlaceInputDirEntry.configure(state = DISABLED)
         
-        global SorterInputDirBtn
-        SorterInputDirBtn = Button(text='Выбор', command=SorterInputDirChoose)
+        global PlaceInputDirBtn
+        PlaceInputDirBtn = Button(text='Выбор', command=PlaceInputDirChoose)
         
-        global SorterInputFilesCountLbl
-        SorterInputFilesCountLbl = Label(text="", background="white")
-        
-        
-        global SorterOutputDirLbl
-        SorterOutputDirLbl = Label(text="Выберите папку для отсортированных:", background="white", font=("Arial", 10))
-        
-        global SorterOutputDirEntry
-        SorterOutputDirEntry = Entry(fg="black", bg="white", width=20)
-        SorterOutputDirEntry.configure(state = DISABLED)
-        
-        global SorterOutputDirBtn
-        SorterOutputDirBtn = Button(text='Выбор', command=SorterOutputDirChoose)
+        global PlaceInputFilesCountLbl
+        PlaceInputFilesCountLbl = Label(text="", background="white")
         
         
-        global SorterStartBtn
-        SorterStartBtn = Button(text='Запуск', command=SorterStart)
-        SorterStartBtn.configure(state = DISABLED)
+        global PlaceOutputDirLbl
+        PlaceOutputDirLbl = Label(text="Выберите папку для отсортированных:", background="white", font=("Arial", 10))
         
-        global SorterStatusLbl
-        SorterStatusLbl = Label(text="", background="white")
+        global PlaceOutputDirEntry
+        PlaceOutputDirEntry = Entry(fg="black", bg="white", width=20)
+        PlaceOutputDirEntry.configure(state = DISABLED)
         
-        global SorterTimeLbl
-        SorterTimeLbl = Label(text="", background="white")
+        global PlaceOutputDirBtn
+        PlaceOutputDirBtn = Button(text='Выбор', command=PlaceOutputDirChoose)
+        
+        
+        global PlaceStartBtn
+        PlaceStartBtn = Button(text='Запуск', command=PlaceStart)
+        PlaceStartBtn.configure(state = DISABLED)
+        
+        global PlaceStatusLbl
+        PlaceStatusLbl = Label(text="", background="white")
+        
+        global PlaceTimeLbl
+        PlaceTimeLbl = Label(text="", background="white")
 
 
-        SorterInputDirLbl.place        (x=16, y=7+40)
-        SorterInputDirEntry.place      (x=20, y=30+40, width=275)
-        SorterInputDirBtn.place        (x=305, y=29+40, height=20)
-        SorterInputFilesCountLbl.place (x=16, y=49+40)
-        SorterOutputDirLbl.place       (x=17, y=87+35)
-        SorterOutputDirEntry.place     (x=75, y=111+35, width=275)
-        SorterOutputDirBtn.place       (x=20, y=110+35, height=20)
-        SorterStartBtn.place           (x=20, y=190, width=85)
-        SorterStatusLbl.place          (x=120, y=183)
-        SorterTimeLbl.place            (x=120, y=200)
+        PlaceInputDirLbl.place        (x=16, y=7+40)
+        PlaceInputDirEntry.place      (x=20, y=30+40, width=275)
+        PlaceInputDirBtn.place        (x=305, y=29+40, height=20)
+        PlaceInputFilesCountLbl.place (x=16, y=49+40)
+        PlaceOutputDirLbl.place       (x=17, y=87+35)
+        PlaceOutputDirEntry.place     (x=75, y=111+35, width=275)
+        PlaceOutputDirBtn.place       (x=20, y=110+35, height=20)
+        PlaceStartBtn.place           (x=20, y=190, width=85)
+        PlaceStatusLbl.place          (x=120, y=183)
+        PlaceTimeLbl.place            (x=120, y=200)
         
         
-        global SorterInputDir
-        global SorterFilesArray
-        global SorterInputDirSel
-        global SorterOutputDirSel
-        global SorterWorking
-        global SorterStartTime
+        global PlaceInputDir
+        global PlaceFilesArray
+        global PlaceInputDirSel
+        global PlaceOutputDirSel
+        global PlaceWorking
+        global PlaceStartTime
         
-        SorterInputDir = ""
-        SorterFilesArray = []
+        PlaceInputDir = ""
+        PlaceFilesArray = []
         
-        SorterInputDirSel = False
-        SorterOutputDirSel = False
+        PlaceInputDirSel = False
+        PlaceOutputDirSel = False
         
-        SorterWorking = False
-        SorterStartTime = ""
-        
+        PlaceWorking = False
+        PlaceStartTime = ""
 
 
 
-def SorterInputDirChoose():
-    global SorterInputDir
-    global SorterFilesArray
-    global SorterInputDirSel
-    global SorterOutputDirSel
 
-    SorterInputDir = filedialog.askdirectory(title="Выберите папку на сортировку")
+
+def PlaceInputDirChoose():
+    global PlaceInputDir
+
+    PlaceInputDir = filedialog.askdirectory(title="Выберите папку на сортировку")
     
-    if SorterInputDir:
-        SorterInputDirEntry.configure(state = NORMAL)
-        SorterInputDirEntry.delete(0,END)
-        SorterInputDirEntry.insert(0,str(Path(SorterInputDir).name))
-        SorterInputDirEntry.configure(state = DISABLED)
+    if PlaceInputDir:
+        PlaceInputDirEntry.configure(state = NORMAL)
+        PlaceInputDirEntry.delete(0,END)
+        PlaceInputDirEntry.insert(0,str(Path(PlaceInputDir).name))
+        PlaceInputDirEntry.configure(state = DISABLED)
         
-        print('SorterInputDir:', SorterInputDir)
+        print('PlaceInputDir:', PlaceInputDir)
         
-        SorterFilesArray.clear()
-        for file in os.listdir(SorterInputDir):
-            if file.endswith(".pdf"):
-                SorterFilesArray.append(os.path.join(SorterInputDir, file))
-        
-        if len(SorterFilesArray) == 0:
-            SorterInputFilesCountLbl.config(text = 'Нет файлов PDF !')
-            print('no pdf in folder !')
-            SorterInputDirSel = False
-        else:
-            SorterInputFilesCountLbl.config(text = 'Количество файлов PDF: ' + str(len(SorterFilesArray)))
-            print('number of valid files -', str(len(SorterFilesArray)))
-            SorterInputDirSel = True
+        PlaceInputDirCheck()
     else:
-        print('SorterInputDir is NOT defined')
+        print('PlaceInputDir is NOT defined')
         
-        
-    if SorterInputDirSel and SorterOutputDirSel:
-        SorterStartBtn.configure(state = NORMAL)
-    else:
-        SorterStartBtn.configure(state = DISABLED)
 
+def PlaceInputDirCheck():
+    global PlaceInputDir
+    global PlaceFilesArray
+    global PlaceInputDirSel
+    global PlaceOutputDirSel
 
-
-
-def SorterOutputDirChoose():
-    global SorterOutputDir
-    global SorterInputDirSel
-    global SorterOutputDirSel
+    PlaceFilesArray.clear()
+    for file in os.listdir(PlaceInputDir):
+        if file.endswith(".pdf"):
+            PlaceFilesArray.append(os.path.join(PlaceInputDir, file))
     
-    SorterOutputDir = filedialog.askdirectory(title="Выберите папку для отсортированных")
-    if SorterInputDir:
-        SorterOutputDirEntry.configure(state = NORMAL)
-        SorterOutputDirEntry.delete(0,END)
-        SorterOutputDirEntry.insert(0,str(Path(SorterOutputDir).name))
-        SorterOutputDirEntry.configure(state = DISABLED)
-        
-        SorterOutputDirSel = True
-        print('SorterOutputDir:', SorterOutputDir)
+    if len(PlaceFilesArray) == 0:
+        PlaceInputFilesCountLbl.config(text = 'Нет файлов PDF !')
+        print('no pdf in folder !')
+        PlaceInputDirSel = False
     else:
-        print('SorterInputDir is NOT defined')
-        
-        
-    if SorterInputDirSel and SorterOutputDirSel:
-        SorterStartBtn.configure(state = NORMAL)
+        PlaceInputFilesCountLbl.config(text = 'Количество файлов PDF: ' + str(len(PlaceFilesArray)))
+        print('number of valid files -', str(len(PlaceFilesArray)))
+        PlaceInputDirSel = True
+
+    if PlaceInputDirSel and PlaceOutputDirSel:
+        PlaceStartBtn.configure(state = NORMAL)
     else:
-        SorterStartBtn.configure(state = DISABLED)
+        PlaceStartBtn.configure(state = DISABLED)
 
 
+def PlaceOutputDirChoose():
+    global PlaceOutputDir
+    global PlaceInputDirSel
+    global PlaceOutputDirSel
+    
+    PlaceOutputDir = filedialog.askdirectory(title="Выберите папку для отсортированных")
+    if PlaceInputDir:
+        PlaceOutputDirEntry.configure(state = NORMAL)
+        PlaceOutputDirEntry.delete(0,END)
+        PlaceOutputDirEntry.insert(0,str(Path(PlaceOutputDir).name))
+        PlaceOutputDirEntry.configure(state = DISABLED)
+        
+        PlaceOutputDirSel = True
+        print('PlaceOutputDir:', PlaceOutputDir)
+    else:
+        print('PlaceInputDir is NOT defined')
+        
+        
+    if PlaceInputDirSel and PlaceOutputDirSel:
+        PlaceStartBtn.configure(state = NORMAL)
+    else:
+        PlaceStartBtn.configure(state = DISABLED)
 
 
-def SorterStart():
+def PlaceStart():
 
-    SorterMainThreadthread = Thread(target=SorterMainThread)
-    SorterMainThreadthread.start()
-    timethread = Thread(target=TimeUpdater)
+    PlaceMainThreadthread = Thread(target=PlaceMainThread)
+    PlaceMainThreadthread.start()
+    timethread = Thread(target=PlaceTimeUpdater)
     timethread.start()
 
 
+def PlaceMainThread():
+    global PlaceWorking
+    global PlaceStartTime
 
-
-def SorterMainThread():
-    global SorterWorking
-    global SorterStartTime
-
-    global SorterInputDir
-    global SorterOutputDir
-    global SorterFilesArray
+    global PlaceInputDir
+    global PlaceOutputDir
+    global PlaceFilesArray
     
-    SorterStartTime = time.time()
-    SorterWorking = True
-    SorterBlockGUI(True)
+    PlaceStartTime = time.time()
+    PlaceWorking = True
+    PlaceBlockGUI(True)
     
-    for f in range(len(SorterFilesArray)):
+    for f in range(len(PlaceFilesArray)):
         print("_________________________")
-        print('Документ №{0}: {1}'.format(f+1, Path(SorterFilesArray[f]).name))
+        print('Документ №{0}: {1}'.format(f+1, Path(PlaceFilesArray[f]).name))
         
-        invoicedata = SorterFileTextSearch(SorterFilesArray[f])
+        invoicedata = PlaceFileTextSearch(PlaceFilesArray[f])
         if isinstance(invoicedata, list):
-            statustext = "Документ {0} из {1}".format(f, len(SorterFilesArray))
-            SorterStatusLbl.config(text = str(statustext))
+            statustext = "Обработка {0} из {1}".format(f, len(PlaceFilesArray))
+            PlaceStatusLbl.config(text = str(statustext))
             print('ИНН, КПП документа: {0}'.format(invoicedata))
             
-            fileoutputdir = Path(SorterOutputDir, invoicedata[1])
+            fileoutputdir = Path(PlaceOutputDir, invoicedata[1])
+            fileoutputdirexist = os.path.exists(fileoutputdir)
+            print('fileoutputdir: {0}, exists: {1}'.format(fileoutputdir, fileoutputdirexist))
             
+            if not fileoutputdirexist:
+                os.makedirs(fileoutputdir)
+                
+            fileoutputpath = Path(fileoutputdir, Path(PlaceFilesArray[f]).name).as_posix()
+            shutil.move(PlaceFilesArray[f], fileoutputpath)
             
             
         else:
             print('Не найдено ИНН, КПП !')
+            msgbxlbl = ['В документе не найдено ИНН, КПП !', '{0}'.format(PlaceFilesArray[f])]
+            messagebox.showerror("", "\n".join(msgbxlbl))
             
-            
-            
-            
-    #isSorterInputDir = os.path.isdir(SorterInputDir)
     
-    
-    
-    
-    
-    SorterStatusLbl.config(text = "Обработка завершена !")
-    SorterWorking = False
-    SorterBlockGUI(False)
+    PlaceStatusLbl.config(text = "Обработка завершена !")
+    PlaceWorking = False
+    PlaceBlockGUI(False)
+    PlaceInputDirCheck()
 
 
-
-
-def SorterFileTextSearch(file):
+def PlaceFileTextSearch(file):
 
     with open(file, 'rb') as pdftomine:
         manager = PDFResourceManager()
@@ -278,32 +281,30 @@ def SorterFileTextSearch(file):
         return "NONE"
 
 
-
-
-def SorterBlockGUI(yes):
+def PlaceBlockGUI(yes):
     if yes:
-        SorterInputDirBtn.configure(state = DISABLED)
-        SorterOutputDirBtn.configure(state = DISABLED)
-        SorterStartBtn.configure(state = DISABLED)
+        PlaceInputDirBtn.configure(state = DISABLED)
+        PlaceOutputDirBtn.configure(state = DISABLED)
+        PlaceStartBtn.configure(state = DISABLED)
     else:
-        SorterInputDirBtn.configure(state = NORMAL)
-        SorterOutputDirBtn.configure(state = NORMAL)
-        SorterStartBtn.configure(state = NORMAL)
+        PlaceInputDirBtn.configure(state = NORMAL)
+        PlaceOutputDirBtn.configure(state = NORMAL)
+        PlaceStartBtn.configure(state = NORMAL)
 
 
-
-
-def TimeUpdater():
-    global SorterWorking
-    global SorterStartTime
+def PlaceTimeUpdater():
+    global PlaceWorking
+    global PlaceStartTime
 
     time.sleep(0.01)
-    while SorterWorking:
+    while PlaceWorking:
         CreateDocTime = time.time()
-        result = CreateDocTime - SorterStartTime
+        result = CreateDocTime - PlaceStartTime
         result = datetime2.timedelta(seconds=round(result))
-        SorterTimeLbl.config(text = str(result))
+        PlaceTimeLbl.config(text = str(result))
         time.sleep(0.01)
+
+
 
 
 if __name__ == '__main__':
