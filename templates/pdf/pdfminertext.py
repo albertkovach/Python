@@ -87,7 +87,7 @@ def ExtractText():
         layout = dev.get_result()
         for textbox in layout:
             if isinstance(textbox, LTText):
-                text = textbox.get_text().replace('\n', '')
+                text = textbox.get_text().replace('\n', '---')
                 print("_________________________")
                 print("coord: {0}, {1}".format(textbox.bbox[0], textbox.bbox[1]))
                 print("text: {0}".format(text))

@@ -5,7 +5,7 @@ from tkinter import ttk
 import ctypes as ct
 
 from threading import Thread
-from multiprocessing import Process, Queue, current_process
+from multiprocessing import Process, Queue, current_process, freeze_support
 import psutil
 
 import time
@@ -2030,4 +2030,5 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 if __name__ == '__main__':
+    multiprocessing.freeze_support()
     main()
