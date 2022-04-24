@@ -1,3 +1,9 @@
-http://python-3.ru/page/multiprocessing
-https://russianblogs.com/article/62061238963/
 https://lih-verma.medium.com/multi-processing-in-python-process-vs-pool-5caf0f67eb2b
+
+https://myrusakov.ru/python-create-gui-using-pyside6.html
+https://devpractice.ru/python-lesson-24-concurrency-part-3/
+https://russianblogs.com/article/62061238963/
+http://python-3.ru/page/multiprocessing
+https://pymotw.com/2/multiprocessing/basics.html
+https://zetcode.com/python/multiprocessing/
+https://lyceum-allotments.github.io/2017/03/python-and-pipes-part-6-multiple-subprocesses-and-pipes/
