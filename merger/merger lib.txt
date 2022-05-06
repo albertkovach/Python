@@ -8,6 +8,9 @@ pip install pikepdf
 
 pip install pyqt5
 
+pip install openpyxl
+pip install python-dateutil
+
 pip install fnmatch
 
 pip install -U click
