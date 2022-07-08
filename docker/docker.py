@@ -2325,16 +2325,16 @@ def PlaceMainThread():
     PlaceBlockGUI(True)
     
     for f in range(len(PlaceFilesArray)):
-        print("_________________________")
+        print("")
+        print("***************************")
         print('Документ №{0}: {1}'.format(f+1, Path(PlaceFilesArray[f]).name))
         
         invoicedata = PlaceFileTextSearch(PlaceFilesArray[f])
         if isinstance(invoicedata, list):
             statustext = "Обработка {0} из {1}".format(f, len(PlaceFilesArray))
             PlaceStatusLbl.config(text = str(statustext))
-            print('ИНН, КПП документа: {0}'.format(invoicedata))
             
-            fileoutputdir = Path(PlaceOutputDir, invoicedata[1])
+            fileoutputdir = Path(PlaceOutputDir, invoicedata[0])
             fileoutputdirexist = os.path.exists(fileoutputdir)
             print('fileoutputdir: {0}, exists: {1}'.format(fileoutputdir, fileoutputdirexist))
             
@@ -2360,8 +2360,16 @@ def PlaceMainThread():
     messagebox.showinfo("", msgbxlbl)
 
 
-
+    
 def PlaceFileTextSearch(file):
+    
+    vendordatafound = False
+    customerdatafound = False
+    
+    vendorinn = 'нет данных'
+    vendorkpp = 'нет данных'
+    customerinn = 'нет данных'
+    customerkpp = 'нет данных'
 
     with open(file, 'rb') as pdftomine:
         manager = PDFResourceManager()
@@ -2379,18 +2387,39 @@ def PlaceFileTextSearch(file):
                     if isinstance(textbox, LTText):
                         for line in textbox:
                             text = line.get_text().replace('\n', '')
-                            if len(text) == 22 or len(text) == 20:
-                                invoiceinn = re.sub("[^0-9]", "", (text.partition("/")[0]))
-                                invoicekpp = re.sub("[^0-9]", "", (text.partition("/")[2]))
-                                if invoiceinn.isnumeric() and invoicekpp.isnumeric():
-                                    if len(invoiceinn)==10 and len(invoicekpp)==9:
-                                        #print("_________________________")
-                                        #print('ИНН документа: {0}'.format(invoiceinn))
-                                        #print('КПП документа: {0}'.format(invoicekpp))
-                                        invoicedata = [invoiceinn, invoicekpp]
-                                        return invoicedata
-                                        break
+                            
+                            if vendordatafound == False:
+                                if len(text) == 22 or len(text) == 20:
+                                    invoiceinn = re.sub("[^0-9]", "", (text.partition("/")[0]))
+                                    invoicekpp = re.sub("[^0-9]", "", (text.partition("/")[2]))
+                                    if invoiceinn.isnumeric() and invoicekpp.isnumeric():
+                                        if len(invoiceinn)==10 and len(invoicekpp)==9:
+                                            vendorinn = invoiceinn
+                                            vendorkpp = invoicekpp
+                                            print('============================================')
+                                            print('VENDOR DATA - ИНН: {0}, КПП: {1}'.format(vendorinn, vendorkpp))
+                                            vendordatafound = True
+                            else:
+                                if customerdatafound == False:
+                                    if len(text) == 24 or len(text) == 22 or len(text) == 20 or len(text) == 14:
+                                        invoiceinn = re.sub("[^0-9]", "", (text.partition("/")[0]))
+                                        invoicekpp = re.sub("[^0-9]", "", (text.partition("/")[2]))
+                                        if invoiceinn.isnumeric():
+                                            if len(invoiceinn) == 10 or len(invoiceinn) == 12:
+                                                customerinn = invoiceinn
+                                                if invoicekpp.isnumeric():
+                                                    customerkpp = invoicekpp
+                                                else:
+                                                    customerkpp = 'null'
+                                            customerdatafound = True
+                                            print('CUSTOMER DATA - ИНН: {0}, КПП: {1}'.format(customerinn, customerkpp))
+                                            print('============================================')
+                                else:
+                                    invoicedata = [customerinn, customerkpp]
+                                    return invoicedata
+                                    break
         return "NONE"
+
 
 
 def PlaceBlockGUI(yes):
