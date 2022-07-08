@@ -2347,8 +2347,8 @@ def PlaceMainThread():
             
         else:
             print('Не найдено ИНН, КПП !')
-            msgbxlbl = ['В документе не найдено ИНН, КПП !', '{0}'.format(PlaceFilesArray[f])]
-            messagebox.showerror("", "\n".join(msgbxlbl))
+            #msgbxlbl = ['В документе не найдено ИНН, КПП !', '{0}'.format(PlaceFilesArray[f])]
+            #messagebox.showerror("", "\n".join(msgbxlbl))
             
     
     PlaceStatusLbl.config(text = "Обработка завершена !")
@@ -2401,23 +2401,25 @@ def PlaceFileTextSearch(file):
                                             vendordatafound = True
                             else:
                                 if customerdatafound == False:
-                                    if len(text) == 24 or len(text) == 22 or len(text) == 20 or len(text) == 14:
+                                    if 10<=len(text)<=30:
                                         invoiceinn = re.sub("[^0-9]", "", (text.partition("/")[0]))
                                         invoicekpp = re.sub("[^0-9]", "", (text.partition("/")[2]))
                                         if invoiceinn.isnumeric():
+                                            print('invoiceinn: {0}'.format(invoiceinn))
                                             if len(invoiceinn) == 10 or len(invoiceinn) == 12:
                                                 customerinn = invoiceinn
                                                 if invoicekpp.isnumeric():
                                                     customerkpp = invoicekpp
                                                 else:
                                                     customerkpp = 'null'
-                                            customerdatafound = True
-                                            print('CUSTOMER DATA - ИНН: {0}, КПП: {1}'.format(customerinn, customerkpp))
-                                            print('============================================')
-                                else:
-                                    invoicedata = [customerinn, customerkpp]
-                                    return invoicedata
-                                    break
+                                                customerdatafound = True
+                                                print('len: {0}, line: {1}'.format(len(text), text))
+                                                print('CUSTOMER DATA - ИНН: {0}, КПП: {1}'.format(customerinn, customerkpp))
+                                                print('============================================')
+                            if vendordatafound and customerdatafound:
+                                invoicedata = [customerinn, customerkpp]
+                                return invoicedata
+                                break
         return "NONE"
 
 
