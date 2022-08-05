@@ -57,7 +57,7 @@ def main():
         
     scrnw = (root.winfo_screenwidth()//2) - scrnwparam
     scrnh = (root.winfo_screenheight()//2) - scrnhparam
-    root.geometry('280x120+{}+{}'.format(scrnw, scrnh))
+    root.geometry('280x160+{}+{}'.format(scrnw, scrnh))
         
     app = GUI(root)
     root.mainloop()
@@ -83,18 +83,26 @@ class GUI(Frame):
         InputDirBtn = Button(text='Выбор', command=SelectDir)
         InputDirBtn.place(x=210, y=31, height=20)
         
+        global OutputNameLbl
+        OutputNameLbl = Label(text="Имя файла CSV:", background="white")
+        OutputNameLbl.place(x=26, y=62)
+        
+        global OutputNameEntry
+        OutputNameEntry = Entry(fg="black", bg="white", width=20)
+        OutputNameEntry.place(x=133, y=60)
+        
         global StartBtn
         StartBtn = Button(text='Запуск', command=Run)
-        StartBtn.place(x=20, y=55, height=20, width=50)
+        StartBtn.place(x=20, y=55+40, height=20, width=50)
         StartBtn.configure(state = DISABLED)
         
         global ProgressLbl
         ProgressLbl = Label(text="Выберите папку!", background="white")
-        ProgressLbl.place(x=20, y=85)
+        ProgressLbl.place(x=20, y=85+40)
         
         global TimeLbl
         TimeLbl = Label(text="", background="white")
-        TimeLbl.place(x=90, y=55)
+        TimeLbl.place(x=90, y=55+40)
         
         
         global CounterWorking
@@ -158,10 +166,14 @@ def RegistryFillingThread():
     global CSVfile
     desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') 
     #programpath = Path(__file__).resolve().parent
-    CSVfile = Path(desktop, "registry.csv")
     
+    OutputName = OutputNameEntry.get() + ".csv"
+    print(OutputName)
+    CSVfile = Path(desktop, OutputName)
+    
+    OutputLogName = OutputNameEntry.get() + "_LOG.txt"
     global LOGfile
-    LOGfile = Path(desktop, "log.txt")
+    LOGfile = Path(desktop, OutputLogName)
     
     try:
         with open(CSVfile, 'w', newline='') as f:
