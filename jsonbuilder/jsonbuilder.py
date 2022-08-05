@@ -192,9 +192,10 @@ def SelectFolder():
         
         RefreshFolder()
         print('** Array is packed!\n')
-                    
-        RunBtn.configure(state = NORMAL)
-        InputFolderRefrBtn.configure(state = NORMAL)
+        
+        if len(InputFilesArray) > 0:
+            RunBtn.configure(state = NORMAL)
+            InputFolderRefrBtn.configure(state = NORMAL)
                 
     else:
         print('InputFolder not selected')
@@ -369,10 +370,15 @@ def OpenOutputFolder():
     global OrbitaPath
     
     UserID = UserIDEntry.get()
-    completedfilesdir = Path(OrbitaPath, UserID)
-    revcompletedfilesdir = completedfilesdir.as_posix()
+    userfolder = Path(OrbitaPath, UserID)
+    revuserfolder = userfolder.as_posix()
     
-    os.startfile(revcompletedfilesdir)
+    isrevuserfolderexist = os.path.exists(revuserfolder)
+
+    if not isrevuserfolderexist:
+        os.makedirs(revuserfolder)
+    
+    os.startfile(revuserfolder)
 
 
 def DefaultVarInit():
