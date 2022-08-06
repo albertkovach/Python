@@ -13,6 +13,8 @@ from datetime import datetime
 from pathlib import Path
 from PyPDF2 import PdfFileReader
 
+from functools import partial
+
 
 
 def main():
@@ -109,7 +111,7 @@ class GUI(Frame):
         ProjectNameLbl.place(x=25, y=120)
         
         global ProjectNameEntry
-        ProjectNameEntry = Entry(fg="black", bg="white", width=30)
+        ProjectNameEntry = Entry(fg="black", bg="white", width=32)
         ProjectNameEntry.place(x=130, y=120)
         
         
@@ -123,11 +125,11 @@ class GUI(Frame):
         UserIDEntry.place(x=370, y=155)
         
         global UserNameLbl
-        UserNameLbl = Label(text="Имя оператора:", background="white")
-        UserNameLbl.place(x=25, y=155)
+        UserNameLbl = Button(text="Имя оператора:", command=UserSelector)
+        UserNameLbl.place(x=25, y=155, height=20)
         
         global UserNameEntry
-        UserNameEntry = Entry(fg="black", bg="white", width=30)
+        UserNameEntry = Entry(fg="black", bg="white", width=32)
         UserNameEntry.place(x=130, y=155)
         
         
@@ -232,24 +234,28 @@ def Run():
     global FolderMode
     global NoError
     
-    if FolderMode:
-        for doc in range(len(InputFilesArray)):
-            CreateJSON(InputFilesArray[doc])
+    if FolderNameEntry.index("end") == 0 or BoxNameEntry.index("end") == 0:
+        messagebox.showerror(title="Недостаточно данных", message="Заполните все требуемые поля !")
     else:
-        CreateJSON(InputFile)
-        
-    if NoError:
-        messagebox.showinfo("", "Задача выполнена !")
-        print('ALL DONE !\n')
-    else:
-        messagebox.showerror("", "Ошибка при выполнении !")
-        print('ALL DONE !\n')
+        if FolderMode:
+            for doc in range(len(InputFilesArray)):
+                CreateJSON(InputFilesArray[doc])
+        else:
+            CreateJSON(InputFile)
+            
+        if NoError:
+            messagebox.showinfo("", "Задача выполнена !")
+            print('ALL DONE !\n')
+        else:
+            messagebox.showerror("", "Ошибка при выполнении !")
+            print('ALL DONE !\n')
 
 
 
 def CreateJSON(InputFile):
     global OrbitaPath
     global NoError
+    
     
     InputFilePC = CountPages(InputFile)
     
@@ -382,16 +388,68 @@ def OpenOutputFolder():
 
 
 def DefaultVarInit():
-    FolderNameEntry.insert(0,"null")
-    BoxNameEntry.insert(0,"2600000000000")
+    #FolderNameEntry.insert(0,"null")
+    #BoxNameEntry.insert(0,"2600000000000")
     ProjectIDEntry.insert(0,"4921")
     ProjectNameEntry.insert(0,"НАТС ЦОД")
-    UserIDEntry.insert(0,"2111")
-    UserNameEntry.insert(0,"Зарецкая Людмила Сергеевна")
+    #UserIDEntry.insert(0,"2111")
+    #UserNameEntry.insert(0,"Зарецкая Людмила Сергеевна")
     
     RunBtn.configure(state = DISABLED)
     InputFolderRefrBtn.configure(state = DISABLED)
+    
+    
+def UserSelector():
+    global userdialog
+    userdialog = Toplevel()
+    scrnw = (root.winfo_screenwidth()//2) - scrnwparam
+    scrnh = (root.winfo_screenheight()//2) - scrnhparam
+    userdialog.geometry('270x120+{}+{}'.format(scrnw+30, scrnh+80))
 
+    userdialog.title("Выберите имя:")
+    
+    select1user = partial(RefreshUser, 1)
+    select2user = partial(RefreshUser, 2)
+    select3user = partial(RefreshUser, 3)
+    select4user = partial(RefreshUser, 4)
+    
+    User1btn = Button(userdialog, anchor='w', text='2111 - Зарецкая Людмила Сергеевна', command=select1user)
+    User1btn.place(x=10, y=10, width = 250, height=20)
+    
+    User2btn = Button(userdialog, anchor='w', text='2096 - Новичкова Марина Петровна', command=select2user)
+    User2btn.place(x=10, y=35, width = 250, height=20)
+    
+    User3btn = Button(userdialog, anchor='w', text='2099 - Валентинов Илья Александрович', command=select3user)
+    User3btn.place(x=10, y=60, width = 250, height=20)
+
+    User4btn = Button(userdialog, anchor='w', text='2079 - Ковач Альберт Георгиевич', command=select4user)
+    User4btn.place(x=10, y=85, width = 250, height=20)
+    
+def RefreshUser(usernum):
+    global userdialog
+    
+    if usernum==1:
+        UserNameEntry.delete(0,END)
+        UserNameEntry.insert(0,"Зарецкая Людмила Сергеевна")
+        UserIDEntry.delete(0,END)
+        UserIDEntry.insert(0,str(2111))
+    elif usernum==2:
+        UserNameEntry.delete(0,END)
+        UserNameEntry.insert(0,"Новичкова Марина Петровна")
+        UserIDEntry.delete(0,END)
+        UserIDEntry.insert(0,str(2096))
+    elif usernum==3:
+        UserNameEntry.delete(0,END)
+        UserNameEntry.insert(0,"Валентинов Илья Александрович")
+        UserIDEntry.delete(0,END)
+        UserIDEntry.insert(0,str(2099))
+    elif usernum==4:
+        UserNameEntry.delete(0,END)
+        UserNameEntry.insert(0,"Ковач Альберт Георгиевич")
+        UserIDEntry.delete(0,END)
+        UserIDEntry.insert(0,str(2079))
+        
+    userdialog.destroy()
 
 def CountPages(file):
     pdf = PdfFileReader(file)
