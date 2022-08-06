@@ -234,21 +234,29 @@ def Run():
     global FolderMode
     global NoError
     
-    if FolderNameEntry.index("end") == 0 or BoxNameEntry.index("end") == 0:
+    if FolderNameEntry.index("end")==0 or BoxNameEntry.index("end")==0 or UserIDEntry.index("end")==0 or UserNameEntry.index("end")==0:
         messagebox.showerror(title="Недостаточно данных", message="Заполните все требуемые поля !")
     else:
-        if FolderMode:
-            for doc in range(len(InputFilesArray)):
-                CreateJSON(InputFilesArray[doc])
-        else:
-            CreateJSON(InputFile)
-            
-        if NoError:
-            messagebox.showinfo("", "Задача выполнена !")
-            print('ALL DONE !\n')
-        else:
-            messagebox.showerror("", "Ошибка при выполнении !")
-            print('ALL DONE !\n')
+        FolderName = FolderNameEntry.get()
+        BoxName = BoxNameEntry.get()
+        msgbxlbl = 'Папка: {0}\nКороб: {1}'.format(FolderName, BoxName)
+        MsgBox = messagebox.askquestion ('Подтверждение', msgbxlbl)
+        if MsgBox == 'yes':
+            if FolderMode:
+                for doc in range(len(InputFilesArray)):
+                    CreateJSON(InputFilesArray[doc])
+            else:
+                CreateJSON(InputFile)
+                
+            if NoError:
+                messagebox.showinfo("", "Задача выполнена !")
+                print('ALL DONE !\n')
+            else:
+                messagebox.showerror("", "Ошибка при выполнении !")
+                print('ALL DONE !\n')
+
+    
+
 
 
 
@@ -450,6 +458,23 @@ def RefreshUser(usernum):
         UserIDEntry.insert(0,str(2079))
         
     userdialog.destroy()
+
+def ConfirmProceed():
+        """ Pop a message box to get confirmation that an unsaved project should be closed
+
+        Returns
+        -------
+        bool: ``True`` if user confirms close, ``False`` if user cancels close
+        """
+        if not self._modified:
+            logger.debug("Project is not modified")
+            return True
+        confirmtxt = "You have unsaved changes.\n\nAre you sure you want to close the project?"
+        if messagebox.askokcancel("Close", confirmtxt, default="cancel", icon="warning"):
+            logger.debug("Close Cancelled")
+            return True
+        logger.debug("Close confirmed")
+        return False 
 
 def CountPages(file):
     pdf = PdfFileReader(file)
