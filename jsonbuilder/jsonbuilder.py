@@ -412,7 +412,7 @@ def UserSelector():
     userdialog = Toplevel()
     scrnw = (root.winfo_screenwidth()//2) - scrnwparam
     scrnh = (root.winfo_screenheight()//2) - scrnhparam
-    userdialog.geometry('270x120+{}+{}'.format(scrnw+30, scrnh+80))
+    userdialog.geometry('270x145+{}+{}'.format(scrnw+30, scrnh+80))
 
     userdialog.title("Выберите имя:")
     
@@ -420,6 +420,7 @@ def UserSelector():
     select2user = partial(RefreshUser, 2)
     select3user = partial(RefreshUser, 3)
     select4user = partial(RefreshUser, 4)
+    select5user = partial(RefreshUser, 5)
     
     User1btn = Button(userdialog, anchor='w', text='2111 - Зарецкая Людмила Сергеевна', command=select1user)
     User1btn.place(x=10, y=10, width = 250, height=20)
@@ -432,6 +433,9 @@ def UserSelector():
 
     User4btn = Button(userdialog, anchor='w', text='2079 - Ковач Альберт Георгиевич', command=select4user)
     User4btn.place(x=10, y=85, width = 250, height=20)
+    
+    User5btn = Button(userdialog, anchor='w', text='2000 - Липатов Дмитрий Витальевич', command=select5user)
+    User5btn.place(x=10, y=110, width = 250, height=20)
     
 def RefreshUser(usernum):
     global userdialog
@@ -456,6 +460,11 @@ def RefreshUser(usernum):
         UserNameEntry.insert(0,"Ковач Альберт Георгиевич")
         UserIDEntry.delete(0,END)
         UserIDEntry.insert(0,str(2079))
+    elif usernum==5:
+        UserNameEntry.delete(0,END)
+        UserNameEntry.insert(0,"Липатов Дмитрий Витальевич")
+        UserIDEntry.delete(0,END)
+        UserIDEntry.insert(0,str(2000))
         
     userdialog.destroy()
 

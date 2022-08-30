@@ -178,7 +178,7 @@ def RegistryFillingThread():
     try:
         with open(CSVfile, 'w', newline='') as f:
             writer = csv.writer(f, delimiter=';')
-            writer.writerow(["Папка", "Номер", "Адрес"])
+            writer.writerow(["Папка", "Имя", "Номер", "Адрес"])
     except:
         messagebox.showerror("", "Невозможно создать отчет CSV !")
         
@@ -280,7 +280,7 @@ def DocTextSearch(file):
         docaddress = 'Адрес не найден'
     if numberfound == False:
         docaddress = 'Номер не найден'
-    CSVrows.append([Path(file).parent.name, docnumber, docaddress])
+    CSVrows.append([Path(file).parent.name, Path(file).name, docnumber, docaddress])
                                                    
     try:
         with open(CSVfile, 'a', newline='') as f:
