@@ -3,6 +3,9 @@ pip install pathlib
 pip install pywin32
 pip install pdfminer.six
 
+pip install tabula-py
+pip install git+https://github.com/pdftables/python-pdftables-api.git
+
 pip install psutil
 pip install pikepdf
 
@@ -28,6 +31,7 @@ auto-py-to-exe
 https://habr.com/ru/company/vdsina/blog/557316/
 
 pip install --upgrade pip
+"C:\Program Files\Python311\python.exe" -m pip install --upgrade pip
 
 python "$(FULL_CURRENT_PATH)"
 cmd /K python -i "$(FULL_CURRENT_PATH)"
