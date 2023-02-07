@@ -64,7 +64,7 @@ def InputFileChoose():
     global OutputFilePath
     global IsInputSel
 
-    InputFilePath = filedialog.askopenfilename(title='Выберите УПД:', filetypes=(('Документ PDF', 'pdf'),))
+    InputFilePath = filedialog.askopenfilename(filetypes=[("Excel files", ".xlsx .xls")])
     if InputFilePath:
         InputFileEntry.configure(state = NORMAL)
         InputFileEntry.delete(0,END)
