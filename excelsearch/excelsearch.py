@@ -2,8 +2,14 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter import filedialog
 
+import os, sys, re
+
 from pathlib import Path
+from threading import Thread
+from multiprocessing import Process, Queue, current_process
+
 import openpyxl
+
 
 from tkintertable.Tables import TableCanvas
 from tkintertable.TableModels import TableModel
@@ -14,6 +20,7 @@ global scrnhparam
 scrnwparam = 300
 scrnhparam = 300
 
+
 def main():
     global root
     global bckgcolor
@@ -21,20 +28,28 @@ def main():
 
     root = Tk()
     root.resizable(False, False)
-        
+    
+    datafile = "compare.ico"
+    if not hasattr(sys, "frozen"):
+        datafile = os.path.join(os.path.dirname(__file__), datafile)
+    else:
+        datafile = os.path.join(sys.prefix, datafile)
+    root.iconbitmap(default=resource_path(datafile))
+    
     scrnw = (root.winfo_screenwidth()//2) - scrnwparam
     scrnh = (root.winfo_screenheight()//2) - scrnhparam
     #root.geometry('755x500+{}+{}'.format(scrnw, scrnh))
     root.geometry('715x500+{}+{}'.format(scrnw, scrnh))
-        
+    
     app = GUI(root)
     root.mainloop()
+
 
 class GUI(Frame):
     def __init__(self, parent):
         Frame.__init__(self, parent, background=bckgcolor)   
         self.parent = parent
-        self.parent.title("Add Data v5")
+        self.parent.title("Add Data v5.1")
         self.pack(fill=BOTH, expand=1)
         self.initUI()
         
@@ -82,6 +97,7 @@ class GUI(Frame):
         global TBxSearch
         TBxSearch = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
         TBxSearch.place(x=160, y=45)
+        #TBxSearch.insert(0, "1")
         
         global LblSearchData
         LblSearchData = Label(text="Диапазона поиска:", background=bckgcolor, font=("Arial", 11))
@@ -90,6 +106,7 @@ class GUI(Frame):
         global TBxSearchData
         TBxSearchData = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
         TBxSearchData.place(x=160, y=75)
+        #TBxSearchData.insert(0, "9")
         
         
         
@@ -105,6 +122,7 @@ class GUI(Frame):
         global TBxSearchAd1
         TBxSearchAd1 = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
         TBxSearchAd1.place(x=185, y=145)
+        #TBxSearchAd1.insert(0,"2")
         
         global LblSearchDataAd1
         LblSearchDataAd1 = Label(text="Диапазона поиска:", background=bckgcolor, font=("Arial", 11))
@@ -113,6 +131,7 @@ class GUI(Frame):
         global TBxSearchDataAd1
         TBxSearchDataAd1 = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
         TBxSearchDataAd1.place(x=185, y=175)
+        #TBxSearchDataAd1.insert(0,"10")
         
         global ChBxAdittCond2
         ChBxAdittCond2 = Checkbutton(text="Дополнительное условие сопоставления 2", background=bckgcolor, variable=AdittCond2, onvalue=1, offvalue=0, font=("Arial", 11), command=InterfaceTrigger)
@@ -126,6 +145,7 @@ class GUI(Frame):
         global TBxSearchAd2
         TBxSearchAd2 = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
         TBxSearchAd2.place(x=185, y=245)
+        #TBxSearchAd2.insert(0,"3")
         
         global LblSearchDataAd2
         LblSearchDataAd2 = Label(text="Диапазона поиска:", background=bckgcolor, font=("Arial", 11))
@@ -134,6 +154,7 @@ class GUI(Frame):
         global TBxSearchDataAd2
         TBxSearchDataAd2 = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
         TBxSearchDataAd2.place(x=185, y=275)
+        #TBxSearchDataAd2.insert(0,"11")
         
         global ChBxAdittCond3
         ChBxAdittCond3 = Checkbutton(text="Дополнительное условие сопоставления 3", background=bckgcolor, variable=AdittCond3, onvalue=1, offvalue=0, font=("Arial", 11), command=InterfaceTrigger)
@@ -147,6 +168,7 @@ class GUI(Frame):
         global TBxSearchAd3
         TBxSearchAd3 = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
         TBxSearchAd3.place(x=185, y=345)
+        #TBxSearchAd3.insert(0,"4")
         
         global LblSearchDataAd3
         LblSearchDataAd3 = Label(text="Диапазона поиска:", background=bckgcolor, font=("Arial", 11))
@@ -155,6 +177,7 @@ class GUI(Frame):
         global TBxSearchDataAd3
         TBxSearchDataAd3 = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
         TBxSearchDataAd3.place(x=185, y=375)
+        #TBxSearchDataAd3.insert(0,"12")
         
         
         Offset = -25
@@ -168,8 +191,9 @@ class GUI(Frame):
         LblRes1.place(x=420+Offset, y=45)
         
         global TbxRes1
-        TbxRes1 = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
+        TbxRes1 = Entry(textvariable = "9", fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
         TbxRes1.place(x=520+Offset, y=45)
+        #TbxRes1.insert(0,"9")
         
         global LblResTarget1
         LblResTarget1 = Label(text="Скопировать в столбец:", background=bckgcolor, font=("Arial", 11))
@@ -178,6 +202,7 @@ class GUI(Frame):
         global TbxResTarget1
         TbxResTarget1 = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
         TbxResTarget1.place(x=595+Offset, y=75)
+        #TbxResTarget1.insert(0,"5")
         
         global ChBxRes2
         ChBxRes2 = Checkbutton(text="Включить результат 2", background=bckgcolor, variable=Res2, onvalue=1, offvalue=0, font=("Arial", 11), command=InterfaceTrigger)
@@ -287,12 +312,12 @@ class GUI(Frame):
         
         InterfaceTrigger()
         
-        ChBxAdittCond.configure(state = DISABLED)
-        ChBxAdittCond2.configure(state = DISABLED)
-        ChBxAdittCond3.configure(state = DISABLED)
-        ChBxRes2.configure(state = DISABLED)
-        ChBxRes3.configure(state = DISABLED)
-        ChBxRes4.configure(state = DISABLED)
+        #ChBxAdittCond.configure(state = DISABLED)
+        #ChBxAdittCond2.configure(state = DISABLED)
+        #ChBxAdittCond3.configure(state = DISABLED)
+        #ChBxRes2.configure(state = DISABLED)
+        #ChBxRes3.configure(state = DISABLED)
+        #ChBxRes4.configure(state = DISABLED)
 
 def OpenPreviewWindow():
     PreviewWindow(Path(InputFile).name)
@@ -368,10 +393,9 @@ def CheckMaxRows():
             #print('EmptyCellCounter == PreviewColumns')
             #print('EmptyRowCounter={0}'.format(EmptyRowCounter))
         if EmptyRowCounter >= 10:
-            PreviewRows = t
+            PreviewRows = t - 9
             #print(t)
             break
-    
     book.close()
     
 
@@ -400,14 +424,24 @@ def SelectFile():
         print('IDC: InputFile not selected')
 
 
+
+
+
 def Run():
+    #thread = Thread(target=MainThread)
+    #thread.start()
+    #thread = ""
+
+#def MainThread():
     global InputFile
+    RunBtn.configure(state = DISABLED)
     
     book = openpyxl.load_workbook(InputFile)
     sheet = book.active
 
     #MaxRowsSearch = int(TbxSearchRange.get())
     #MaxRowsData = int(TbxSearchDataRange.get())
+    
     
     # Main data
     ColmSearch = int(TBxSearch.get())
@@ -420,59 +454,91 @@ def Run():
     ArrData = []
     
     
-    # Additional conditions
+    # Main conditions array appending
+    for i in range(MaxRowsSearch):
+        ArrSearch.append(sheet.cell(row=i+1, column=ColmSearch).value)   
+    for k in range(MaxRowsData):
+        ArrData.append(sheet.cell(row=k+1, column=ColmData).value)
+    
+    
+    # Additional conditions arrays appending
     if AdittCond1.get() == 1:
         ColmAddSearch1 = int(TBxSearchAd1.get())
         ColmAddData1 = int(TBxSearchDataAd1.get())
         ArrAddSearch1 = []
         ArrAddData1 = []
-    
-    if AdittCond2.get() == 2:
+        for i in range(MaxRowsSearch):
+            ArrAddSearch1.append(sheet.cell(row=i+1, column=ColmAddSearch1).value)
+            ArrAddData1.append(sheet.cell(row=i+1, column=ColmAddData1).value)
+            
+    if AdittCond2.get() == 1:
         ColmAddSearch2 = int(TBxSearchAd2.get())
         ColmAddData2 = int(TBxSearchDataAd2.get())
         ArrAddSearch2 = []
         ArrAddData2 = []
-    
-    if AdittCond3.get() == 3:
+        for i in range(MaxRowsSearch):
+            ArrAddSearch2.append(sheet.cell(row=i+1, column=ColmAddSearch2).value)
+            ArrAddData2.append(sheet.cell(row=i+1, column=ColmAddData2).value)
+            
+    if AdittCond3.get() == 1:
         ColmAddSearch3 = int(TBxSearchAd3.get())
         ColmAddData3 = int(TBxSearchDataAd3.get())
         ArrAddSearch3 = []
         ArrAddData3 = []
+        for i in range(MaxRowsSearch):
+            ArrAddSearch3.append(sheet.cell(row=i+1, column=ColmAddSearch3).value)
+            ArrAddData3.append(sheet.cell(row=i+1, column=ColmAddData3).value)
     
     
     # Additional results
     if Res2.get() == 1:
         ColmResult2 = int(TbxRes2.get())
         ColmResultTarget2 = int(TbxResTarget2.get())
-    
     if Res3.get() == 1:
         ColmResult3 = int(TbxRes3.get())
         ColmResultTarget3 = int(TbxResTarget3.get())
-    
-    if Res3.get() == 1:
+    if Res4.get() == 1:
         ColmResult4 = int(TbxRes4.get())
         ColmResultTarget4 = int(TbxResTarget4.get())
 
 
-    
-    for i in range(MaxRowsSearch):
-        ArrSearch.append(sheet.cell(row=i+1, column=ColmSearch).value)
-        #print(ArrSearch[i])
-    
-    for k in range(MaxRowsData):
-        ArrData.append(sheet.cell(row=k+1, column=ColmData).value)
-        
-        
+
+    # Starting search
+    SearchedRowsCount = 0
+    FindedRowsCount = 0
     for m in range(MaxRowsSearch):
+        SearchedRowsCount = SearchedRowsCount + 1
         if ArrSearch[m]!=None:
             for n in range(MaxRowsData):
+                Finded = False
                 if ArrSearch[m] == ArrData[n]:
+                    Finded = True
+                if AdittCond1.get() == 1 and ArrAddSearch1[m] != ArrAddData1[n]:
+                    Finded = False
+                if AdittCond2.get() == 1 and ArrAddSearch2[m] != ArrAddData2[n]:
+                    Finded = False
+                if AdittCond3.get() == 1 and ArrAddSearch3[m] != ArrAddData3[n]:
+                    Finded = False
+                    
+                if Finded == True:
                     sheet.cell(row=m+1, column=ColmResultTarget1).value = sheet.cell(row=n+1, column=ColmResult1).value
+                    if Res2.get() == 1:
+                        sheet.cell(row=m+1, column=ColmResultTarget2).value = sheet.cell(row=n+1, column=ColmResult2).value
+                    if Res3.get() == 1:
+                        sheet.cell(row=m+1, column=ColmResultTarget3).value = sheet.cell(row=n+1, column=ColmResult3).value
+                    if Res4.get() == 1:
+                        sheet.cell(row=m+1, column=ColmResultTarget4).value = sheet.cell(row=n+1, column=ColmResult4).value
                     print('m={0}, finded: {1} = {2}'.format(m, ArrSearch[m], ArrData[n]))
+                    FindedRowsCount = FindedRowsCount + 1
                     break
                 
     book.save(InputFile)
-    messagebox.showinfo(title=None, message='Обработка завершена !')
+    
+    
+    RunBtn.configure(state = NORMAL)
+    
+    msgbxlbl = ['Обработка завершена !', 'Обработано: {0}'.format(SearchedRowsCount), 'Найдено: {0}'.format(FindedRowsCount)]
+    messagebox.showinfo("", "\n".join(msgbxlbl))
     PreviewWindow('РЕЗУЛЬТ ОБРАБОТКИ :  {0}'.format(Path(InputFile).name))
 
 
@@ -548,6 +614,62 @@ def InterfaceTrigger():
         LblResTarget4.configure(state = DISABLED)
         TbxRes4.configure(state = DISABLED)
         TbxResTarget4.configure(state = DISABLED)
+
+
+def resource_path(relative_path):    
+    try:       
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+
+
+
+
+
+
+
+
+
+def RunTest():
+    global InputFile
+    dataq = Queue()
+    
+    subprocess = Process(target=SearchProcess, args=(dataq, InputFile))
+    subprocess.start()
+
+
+def SearchProcess(dataq, DivideInputFile):
+    
+    ProcessWindow=Tk()
+    ProcessWindow.title("Process")
+    ProcessWindow.geometry("300x200")
+    
+    app = ProcessGUI(ProcessWindow)
+    ProcessWindow.mainloop()
+    
+
+    #dataq.put([DivideInputFile])
+    print('Process started')
+    
+    
+    
+class ProcessGUI(Frame):
+    def __init__(self, parent):
+        Frame.__init__(self, parent, background='white')   
+        self.parent = parent
+        self.parent.title("Add Data v5.1")
+        self.pack(fill=BOTH, expand=1)
+        self.ProcessInitUI()
+        
+
+    
+    def ProcessInitUI(self):
+        global LblColmName1
+        LblColmName1 = Label(text="Настройка столбцов поиска", background='white', font=("Arial", 14))
+        LblColmName1.place(x=16, y=5)
 
 
 
