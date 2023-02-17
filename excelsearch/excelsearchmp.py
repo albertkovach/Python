@@ -85,6 +85,9 @@ class GUI(Frame):
         
         global CheckMaxRowsRunning
         CheckMaxRowsRunning = False
+        
+        global prevwindevent # Declare before 
+        prevwindevent = Event()
     
     
         global LblColmName1
@@ -486,9 +489,8 @@ def Run():
 
 
 
-def RunPrevWindowThread():
-    global prevwindevent
-    prevwindevent = Event()
+def RunPrevWindowThread(): # For button click
+    global prevwindevent 
 
     prevwindowthread = Thread(target=PrevWindowThread)
     prevwindowthread.start()
@@ -499,13 +501,13 @@ def RunPrevWindowThread():
     taskswatchdogthread = ""
     
 
-def PrevWindowThread():
+def PrevWindowThread(): # Thread for process start 
     print('===== PWT Started')
     global InputFile
     global InputFile
     global PreviewRows
+    
     global prevwindevent
-
     dataq = Queue()
     
     prevwindowprocess = Process(target=PrevWindowProcess, args=(dataq, prevwindevent, InputFile, PreviewRows))
