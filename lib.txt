@@ -1,4 +1,5 @@
-pip install pypdf2
+pip uninstall pypdf2
+pip install pypdf2==2.12.1
 pip install pathlib
 pip install pywin32
 pip install pdfminer.six
