@@ -12,6 +12,8 @@ pip install pikepdf
 
 pip install Wand
 
+pip install wget
+
 pip install pyqt5
 
 pip install openpyxl
