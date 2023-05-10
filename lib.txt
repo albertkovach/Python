@@ -36,6 +36,11 @@ auto-py-to-exe
 pip install XlsxWriter
 pip install tkintertable
 pip install openpyxl
+pip install xlrd
+
+pip install requests
+pip install html5lib
+pip install beautifulsoup4
 
 https://habr.com/ru/company/vdsina/blog/557316/
 

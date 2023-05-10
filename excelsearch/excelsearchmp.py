@@ -49,7 +49,7 @@ class GUI(Frame):
     def __init__(self, parent):
         Frame.__init__(self, parent, background=bckgcolor)   
         self.parent = parent
-        self.parent.title("Add Data v5.1")
+        self.parent.title("Add Data v6.0")
         self.pack(fill=BOTH, expand=1)
         self.initUI()
 
@@ -1075,6 +1075,87 @@ def PrintProccList():
 def PrintRow():
     print('  ')
 
+
+def CheckSetup():
+    # Main data get
+    global TBxSearch  
+    global TBxSearchData
+    ColmSearch = int(TBxSearch.get())
+    ColmData = int(TBxSearchData.get())
+    
+    # Adittional data get
+    global ChBxAdittCond
+    global TBxSearchAd1
+    global TBxSearchDataAd1
+    EnableAdittCond1 = bool(AdittCond1.get())
+    if EnableAdittCond1 == True:
+        ColmAddSearch1 = int(TBxSearchAd1.get())
+        ColmAddData1 = int(TBxSearchDataAd1.get())
+    else:
+        ColmAddSearch1 = 0
+        ColmAddData1 = 0
+    
+    global ChBxAdittCond2
+    global TBxSearchAd2
+    global TBxSearchDataAd2
+    EnableAdittCond2 = bool(AdittCond2.get())
+    if EnableAdittCond2 == True:
+        ColmAddSearch2 = int(TBxSearchAd2.get())
+        ColmAddData2 = int(TBxSearchDataAd2.get())
+    else:
+        ColmAddSearch2 = 0
+        ColmAddData2 = 0
+    
+    global AdittCond3
+    global TBxSearchAd3
+    global TBxSearchDataAd3
+    EnableAdittCond3 = bool(AdittCond3.get())
+    if EnableAdittCond3 == True:
+        ColmAddSearch3 = int(TBxSearchAd3.get())
+        ColmAddData3 = int(TBxSearchDataAd3.get())
+    else:
+        ColmAddSearch3 = 0
+        ColmAddData3 = 0
+    
+    
+    # Results data get
+    global TbxRes1
+    global TbxResTarget1
+    ColmResult1 = int(TbxRes1.get())
+    ColmResultTarget1 = int(TbxResTarget1.get())
+    
+    global Res2
+    global TbxRes2
+    global TbxResTarget2
+    EnableRes2 = bool(Res2.get())
+    if EnableRes2 == True:
+        ColmResult2 = int(TbxRes2.get())
+        ColmResultTarget2 = int(TbxResTarget2.get())
+    else:
+        ColmResult2 = 0
+        ColmResultTarget2 = 0
+    
+    global Res3
+    global TbxRes3
+    global TbxResTarget3
+    EnableRes3 = bool(Res3.get())
+    if EnableRes3 == True:
+        ColmResult3 = int(TbxRes3.get())
+        ColmResultTarget3 = int(TbxResTarget3.get())
+    else:
+        ColmResult3 = 0
+        ColmResultTarget3 = 0
+    
+    global Res4
+    global TbxRes4
+    global TbxResTarget4
+    EnableRes4 = bool(Res4.get())
+    if EnableRes4 == True:
+        ColmResult4 = int(TbxRes4.get())
+        ColmResultTarget4 = int(TbxResTarget4.get())
+    else:
+        ColmResult4 = 0
+        ColmResultTarget4 = 0
 
 
 def resource_path(relative_path):    

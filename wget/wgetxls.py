@@ -12,6 +12,8 @@ from openpyxl import Workbook
 global root
 global scrnwparam
 global scrnhparam
+
+
 scrnwparam = 185
 scrnhparam = 150
 
@@ -20,11 +22,11 @@ def main():
     global root
 
     root = Tk()
-    root.resizable(False, False)
+    root.resizable(True, True)
         
     scrnw = (root.winfo_screenwidth()//2) - scrnwparam
     scrnh = (root.winfo_screenheight()//2) - scrnhparam
-    root.geometry('240x130+{}+{}'.format(scrnw, scrnh))
+    root.geometry('240x200+{}+{}'.format(scrnw, scrnh))
         
     app = GUI(root)
     root.mainloop()
@@ -33,144 +35,626 @@ class GUI(Frame):
     def __init__(self, parent):
         Frame.__init__(self, parent, background="white")   
         self.parent = parent
-        self.parent.title("")
+        self.parent.title("XML DECODE")
         self.pack(fill=BOTH, expand=1)
         self.initUI()
     
     def initUI(self):
+        global dir_path
+        dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
+        print(dir_path)
     
-        global Debug
-        Debug = True
-    
-        global SLbl
-        Lbl = Label(text="Папка проекта:", background="white")
-        Lbl.place(x=16, y=10)
+        global Decode
+        Decode = True
         
-        global InputDirEntry
-        InputDirEntry = Entry(fg="black", bg="white", width=20)
-        InputDirEntry.place(x=20, y=32)
+        global DecodeFile
+        global IsDecodeFileSelected
+        IsDecodeFileSelected = False
+    
         
-        global InputDirBtn
-        InputDirBtn = Button(text='Выбор', command=OpenXml)
-        #InputDirBtn.place(x=20, y=54, height=20)
-        InputDirBtn.place(x=150, y=31, height=20)
+        global FeronBtn
+        FeronBtn = Button(text='Feron', command=DecodeFeron, font=("Arial", 11))
+        FeronBtn.place(x=15, y=15, width=100, height=30)
 
-        global RunBtn
-        RunBtn = Button(text='Run', command=PrintAllXml)
-        RunBtn.place(x=20, y=60, height=20)
+        global GetFeronBtn
+        GetFeronBtn = Button(text='get', command=GetFeronXml, font=("Arial", 11))
+        GetFeronBtn.place(x=125, y=15, width=40, height=30)
+        
+        
+        global Makel25Btn
+        Makel25Btn = Button(text='Makel25', command=DecodeMakel, font=("Arial", 11))
+        Makel25Btn.place(x=15, y=55, width=100, height=30)
+
+        global GetMakel25Btn
+        GetMakel25Btn = Button(text='get', command=GetMakel25Xml, font=("Arial", 11))
+        GetMakel25Btn.place(x=125, y=55, width=40, height=30)
+        
+        
+        global DecodeXlsxBtn
+        DecodeXlsxBtn = Button(text='Decode in Excel', command=DecodeXLSXsf, font=("Arial", 11))
+        DecodeXlsxBtn.place(x=30, y=110, width=160, height=30)
+        
+
+        global DecodeTxtBtn
+        DecodeTxtBtn = Button(text='Decode in TXT', command=DecodeTXTsf, font=("Arial", 11))
+        DecodeTxtBtn.place(x=30, y=150, width=160, height=30)
 
 
-def BtnCmd():
-    price_url = "https://shop.feron.ru/bitrix/catalog_export/im.xml"
+
+
+
+
+
+def GetMakel25Xml():
+    msg_box = messagebox.askquestion('Подтверждение', 'Уверены, что хотите скачать файл ?')
     
-    req = requests.get(price_url)
-    reqfilepath = Path('C:\\Users\\user\\Documents\\GitHub\\Python\\wget\\feron.xml')
-    revisedreqfile = reqfilepath.as_posix()
+    if msg_box == 'yes':
+        price_url = "https://www.makel25.ru/bitrix/catalog_export/export_dVz.xml"
+        
+        reqfilepath = Path(dir_path, 'makel25.xml')
+        revisedreqfile = reqfilepath.as_posix()
+        
+        response = requests.get(price_url)
+        
+        if response.status_code == 200:
+            with open(revisedreqfile,'wb') as reqfile:
+                reqfile.write(response.content)
+                
+            messagebox.showinfo('Успех', 'Файл загружен !')
+            print(revisedreqfile)
+        else:
+            messagebox.showinfo('Ошибка', 'Запрос прервался с кодом ошибки: {0}'.format(response.status_code)) 
+
+
+def GetFeronXml():
+    msg_box = messagebox.askquestion('Подтверждение', 'Уверены, что хотите скачать файл ?')
     
-    with open(revisedreqfile,'wb') as reqfile:
-        reqfile.write(req.content)
+    if msg_box == 'yes':
+        price_url = "https://shop.feron.ru/bitrix/catalog_export/im.xml"
+        
+        reqfilepath = Path(dir_path, 'feron.xml')
+        revisedreqfile = reqfilepath.as_posix()
+        
+        response = requests.get(price_url)
+        
+        if response.status_code == 200:
+            with open(revisedreqfile,'wb') as reqfile:
+                reqfile.write(response.content)
+                
+            messagebox.showinfo('Succes', 'File downloaded !')
+            print(revisedreqfile)
+        else:
+            messagebox.showinfo('Ошибка', 'Запрос прервался с кодом ошибки: {0}'.format(response.status_code)) 
+   
+
+def DecodeMakel():
+    global DecodeFile
+    DecodeFile = Path(dir_path, 'makel25.xml')
+    
+    if os.path.isfile(DecodeFile):
+        DecodeXLSX()
+    else:
+        messagebox.showinfo('Ошибка', 'Отсутствует файл, сначала загрузите его !')
+
+
+def DecodeFeron():
+    global DecodeFile
+    DecodeFile = Path(dir_path, 'feron.xml')
+    
+    if os.path.isfile(DecodeFile):
+        DecodeXLSX()
+    else:
+        messagebox.showinfo('Ошибка', 'Отсутствует файл, сначала загрузите его !')
+
+
+def DecodeXLSXsf():
+    SelectFile()
+    if IsDecodeFileSelected:
+        DecodeXLSX()   
     
     
+def DecodeXLSX():
+    global DecodeFile
+    global IsDecodeFileSelected
     
-def OpenXml():
-    #reqfile = Path('C:\\Users\\user\\Documents\\GitHub\\Python\\wget\\R60.xml')
-    reqfilepath = Path('C:\\Users\\user\\Documents\\GitHub\\Python\\wget\\feron.xml')
+    reqfilepath = Path(DecodeFile)
     revisedreqfile = reqfilepath.as_posix()
     
     tree = ET.parse(revisedreqfile)
     root = tree.getroot()
     
-    wbpath = Path('C:\\Users\\user\\Documents\\GitHub\\Python\\wget\\table.xlsx')
+    wbpath = Path(Path(DecodeFile).parent, 'DECODED {0}.xlsx'.format(Path(DecodeFile).name))
     wb = Workbook()
-    wscategory = wb.create_sheet("Category")
-    wsitems = wb.create_sheet("Items")
+    sheetitems = wb.active
+    sheetitems.title = "Items"
+    sheetcategory = wb.create_sheet("Category")
     
 
+    itemsfieldnames = ['id', 'path', 'picture', 'more_ph', 'param']
+    sheetitems.append(itemsfieldnames)
+    
     categoryfieldnames = ['category', 'id', 'parentId']
-    wscategory.append(categoryfieldnames)
+    sheetcategory.append(categoryfieldnames)
     
-    itemsfieldnames = ['description', 'vendorCode', 'vendor', 'picture', 'categoryId', 'url', 'price mitc']
-    wsitems.append(itemsfieldnames)
-    
-    
+    rowitem = 1
+    rowcategory = 1
+    categorypath = []
     for L1 in root:
         for L2 in L1:
             for L3 in L2:
                 
                 if L3.tag == 'category':
-                    catname = L3.text
-                    catid = L3.get('id')
-                    catparentid = L3.get('parentId')
-                    if Debug: print("|-> Category: ", catid, catparentid, catname)
-                    wscategory.append([catname, catid, catparentid])
+                
+                    rowcategory = rowcategory + 1
                     
+                    catname = L3.text
+                    sheetcategory.cell(row=rowcategory, column=1).value = catname
+                    
+                    catid = L3.get('id')
+                    sheetcategory.cell(row=rowcategory, column=2).value = catid
+                    
+                    catparentid = L3.get('parentId')
+                    sheetcategory.cell(row=rowcategory, column=3).value = catparentid
+                    
+                    categorypath.append(catname)
+                    if sheetcategory.cell(row=rowcategory, column=3).value:
+                        for a in range(1, 700):
+                            if sheetcategory.cell(row=rowcategory, column=3).value == sheetcategory.cell(row=a, column=2).value:
+                                categorypath.append(sheetcategory.cell(row=a, column=1).value)
+                                
+                                if sheetcategory.cell(row=a, column=3).value:
+                                    for b in range(1, 700):
+                                        if sheetcategory.cell(row=a, column=3).value == sheetcategory.cell(row=b, column=2).value:
+                                            categorypath.append(sheetcategory.cell(row=b, column=1).value)
+                                            
+                                            if sheetcategory.cell(row=b, column=3).value:
+                                                for c in range(1, 700):
+                                                    if sheetcategory.cell(row=b, column=3).value == sheetcategory.cell(row=c, column=2).value:
+                                                        categorypath.append(sheetcategory.cell(row=c, column=1).value)
+                                                        
+                                                        if sheetcategory.cell(row=c, column=3).value:
+                                                            for d in range(1, 700):
+                                                                if sheetcategory.cell(row=c, column=3).value == sheetcategory.cell(row=d, column=2).value:
+                                                                    categorypath.append(sheetcategory.cell(row=d, column=1).value)
+                                                                    
+                                                                    if sheetcategory.cell(row=d, column=3).value:
+                                                                        for e in range(1, 700):
+                                                                            if sheetcategory.cell(row=d, column=3).value == sheetcategory.cell(row=e, column=2).value:
+                                                                                categorypath.append(sheetcategory.cell(row=e, column=1).value)
+                                                                                
+                                                                                if sheetcategory.cell(row=e, column=3).value:
+                                                                                    for f in range(1, 700):
+                                                                                        if sheetcategory.cell(row=e, column=3).value == sheetcategory.cell(row=f, column=2).value:
+                                                                                            categorypath.append(sheetcategory.cell(row=f, column=1).value)
+                    
+                    categorypath.reverse()
+                    sheetcategory.cell(row=rowcategory, column=4).value = "|".join(categorypath)
+                    categorypath = []
+            
+            
+            
+            
                 if L3.tag == 'offer':
-                    if Debug: print("")
-                    if Debug: print("**** Item : ", L3.attrib)
+                    if Decode: print("**** Item : ", L3.attrib)
+                    if Decode: print("")
+                    
+                    rowitem = rowitem + 1
+                    
+                    name = L3.attrib.get('id')
+                    sheetitems.cell(row=rowitem, column=1).value = name
+
+                    for L4 in L3:
+                        if itemsfieldnames.count(L4.tag) == 0:
+                            itemsfieldnames.append(L4.tag)
+                            sheetitems.cell(row=1, column=itemsfieldnames.index(L4.tag)+1).value = L4.tag
+                            
                     
                     for L4 in L3:
-                        if L4.tag == 'url':
-                            if Debug: print("====== url: ", L4.text)
-                            itemrow = []
-                            itempics = []
-                            itemrow.append(L4.text)
                         if L4.tag == 'categoryId':
-                            if Debug: print("====== categoryId: ", L4.text)
-                            itemrow.append(L4.text)
-                        if L4.tag == 'picture':
-                            if Debug: print("====== picture: ", L4.text)
-                            itempics.append(L4.text)
-                        if L4.tag == 'vendor':
-                            if Debug: print("====== vendor: ", L4.text)
-                            picstr = ""
-                            for pic in itempics:
-                                picstr = picstr + pic + "||"
-                            itemrow.append(picstr)
-                            #itemrow.append('pics')
-                            itemrow.append(L4.text)
-                        if L4.tag == 'vendorCode':
-                            if Debug: print("====== vendorCode: ", L4.text)
-                            itemrow.append(L4.text)
-                        if L4.tag == 'description':
-                            if Debug: print("====== description: ", L4.text)
-                            itemrow.append(L4.text)
-                        if L4.tag == 'param':
+                            sheetitems.cell(row=rowitem, column=itemsfieldnames.index(L4.tag)+1).value = L4.text
+                            
+                            for i in range(1, 700):
+                                if sheetitems.cell(row=rowitem, column=itemsfieldnames.index(L4.tag)+1).value == sheetcategory.cell(row=i, column=2).value:
+                                    sheetitems.cell(row=rowitem, column=2).value = sheetcategory.cell(row=i, column=4).value
+                            
+                        elif L4.tag == 'picture':
+                            
+                            if sheetitems.cell(row=rowitem, column=3).value:
+                                if sheetitems.cell(row=rowitem, column=4).value:
+                                    sheetitems.cell(row=rowitem, column=4).value = sheetitems.cell(row=rowitem, column=4).value + ';' + L4.text
+                                else:
+                                    sheetitems.cell(row=rowitem, column=4).value = L4.text
+                            else:
+                                sheetitems.cell(row=rowitem, column=3).value = L4.text
+                            
+                        elif L4.tag == 'param':
+                        
                             name = L4.get('name')
-                            if name == 'МИЦ (мин. интернет-цена)':
-                                if Debug: print("====== price mitc: ", L4.text)
-                                itemrow.append(L4.text)
+                            value = L4.text
+                            paramstr = str(name + ': ' + value + '\n')
+                            
+                            if sheetitems.cell(row=rowitem, column=5).value:
+                                sheetitems.cell(row=rowitem, column=5).value = str(sheetitems.cell(row=rowitem, column=5).value + paramstr)
+                            else:
+                                sheetitems.cell(row=rowitem, column=5).value = paramstr
                                 
-                                try:
-                                    wsitems.append([itemrow[5], itemrow[4], itemrow[3], itemrow[2], itemrow[1], itemrow[0], itemrow[6]])
-                                except:
-                                    wsitems.append([itemrow[5], itemrow[4], itemrow[3], itemrow[2], itemrow[1], itemrow[0]])
-                                    pass
-    wb.save(wbpath)
 
-def PrintAllXml():
-    reqfilepath = Path('C:\\Users\\user\\Documents\\GitHub\\Python\\wget\\feron.xml')
+                        
+                        
+                        else:
+                            sheetitems.cell(row=rowitem, column=itemsfieldnames.index(L4.tag)+1).value = L4.text
+                            
+                            #columnitem=columnitem+1
+    wb.save(wbpath)
+    messagebox.showinfo("Внимание !", "Выполнено !")
+    os.system('"{0}"'.format(wbpath))
+
+
+
+
+
+
+def DecodeTXTsf():
+    SelectFile()
+    if IsDecodeFileSelected:
+        DecodeTXT()
+
+
+def DecodeTXT():
+    global DecodeFile
+    global IsDecodeFileSelected
+    
+    DecodeFile = Path(DecodeFile)
+    revisedreqfile = DecodeFile.as_posix()
+    
+    tree = ET.parse(revisedreqfile)
+    root = tree.getroot()
+    
+    
+    ResultTxt = Path(Path(DecodeFile).parent, 'DECODED {0}.txt'.format(Path(DecodeFile).name))
+
+    with open(ResultTxt, 'w') as f:
+        ## LAYER 1
+        for L1 in root:
+            try:
+                textrow = "|--> L1: {0} || {1} || {2}".format(L1.tag, L1.attrib, L1.text)
+                f.write(textrow + '\n')
+                print(textrow)
+            except:
+                textrow = "|--> L1: DECODE ERROR"
+                f.write(textrow + '\n')
+                print(textrow)
+            ## LAYER 2
+            for L2 in L1:
+                try:
+                    textrow = "|-----> L2: {0} || {1} || {2}".format(L2.tag, L2.attrib, L2.text)
+                    f.write(textrow + '\n')
+                    print(textrow)
+                except:
+                    textrow = "|-----> L2: DECODE ERROR"
+                    f.write(textrow + '\n')
+                    print(textrow)
+                ## LAYER 3
+                for L3 in L2:
+                    try:
+                        textrow = "|--------> L3: {0} || {1} || {2}".format(L3.tag, L3.attrib, L3.text)
+                        f.write(textrow + '\n')
+                        print(textrow)
+                    except:
+                        textrow = "|--------> L3: DECODE ERROR"
+                        f.write(textrow + '\n')
+                        print(textrow)
+                    ## LAYER 4
+                    for L4 in L3:
+                        try:
+                            textrow = "|-----------> L4: {0} || {1} || {2}".format(L4.tag, L4.attrib, L4.text)
+                            f.write(textrow + '\n')
+                            print(textrow)
+                        except:
+                            textrow = "|-----------> L4: DECODE ERROR"
+                            f.write(textrow + '\n')
+                            print(textrow)
+    os.system('"{0}"'.format(ResultTxt))
+
+
+
+
+
+
+def SelectFile():
+    global DecodeFile
+    global IsDecodeFileSelected
+
+    DecodeFile = filedialog.askopenfilename(title='Выберите файл обмена', filetypes=(('XML', 'xml'),))
+    if DecodeFile:
+        print('SF: DecodeFile :', DecodeFile)
+        
+        IsDecodeFileSelected = True
+    else:
+        print('SF: DecodeFile not selected')
+
+
+
+
+
+
+def Makel25Xml():
+    reqfilepath = Path(dir_path, 'makel25.xml')
     revisedreqfile = reqfilepath.as_posix()
     
     tree = ET.parse(revisedreqfile)
     root = tree.getroot()
     
-    for L1 in root:
-        print("|--> L1: ", L1.tag, L1.attrib, L1.text)
-        
-        for L2 in L1:
-            print("|-----> L2: ", L2.tag, L2.attrib, L2.text)
-            
-            for L3 in L2:
-                print("|--------> L3: ", L3.tag, L3.attrib, L3.text)
-                
-                for L4 in L3:
-                    print("|---------> L4: ", L4.tag, L4.attrib, L4.text)
-
-def SelectDir():
-    global InputDir
+    wbpath = Path(dir_path, 'makel25.xlsx')
+    wb = Workbook()
+    sheetitems = wb.active
+    sheetitems.title = "Items"
+    sheetcategory = wb.create_sheet("Category")
     
-    print('IDC: InputFile not selected')
-
+    #                       1               2           3         4          5           6               7           8          9           10
+    itemsfieldnames = ['description', 'model', 'vendor', 'picture', 'more_ph', 'categoryId', 'category_path', 'url', 'price mitc', 'available']
+    sheetitems.append(itemsfieldnames)
+    
+    categoryfieldnames = ['category', 'id', 'parentId']
+    sheetcategory.append(categoryfieldnames)
+    
+    rowitem = 1
+    rowcategory = 1
+    categorypath = []
+    for L1 in root:
+        for L2 in L1:
+            for L3 in L2:
+                
+                if L3.tag == 'category':
+                
+                    rowcategory = rowcategory + 1
+                    
+                    catname = L3.text
+                    sheetcategory.cell(row=rowcategory, column=1).value = catname
+                    
+                    catid = L3.get('id')
+                    sheetcategory.cell(row=rowcategory, column=2).value = catid
+                    
+                    catparentid = L3.get('parentId')
+                    sheetcategory.cell(row=rowcategory, column=3).value = catparentid
+                    
+                    categorypath.append(catname)
+                    if sheetcategory.cell(row=rowcategory, column=3).value:
+                        for a in range(1, 700):
+                            if sheetcategory.cell(row=rowcategory, column=3).value == sheetcategory.cell(row=a, column=2).value:
+                                categorypath.append(sheetcategory.cell(row=a, column=1).value)
+                                
+                                if sheetcategory.cell(row=a, column=3).value:
+                                    for b in range(1, 700):
+                                        if sheetcategory.cell(row=a, column=3).value == sheetcategory.cell(row=b, column=2).value:
+                                            categorypath.append(sheetcategory.cell(row=b, column=1).value)
+                                            
+                                            if sheetcategory.cell(row=b, column=3).value:
+                                                for c in range(1, 700):
+                                                    if sheetcategory.cell(row=b, column=3).value == sheetcategory.cell(row=c, column=2).value:
+                                                        categorypath.append(sheetcategory.cell(row=c, column=1).value)
+                                                        
+                                                        if sheetcategory.cell(row=c, column=3).value:
+                                                            for d in range(1, 700):
+                                                                if sheetcategory.cell(row=c, column=3).value == sheetcategory.cell(row=d, column=2).value:
+                                                                    categorypath.append(sheetcategory.cell(row=d, column=1).value)
+                                                                    
+                                                                    if sheetcategory.cell(row=d, column=3).value:
+                                                                        for e in range(1, 700):
+                                                                            if sheetcategory.cell(row=d, column=3).value == sheetcategory.cell(row=e, column=2).value:
+                                                                                categorypath.append(sheetcategory.cell(row=e, column=1).value)
+                                                                                
+                                                                                if sheetcategory.cell(row=e, column=3).value:
+                                                                                    for f in range(1, 700):
+                                                                                        if sheetcategory.cell(row=e, column=3).value == sheetcategory.cell(row=f, column=2).value:
+                                                                                            categorypath.append(sheetcategory.cell(row=f, column=1).value)
+                    
+                    categorypath.reverse()
+                    sheetcategory.cell(row=rowcategory, column=4).value = "|".join(categorypath)
+                    categorypath = []
+                    
+                if L3.tag == 'offer':
+                    if Decode: print("**** Item : ", L3.attrib)
+                    if Decode: print("")
+                    
+                    rowitem = rowitem + 1
+                    
+                    #                        1               2           3         4          5           6               7           8          9           10
+                    #itemsfieldnames = ['description', 'model', 'vendor', 'picture', 'more_ph', 'categoryId', 'category_path', 'url', 'price mitc', 'available']
+    
+                    name = L3.attrib.get('available')
+                    sheetitems.cell(row=rowitem, column=10).value = name
+                    
+                    for L4 in L3:
+                        if L4.tag == 'name':
+                            sheetitems.cell(row=rowitem, column=1).value=L4.text
+                            
+                        if L4.tag == 'url':
+                            sheetitems.cell(row=rowitem, column=8).value=L4.text
+                            
+                        if L4.tag == 'categoryId':
+                            sheetitems.cell(row=rowitem, column=6).value=L4.text
+                            for i in range(1, 700):
+                                if sheetitems.cell(row=rowitem, column=6).value == sheetcategory.cell(row=i, column=2).value:
+                                    sheetitems.cell(row=rowitem, column=7).value = sheetcategory.cell(row=i, column=4).value
+                            
+                        if L4.tag == 'picture':
+                            if sheetitems.cell(row=rowitem, column=4).value:
+                                if sheetitems.cell(row=rowitem, column=5).value:
+                                    sheetitems.cell(row=rowitem, column=5).value = sheetitems.cell(row=rowitem, column=5).value + ';' + L4.text
+                                else:
+                                    sheetitems.cell(row=rowitem, column=5).value = L4.text
+                            else:
+                                sheetitems.cell(row=rowitem, column=4).value = L4.text
+                            
+                        if L4.tag == 'model':
+                            sheetitems.cell(row=rowitem, column=2).value = L4.text
+    
+    wb.save(wbpath)
+    
+def FeronXml():
+    reqfilepath = Path(dir_path, 'feron.xml')
+    revisedreqfile = reqfilepath.as_posix()
+    
+    tree = ET.parse(revisedreqfile)
+    root = tree.getroot()
+    
+    wbpath = Path(dir_path, 'feron.xlsx')
+    wb = Workbook()
+    sheetitems = wb.active
+    sheetitems.title = "Items"
+    sheetcategory = wb.create_sheet("Category")
+    
+    ResultTxt = Path(dir_path, 'DECODED FERON.txt', encoding="utf-8")
+    txtfile = open(ResultTxt, "w")
+    
+    #                       1            2         3         4          5           6               7           8          9           10           11
+    itemsfieldnames = ['description', 'model', 'vendor', 'picture', 'more_ph', 'categoryId', 'category_path', 'url', 'price mitc', 'available', 'article']
+    sheetitems.append(itemsfieldnames)
+    
+    categoryfieldnames = ['category', 'id', 'parentId']
+    sheetcategory.append(categoryfieldnames)
+    
+    rowitem = 1
+    rowcategory = 1
+    categorypath = []
+    for L1 in root:
+        for L2 in L1:
+            for L3 in L2:
+                
+                if L3.tag == 'category':
+                
+                    rowcategory = rowcategory + 1
+                    
+                    catname = L3.text
+                    sheetcategory.cell(row=rowcategory, column=1).value = catname
+                    
+                    catid = L3.get('id')
+                    sheetcategory.cell(row=rowcategory, column=2).value = catid
+                    
+                    catparentid = L3.get('parentId')
+                    sheetcategory.cell(row=rowcategory, column=3).value = catparentid
+                    
+                    categorypath.append(catname)
+                    if sheetcategory.cell(row=rowcategory, column=3).value:
+                        for a in range(1, 700):
+                            if sheetcategory.cell(row=rowcategory, column=3).value == sheetcategory.cell(row=a, column=2).value:
+                                categorypath.append(sheetcategory.cell(row=a, column=1).value)
+                                
+                                if sheetcategory.cell(row=a, column=3).value:
+                                    for b in range(1, 700):
+                                        if sheetcategory.cell(row=a, column=3).value == sheetcategory.cell(row=b, column=2).value:
+                                            categorypath.append(sheetcategory.cell(row=b, column=1).value)
+                                            
+                                            if sheetcategory.cell(row=b, column=3).value:
+                                                for c in range(1, 700):
+                                                    if sheetcategory.cell(row=b, column=3).value == sheetcategory.cell(row=c, column=2).value:
+                                                        categorypath.append(sheetcategory.cell(row=c, column=1).value)
+                                                        
+                                                        if sheetcategory.cell(row=c, column=3).value:
+                                                            for d in range(1, 700):
+                                                                if sheetcategory.cell(row=c, column=3).value == sheetcategory.cell(row=d, column=2).value:
+                                                                    categorypath.append(sheetcategory.cell(row=d, column=1).value)
+                                                                    
+                                                                    if sheetcategory.cell(row=d, column=3).value:
+                                                                        for e in range(1, 700):
+                                                                            if sheetcategory.cell(row=d, column=3).value == sheetcategory.cell(row=e, column=2).value:
+                                                                                categorypath.append(sheetcategory.cell(row=e, column=1).value)
+                                                                                
+                                                                                if sheetcategory.cell(row=e, column=3).value:
+                                                                                    for f in range(1, 700):
+                                                                                        if sheetcategory.cell(row=e, column=3).value == sheetcategory.cell(row=f, column=2).value:
+                                                                                            categorypath.append(sheetcategory.cell(row=f, column=1).value)
+                    
+                    categorypath.reverse()
+                    sheetcategory.cell(row=rowcategory, column=4).value = "|".join(categorypath)
+                    categorypath = []
+                    
+                if L3.tag == 'offer':
+                    print("** Item : " + str(L3.attrib))
+                    textrow = str("**** Item : " + str(L3.attrib))
+                    try:
+                        txtfile.write(textrow + '\n')
+                    except:
+                        txtfile.write("ERROR!!!!!!! Item" + '\n')
+                    
+                    rowitem = rowitem + 1
+                    
+    #                       1            2         3         4          5           6               7           8          9           10           11
+    #itemsfieldnames = ['description', 'model', 'vendor', 'picture', 'more_ph', 'categoryId', 'category_path', 'url', 'price mitc', 'available', 'article']
+    
+                    name = L3.attrib.get('available')
+                    sheetitems.cell(row=rowitem, column=10).value = name
+                    
+                    for L4 in L3:
+                        if L4.tag == 'url':
+                            sheetitems.cell(row=rowitem, column=8).value=L4.text
+                            textrow = str("========= url : " + L4.text)
+                            try:
+                                txtfile.write(textrow + '\n')
+                            except:
+                                txtfile.write("ERROR!!!!!!!" + '\n')
+                            
+                        if L4.tag == 'categoryId':
+                            sheetitems.cell(row=rowitem, column=6).value=L4.text
+                            for i in range(1, 700):
+                                if sheetitems.cell(row=rowitem, column=6).value == sheetcategory.cell(row=i, column=2).value:
+                                    sheetitems.cell(row=rowitem, column=7).value = sheetcategory.cell(row=i, column=4).value
+                            
+                        if L4.tag == 'picture':
+                            if sheetitems.cell(row=rowitem, column=4).value:
+                                if sheetitems.cell(row=rowitem, column=5).value:
+                                    sheetitems.cell(row=rowitem, column=5).value = sheetitems.cell(row=rowitem, column=5).value + ';' + L4.text
+                                else:
+                                    sheetitems.cell(row=rowitem, column=5).value = L4.text
+                            else:
+                                sheetitems.cell(row=rowitem, column=4).value = L4.text
+                            
+                        if L4.tag == 'vendor':
+                            sheetitems.cell(row=rowitem, column=3).value = L4.text
+                            textrow = str("========= vendor : " + L4.text)
+                            try:
+                                txtfile.write(textrow + '\n')
+                            except:
+                                txtfile.write("ERROR!!!!!!! vendor" + '\n')
+                            
+                        if L4.tag == 'model':
+                            sheetitems.cell(row=rowitem, column=11).value = L4.text
+                            textrow = str("========= model : " + L4.text)
+                            try:
+                                txtfile.write(textrow + '\n')
+                            except:
+                                txtfile.write("ERROR!!!!!!! model" + '\n')
+                            
+                        if L4.tag == 'vendorCode':
+                            sheetitems.cell(row=rowitem, column=2).value = L4.text
+                            textrow = str("========= vendorCode : " + L4.text)
+                            try:
+                                txtfile.write(textrow + '\n')
+                            except:
+                                txtfile.write("ERROR!!!!!!! vendorCode" + '\n')
+                            
+                        if L4.tag == 'description':
+                            sheetitems.cell(row=rowitem, column=1).value = L4.text
+                            textrow = str("========= description : " + L4.text)
+                            try:
+                                txtfile.write(textrow + '\n')
+                            except:
+                                txtfile.write("ERROR!!!!!!! description" + '\n')
+                            
+                        if L4.tag == 'param':
+                            name = L4.get('name')
+                            if name == 'МИЦ (мин. интернет-цена)':
+                                sheetitems.cell(row=rowitem, column=9).value = L4.text
+                                textrow = str("========= МИЦ : " + L4.text)
+                            try:
+                                txtfile.write(textrow + '\n')
+                            except:
+                                txtfile.write("ERROR!!!!!!! МИЦ" + '\n')
+    
+    wb.save(wbpath)
+    txtfile.close()
+    
 
 if __name__ == '__main__':
     main()

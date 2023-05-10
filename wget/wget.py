@@ -74,7 +74,7 @@ def BtnCmd():
     
 def OpenXml():
     #reqfile = Path('C:\\Users\\user\\Documents\\GitHub\\Python\\wget\\R60.xml')
-    reqfilepath = Path('C:\\Users\\user\\Documents\\GitHub\\Python\\wget\\feron.xml')
+    reqfilepath = Path('C:\\Users\\user\\Documents\\GitHub\\Python\\wget\\im.xml')
     revisedreqfile = reqfilepath.as_posix()
     
     tree = ET.parse(revisedreqfile)
