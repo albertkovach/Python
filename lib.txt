@@ -16,7 +16,6 @@ pip install wget
 
 pip install pyqt5
 
-pip install openpyxl
 pip install python-dateutil
 
 pip install fnmatch
@@ -33,10 +32,11 @@ pip install auto-py-to-exe
 pip install PyInstaller
 auto-py-to-exe
 
-pip install XlsxWriter
+pip install xml2xlsx --upgrade
+pip install XlsxWriter --upgrade
 pip install tkintertable
-pip install openpyxl
-pip install xlrd
+pip install openpyxl --upgrade
+pip install xlrd --upgrade
 
 pip install requests
 pip install html5lib

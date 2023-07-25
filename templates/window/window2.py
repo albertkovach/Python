@@ -8,6 +8,7 @@ global scrnhparam
 scrnwparam = 185
 scrnhparam = 150
 
+
 def main():
     global root
 
@@ -21,6 +22,7 @@ def main():
     app = GUI(root)
     root.mainloop()
 
+
 class GUI(Frame):
     def __init__(self, parent):
         Frame.__init__(self, parent, background="white")   
@@ -30,36 +32,28 @@ class GUI(Frame):
         self.initUI()
     
     def initUI(self):
-        global SLbl
-        Lbl = Label(text="Папка проекта:", background="white")
+        global Lbl
+        Lbl = Label(text="Текст", background="white")
         Lbl.place(x=16, y=10)
         
-        global InputDirEntry
-        InputDirEntry = Entry(fg="black", bg="white", width=20)
-        InputDirEntry.place(x=20, y=32)
+        global TextEntry
+        TextEntry = Entry(fg="black", bg="white", width=20)
+        TextEntry.place(x=20, y=35)
         
-        global InputDirBtn
-        InputDirBtn = Button(text='Выбор', command=SelectDir)
-        #InputDirBtn.place(x=20, y=54, height=20)
-        InputDirBtn.place(x=150, y=31, height=20)
-
-def BtnCmd():
-    print('btn pressed')
+        global Comm1Btn
+        Comm1Btn = Button(text='Comm1', command=Comm1)
+        Comm1Btn.place(x=20, y=60, height=20)
 
 
-def SelectDir():
-    global InputDir
 
-    InputDir = ""
-    InputDir = filedialog.askdirectory(title='Выберите папку на обработку')
-    if InputDir:
-        InputDirEntry.configure(state = NORMAL)
-        InputDirEntry.delete(0,END)
-        InputDirEntry.insert(0,str(InputDir))
-        InputDirEntry.configure(state = DISABLED)
-        print('IDC: InputDir : {0}'.format(InputDir))
-    else:
-        print('IDC: InputFile not selected')
+
+
+
+
+
+def Comm1():
+    print('Comm1 !')
+
 
 
 if __name__ == '__main__':

@@ -26,7 +26,7 @@ def main():
         
     scrnw = (root.winfo_screenwidth()//2) - scrnwparam
     scrnh = (root.winfo_screenheight()//2) - scrnhparam
-    root.geometry('240x200+{}+{}'.format(scrnw, scrnh))
+    root.geometry('500x500+{}+{}'.format(scrnw, scrnh))
         
     app = GUI(root)
     root.mainloop()
@@ -78,6 +78,10 @@ class GUI(Frame):
         global DecodeTxtBtn
         DecodeTxtBtn = Button(text='Decode in TXT', command=DecodeTXTsf, font=("Arial", 11))
         DecodeTxtBtn.place(x=30, y=150, width=160, height=30)
+        
+        global DecodeCommerceMLBtn
+        DecodeTxtBtn = Button(text='Decode CommerceML', command=DecodeCommerceML, font=("Arial", 11))
+        DecodeTxtBtn.place(x=30, y=190, width=160, height=30)
 
 
 
@@ -255,7 +259,9 @@ def DecodeXLSX():
                             
                             for i in range(1, 700):
                                 if sheetitems.cell(row=rowitem, column=itemsfieldnames.index(L4.tag)+1).value == sheetcategory.cell(row=i, column=2).value:
-                                    sheetitems.cell(row=rowitem, column=2).value = sheetcategory.cell(row=i, column=4).value
+                                    sheetitems.cell(row=rowitem, column=itemsfieldnames.index(L4.tag)+1).value = sheetcategory.cell(row=i, column=2).value
+                                    sheetitems.cell(row=rowitem, column=itemsfieldnames.index("path")+1).value = sheetcategory.cell(row=i, column=4).value
+                                    break
                             
                         elif L4.tag == 'picture':
                             
@@ -655,6 +661,150 @@ def FeronXml():
     wb.save(wbpath)
     txtfile.close()
     
+    
+    
+    
+def DecodeCommerceML():
+    SelectFile()
+    global DecodeFile
+    global IsDecodeFileSelected
+    global rowitem
+    reqfilepath = Path(DecodeFile)
+    revisedreqfile = reqfilepath.as_posix()
+    
+    tree = ET.parse(revisedreqfile)
+    root = tree.getroot()
+    
+    wbpath = Path(Path(DecodeFile).parent, 'DECODED {0}.xlsx'.format(Path(DecodeFile).name))
+    wb = Workbook()
+    sheetitems = wb.active
+    sheetitems.title = "Items"
+    sheetcategory = wb.create_sheet("Category")
+    
+
+    itemsfieldnames = ['id', 'path', 'picture', 'more_ph', 'param']
+    sheetitems.append(itemsfieldnames)
+    
+    categoryfieldnames = ['category', 'id', 'parentId']
+    sheetcategory.append(categoryfieldnames)
+    
+    rowitem = 1
+    rowcategory = 1
+    categorypath = []
+    #k=input("press close to exit")
+    for L1 in root:
+        if L1.tag == '{DataASD}ГруппаТоваров':
+        
+            rowcategory = rowcategory + 1
+            for L2 in L1:
+                if L2.tag == ('{DataASD}Наименование'):
+                    catname = L2.text
+                    sheetcategory.cell(row=rowcategory, column=1).value = catname
+            
+                if L2.tag == ('{DataASD}Ид'):
+                    catid = L2.text
+                    sheetcategory.cell(row=rowcategory, column=2).value = catid
+            
+                if L2.tag == ('{DataASD}ГруппаТоваров'):
+                    catparentid = L2.text
+                    sheetcategory.cell(row=rowcategory, column=3).value = catparentid
+            
+            categorypath.append(catname)
+            if sheetcategory.cell(row=rowcategory, column=3).value:
+                for a in range(1, 700):
+                    if sheetcategory.cell(row=rowcategory, column=3).value == sheetcategory.cell(row=a, column=2).value:
+                        categorypath.append(sheetcategory.cell(row=a, column=1).value)
+                        
+                        if sheetcategory.cell(row=a, column=3).value:
+                            for b in range(1, 700):
+                                if sheetcategory.cell(row=a, column=3).value == sheetcategory.cell(row=b, column=2).value:
+                                    categorypath.append(sheetcategory.cell(row=b, column=1).value)
+                                    
+                                    if sheetcategory.cell(row=b, column=3).value:
+                                        for c in range(1, 700):
+                                            if sheetcategory.cell(row=b, column=3).value == sheetcategory.cell(row=c, column=2).value:
+                                                categorypath.append(sheetcategory.cell(row=c, column=1).value)
+                                                
+                                                if sheetcategory.cell(row=c, column=3).value:
+                                                    for d in range(1, 700):
+                                                        if sheetcategory.cell(row=c, column=3).value == sheetcategory.cell(row=d, column=2).value:
+                                                            categorypath.append(sheetcategory.cell(row=d, column=1).value)
+                                                            
+                                                            if sheetcategory.cell(row=d, column=3).value:
+                                                                for e in range(1, 700):
+                                                                    if sheetcategory.cell(row=d, column=3).value == sheetcategory.cell(row=e, column=2).value:
+                                                                        categorypath.append(sheetcategory.cell(row=e, column=1).value)
+                                                                        
+                                                                        if sheetcategory.cell(row=e, column=3).value:
+                                                                            for f in range(1, 700):
+                                                                                if sheetcategory.cell(row=e, column=3).value == sheetcategory.cell(row=f, column=2).value:
+                                                                                    categorypath.append(sheetcategory.cell(row=f, column=1).value)
+            
+            categorypath.reverse()
+            sheetcategory.cell(row=rowcategory, column=4).value = "|".join(categorypath)
+            categorypath = []
+            
+            
+    for L1 in root:        
+        #k=input("press close to exit")    
+        if L1.tag == '{DataASD}Товар':
+            if Decode: print("**** Item : ")
+            if Decode: print("")
+            
+            rowitem = rowitem + 1
+            
+            #name = L1.attrib.get('id')
+            #sheetitems.cell(row=rowitem, column=1).value = name
+
+
+            
+            for L2 in L1:
+                if itemsfieldnames.count(L2.tag) == 0:
+                    itemsfieldnames.append(L2.tag)
+                    sheetitems.cell(row=1, column=itemsfieldnames.index(L2.tag)+1).value = L2.tag
+                    
+            
+            for L2 in L1:
+                if L2.tag == '{DataASD}ГруппаТоваров':
+                    sheetitems.cell(row=rowitem, column=itemsfieldnames.index(L2.tag)+1).value = L2.text
+                    
+                    for i in range(1, 700):
+                        if sheetitems.cell(row=rowitem, column=itemsfieldnames.index(L2.tag)+1).value == sheetcategory.cell(row=i, column=2).value:
+                            sheetitems.cell(row=rowitem, column=itemsfieldnames.index(L2.tag)+1).value = sheetcategory.cell(row=i, column=2).value
+                            sheetitems.cell(row=rowitem, column=itemsfieldnames.index("path")+1).value = sheetcategory.cell(row=i, column=4).value
+                            break
+                    
+                elif L2.tag == '{DataASD}Картинка':
+                    
+                    if sheetitems.cell(row=rowitem, column=3).value:
+                        if sheetitems.cell(row=rowitem, column=4).value:
+                            sheetitems.cell(row=rowitem, column=4).value = sheetitems.cell(row=rowitem, column=4).value + ';' + L2.text
+                        else:
+                            sheetitems.cell(row=rowitem, column=4).value = L2.text
+                    else:
+                        sheetitems.cell(row=rowitem, column=3).value = L2.text
+                    
+                elif L2.tag == 'param':
+                
+                    name = L2.get('name')
+                    value = L2.text
+                    paramstr = str(name + ': ' + value + '\n')
+                    
+                    if sheetitems.cell(row=rowitem, column=5).value:
+                        sheetitems.cell(row=rowitem, column=5).value = str(sheetitems.cell(row=rowitem, column=5).value + paramstr)
+                    else:
+                        sheetitems.cell(row=rowitem, column=5).value = paramstr
+                        
+
+                
+                
+                else:
+                    sheetitems.cell(row=rowitem, column=itemsfieldnames.index(L2.tag)+1).value = L2.text
+                    
+                    #columnitem=columnitem+1
+    wb.save(wbpath)
+    messagebox.showinfo("Внимание !", "Выполнено !")
+    os.system('"{0}"'.format(wbpath))
 
 if __name__ == '__main__':
     main()
