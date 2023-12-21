@@ -929,16 +929,49 @@ def InterfaceDisabler(enable):
         OpenPrevTableBtn.place(x=829, y=135, width=105, height=30)
         InputFileBtn.configure(state = NORMAL)
         
-        TBxSearch.configure(state = NORMAL)
-        TBxSearchData.configure(state = NORMAL)
         ChBxAdittCond.configure(state = NORMAL)
         ChBxAdittCond2.configure(state = NORMAL)
         ChBxAdittCond3.configure(state = NORMAL)
-        TbxRes1.configure(state = NORMAL)
-        TbxResTarget1.configure(state = NORMAL)
         ChBxRes2.configure(state = NORMAL)
         ChBxRes3.configure(state = NORMAL)
         ChBxRes4.configure(state = NORMAL)
+        
+        TBxSearch.configure(state = NORMAL)
+        TBxSearchData.configure(state = NORMAL)
+        
+        LblSearchAd1.configure(state = NORMAL)
+        LblSearchDataAd1.configure(state = NORMAL)
+        TBxSearchAd1.configure(state = NORMAL)
+        TBxSearchDataAd1.configure(state = NORMAL)
+        
+        LblSearchAd2.configure(state = NORMAL)
+        LblSearchDataAd2.configure(state = NORMAL)
+        TBxSearchAd2.configure(state = NORMAL)
+        TBxSearchDataAd2.configure(state = NORMAL)
+        
+        LblSearchAd3.configure(state = NORMAL)
+        LblSearchDataAd3.configure(state = NORMAL)
+        TBxSearchAd3.configure(state = NORMAL)
+        TBxSearchDataAd3.configure(state = NORMAL)
+        
+        TbxRes1.configure(state = NORMAL)
+        TbxResTarget1.configure(state = NORMAL)
+        
+        LblRes2.configure(state = NORMAL)
+        LblResTarget2.configure(state = NORMAL)
+        TbxRes2.configure(state = NORMAL)
+        TbxResTarget2.configure(state = NORMAL)
+        
+        LblRes3.configure(state = NORMAL)
+        LblResTarget3.configure(state = NORMAL)
+        TbxRes3.configure(state = NORMAL)
+        TbxResTarget3.configure(state = NORMAL)
+        
+        LblRes4.configure(state = NORMAL)
+        LblResTarget4.configure(state = NORMAL)
+        TbxRes4.configure(state = NORMAL)
+        TbxResTarget4.configure(state = NORMAL)
+        
     else:
         RunBtn.configure(state = DISABLED)
         RunBtn.configure(bg = "#f0f0f0")
@@ -949,16 +982,49 @@ def InterfaceDisabler(enable):
         OpenPrevTableBtn.place_forget()
         InputFileBtn.configure(state = DISABLED)
         
-        TBxSearch.configure(state = DISABLED)
-        TBxSearchData.configure(state = DISABLED)
         ChBxAdittCond.configure(state = DISABLED)
         ChBxAdittCond2.configure(state = DISABLED)
         ChBxAdittCond3.configure(state = DISABLED)
-        TbxRes1.configure(state = DISABLED)
-        TbxResTarget1.configure(state = DISABLED)
         ChBxRes2.configure(state = DISABLED)
         ChBxRes3.configure(state = DISABLED)
         ChBxRes4.configure(state = DISABLED)
+        
+        TBxSearch.configure(state = DISABLED)
+        TBxSearchData.configure(state = DISABLED)
+        
+        LblSearchAd1.configure(state = DISABLED)
+        LblSearchDataAd1.configure(state = DISABLED)
+        TBxSearchAd1.configure(state = DISABLED)
+        TBxSearchDataAd1.configure(state = DISABLED)
+        
+        LblSearchAd2.configure(state = DISABLED)
+        LblSearchDataAd2.configure(state = DISABLED)
+        TBxSearchAd2.configure(state = DISABLED)
+        TBxSearchDataAd2.configure(state = DISABLED)
+        
+        LblSearchAd3.configure(state = DISABLED)
+        LblSearchDataAd3.configure(state = DISABLED)
+        TBxSearchAd3.configure(state = DISABLED)
+        TBxSearchDataAd3.configure(state = DISABLED)
+        
+        TbxRes1.configure(state = DISABLED)
+        TbxResTarget1.configure(state = DISABLED)
+        
+        LblRes2.configure(state = DISABLED)
+        LblResTarget2.configure(state = DISABLED)
+        TbxRes2.configure(state = DISABLED)
+        TbxResTarget2.configure(state = DISABLED)
+        
+        LblRes3.configure(state = DISABLED)
+        LblResTarget3.configure(state = DISABLED)
+        TbxRes3.configure(state = DISABLED)
+        TbxResTarget3.configure(state = DISABLED)
+        
+        LblRes4.configure(state = DISABLED)
+        LblResTarget4.configure(state = DISABLED)
+        TbxRes4.configure(state = DISABLED)
+        TbxResTarget4.configure(state = DISABLED)
+
 
 
 def InterfaceTrigger():
