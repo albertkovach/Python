@@ -26,7 +26,7 @@ def main():
         
     scrnw = (root.winfo_screenwidth()//2) - scrnwparam
     scrnh = (root.winfo_screenheight()//2) - scrnhparam
-    root.geometry('500x500+{}+{}'.format(scrnw, scrnh))
+    root.geometry('250x250+{}+{}'.format(scrnw, scrnh))
         
     app = GUI(root)
     root.mainloop()

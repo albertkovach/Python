@@ -49,7 +49,7 @@ class GUI(Frame):
     def __init__(self, parent):
         Frame.__init__(self, parent, background=bckgcolor)   
         self.parent = parent
-        self.parent.title("Add Data v6.0")
+        self.parent.title("Add Data v6.5")
         self.pack(fill=BOTH, expand=1)
         self.initUI()
 
@@ -93,6 +93,9 @@ class GUI(Frame):
         global RunningCompareTrhead
         RunningCompareTrhead = False
         
+        global RunningDuplicatesThread
+        RunningDuplicatesThread = False
+        
         global AbortAllTasks
         AbortAllTasks = False
         
@@ -100,175 +103,146 @@ class GUI(Frame):
         prevwindevent = Event()
         global compareevent # Declare before 
         compareevent = Event()
+        global duplicatesevent # Declare before 
+        duplicatesevent = Event()
+        
+        global WorkingMode
+        WorkingMode = "AddData"
+        
+        
     
     
         global LblColmName1
         LblColmName1 = Label(text="Настройка столбцов поиска", background=bckgcolor, font=("Arial", 14))
-        LblColmName1.place(x=16, y=5)
         
         global LblSearch
         LblSearch = Label(text="Искомых значений:", background=bckgcolor, font=("Arial", 11))
-        LblSearch.place(x=16, y=45)
         
         global TBxSearch
         TBxSearch = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
-        TBxSearch.place(x=160, y=45)
         
         global LblSearchData
         LblSearchData = Label(text="Диапазона поиска:", background=bckgcolor, font=("Arial", 11))
-        LblSearchData.place(x=16, y=75)
         
         global TBxSearchData
         TBxSearchData = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
-        TBxSearchData.place(x=160, y=75)
+        
         
         
         
         global ChBxAdittCond
         ChBxAdittCond = Checkbutton(text="Дополнительное условие сопоставления 1", background=bckgcolor, variable=AdittCond1, onvalue=1, offvalue=0, font=("Arial", 11), command=InterfaceTrigger)
-        ChBxAdittCond.place(x=25, y=115)
-        
-        
+
         global LblSearchAd1
         LblSearchAd1 = Label(text="Искомых значений:", background=bckgcolor, font=("Arial", 11))
-        LblSearchAd1.place(x=40, y=145)
         
         global TBxSearchAd1
         TBxSearchAd1 = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
-        TBxSearchAd1.place(x=185, y=145)
         
         global LblSearchDataAd1
         LblSearchDataAd1 = Label(text="Диапазона поиска:", background=bckgcolor, font=("Arial", 11))
-        LblSearchDataAd1.place(x=40, y=175)
         
         global TBxSearchDataAd1
         TBxSearchDataAd1 = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
-        TBxSearchDataAd1.place(x=185, y=175)
+        
         
         global ChBxAdittCond2
         ChBxAdittCond2 = Checkbutton(text="Дополнительное условие сопоставления 2", background=bckgcolor, variable=AdittCond2, onvalue=1, offvalue=0, font=("Arial", 11), command=InterfaceTrigger)
-        ChBxAdittCond2.place(x=25, y=215)
-        
         
         global LblSearchAd2
         LblSearchAd2 = Label(text="Искомых значений:", background=bckgcolor, font=("Arial", 11))
-        LblSearchAd2.place(x=40, y=245)
         
         global TBxSearchAd2
         TBxSearchAd2 = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
-        TBxSearchAd2.place(x=185, y=245)
         
         global LblSearchDataAd2
         LblSearchDataAd2 = Label(text="Диапазона поиска:", background=bckgcolor, font=("Arial", 11))
-        LblSearchDataAd2.place(x=40, y=275)
         
         global TBxSearchDataAd2
         TBxSearchDataAd2 = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
-        TBxSearchDataAd2.place(x=185, y=275)
+        
         
         global ChBxAdittCond3
         ChBxAdittCond3 = Checkbutton(text="Дополнительное условие сопоставления 3", background=bckgcolor, variable=AdittCond3, onvalue=1, offvalue=0, font=("Arial", 11), command=InterfaceTrigger)
-        ChBxAdittCond3.place(x=25, y=315)
-        
         
         global LblSearchAd3
         LblSearchAd3 = Label(text="Искомых значений:", background=bckgcolor, font=("Arial", 11))
-        LblSearchAd3.place(x=40, y=345)
         
         global TBxSearchAd3
         TBxSearchAd3 = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
-        TBxSearchAd3.place(x=185, y=345)
         
         global LblSearchDataAd3
         LblSearchDataAd3 = Label(text="Диапазона поиска:", background=bckgcolor, font=("Arial", 11))
-        LblSearchDataAd3.place(x=40, y=375)
         
         global TBxSearchDataAd3
         TBxSearchDataAd3 = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
-        TBxSearchDataAd3.place(x=185, y=375)
         
         
         
         
         global LblColmName2
         LblColmName2 = Label(text="Настройка столбцов результатов", background=bckgcolor, font=("Arial", 14))
-        LblColmName2.place(x=375, y=5)
         
         global LblRes1
         LblRes1 = Label(text="Результат 1 :", background=bckgcolor, font=("Arial", 11))
-        LblRes1.place(x=375, y=45)
         
         global TbxRes1
         TbxRes1 = Entry(textvariable = "9", fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
-        TbxRes1.place(x=475, y=45)
         
         global LblResTarget1
         LblResTarget1 = Label(text="Скопировать в столбец:", background=bckgcolor, font=("Arial", 11))
-        LblResTarget1.place(x=375, y=75)
         
         global TbxResTarget1
         TbxResTarget1 = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
-        TbxResTarget1.place(x=550, y=75)
+        
         
         global ChBxRes2
         ChBxRes2 = Checkbutton(text="Включить результат 2", background=bckgcolor, variable=Res2, onvalue=1, offvalue=0, font=("Arial", 11), command=InterfaceTrigger)
-        ChBxRes2.place(x=385, y=115)
         
         global LblRes2
         LblRes2 = Label(text="Результат 2 :", background=bckgcolor, font=("Arial", 11))
-        LblRes2.place(x=400, y=145)
         
         global TbxRes2
         TbxRes2 = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
-        TbxRes2.place(x=500, y=145)
         
         global LblResTarget2
         LblResTarget2 = Label(text="Скопировать в столбец:", background=bckgcolor, font=("Arial", 11))
-        LblResTarget2.place(x=400, y=175)
         
         global TbxResTarget2
         TbxResTarget2 = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
-        TbxResTarget2.place(x=575, y=175)
+        
         
         global ChBxRes3
         ChBxRes3 = Checkbutton(text="Включить результат 3", background=bckgcolor, variable=Res3, onvalue=1, offvalue=0, font=("Arial", 11), command=InterfaceTrigger)
-        ChBxRes3.place(x=385, y=215)
         
         global LblRes3
         LblRes3 = Label(text="Результат 3 :", background=bckgcolor, font=("Arial", 11))
-        LblRes3.place(x=400, y=245)
         
         global TbxRes3
         TbxRes3 = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
-        TbxRes3.place(x=500, y=245)
         
         global LblResTarget3
         LblResTarget3 = Label(text="Скопировать в столбец:", background=bckgcolor, font=("Arial", 11))
-        LblResTarget3.place(x=400, y=275)
         
         global TbxResTarget3
         TbxResTarget3 = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
-        TbxResTarget3.place(x=575, y=275)
+        
         
         global ChBxRes4
         ChBxRes4 = Checkbutton(text="Включить результат 4", background=bckgcolor, variable=Res4, onvalue=1, offvalue=0, font=("Arial", 11), command=InterfaceTrigger)
-        ChBxRes4.place(x=385, y=315)
         
         global LblRes4
         LblRes4 = Label(text="Результат 4 :", background=bckgcolor, font=("Arial", 11))
-        LblRes4.place(x=400, y=345)
         
         global TbxRes4
         TbxRes4 = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
-        TbxRes4.place(x=500, y=345)
         
         global LblResTarget4
         LblResTarget4 = Label(text="Скопировать в столбец:", background=bckgcolor, font=("Arial", 11))
-        LblResTarget4.place(x=400, y=375)
         
         global TbxResTarget4
         TbxResTarget4 = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
-        TbxResTarget4.place(x=575, y=375)
+        
         
         
         
@@ -286,24 +260,20 @@ class GUI(Frame):
         
         
         
-        global EmptyRowBtn1
-        EmptyRowBtn1 = Button(text='🡿', command=PrintRow, font=("Arial", 13))
-        #EmptyRowBtn1.place(x=905, y=17, width=27, height=23)
-        
-        global EmptyRowBtn2
-        EmptyRowBtn2 = Button(text='🟆', command=PrintProccList, font=("Arial", 13))
-        #EmptyRowBtn2.place(x=850, y=17, width=27, height=23)
-        
-        global EmptyRowBtn3
-        EmptyRowBtn3 = Button(text='🞭', command=KillProcc, font=("Arial", 13))
-        #EmptyRowBtn3.place(x=800, y=17, width=27, height=23)
-        
-        
         global OpenPrevTableBtn
-        #OpenPrevTableBtn = Button(text='Просмотр', command=OpenPreviewWindow, font=("Arial", 13))
         OpenPrevTableBtn = Button(text='Просмотр', command=RunPrevWindowThread, font=("Arial", 13))
         OpenPrevTableBtn.place(x=829, y=135, width=105, height=30)
         OpenPrevTableBtn.configure(state = DISABLED)
+        
+        global AddDataModeBtn
+        AddDataModeBtn = Button(text='Сопоставление', command=ToggleAddDataMode, font=("Arial", 8, "bold"), bg='#9AEBB7')
+        AddDataModeBtn.place(x=705, y=368, width=105, height=28)
+        AddDataModeBtn.configure(state = NORMAL)
+        
+        global DuplicateFinderModeBtn
+        DuplicateFinderModeBtn = Button(text='Поиск дубликатов', command=ToggleDuplicateFinderMode, font=("Arial", 8, "bold"))
+        DuplicateFinderModeBtn.place(x=820, y=368, width=115, height=28)
+        DuplicateFinderModeBtn.configure(state = NORMAL)
         
         
         
@@ -336,7 +306,7 @@ class GUI(Frame):
         
         
         global RunBtn
-        RunBtn = Button(text='Запуск', command=RunCompareThread, font=("Arial", 13, "bold"))
+        RunBtn = Button(text='Запуск', command=RunMainThreads, font=("Arial", 13, "bold"))
         #RunBtn.place(x=735, y=285+5, width=198, height=40)
         
         global CancelBtn
@@ -348,7 +318,43 @@ class GUI(Frame):
         #ExcBtn.place(x=653, y=285+5, width=40, height=40)
         
         
+        
+        
+        global EmptyRowBtn1
+        EmptyRowBtn1 = Button(text='🡿', command=PrintRow, font=("Arial", 13))
+        #EmptyRowBtn1.place(x=905, y=17, width=27, height=23)
+        
+        global EmptyRowBtn2
+        EmptyRowBtn2 = Button(text='🟆', command=PrintProccList, font=("Arial", 13))
+        #EmptyRowBtn2.place(x=850, y=17, width=27, height=23)
+        
+        global EmptyRowBtn3
+        EmptyRowBtn3 = Button(text='🞭', command=KillProcc, font=("Arial", 13))
+        #EmptyRowBtn3.place(x=800, y=17, width=27, height=23)
+        
+        
+        global LblColmNameDup
+        LblColmNameDup = Label(text="Поиск дубликатов", background=bckgcolor, font=("Arial", 14))
+        
+        global LblSearchDup
+        LblSearchDup = Label(text="Колонка поиска:", background=bckgcolor, font=("Arial", 11))
+        
+        global TBxSearchDup
+        TBxSearchDup = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
+        
+        global LblResultDup
+        LblResultDup = Label(text="Колонка результата:", background=bckgcolor, font=("Arial", 11))
+        
+        global TBxResultDup
+        TBxResultDup = Entry(fg="black", bg=bckgcolor, width=3, font=("Arial", 11))
+
+        
+        
+        #ToggleDuplicateFinderMode()
+        ToggleAddDataMode()
         InterfaceTrigger()
+
+  
 
 
 def SelectFile():
@@ -382,7 +388,6 @@ def SelectFile():
         print('**** SF: InputFile : {0}'.format(InputFile))
     else:
         print('**** SF: InputFile not selected !')
-
 
 
     
@@ -434,7 +439,7 @@ def CheckMaxRows():
 
 
 
-def Run():
+def RunDeprecated():
     global InputFile
     global PreviewRows
     MaxRowsSearch = PreviewRows
@@ -546,12 +551,17 @@ def Run():
     messagebox.showinfo("", "\n".join(msgbxlbl))
 
 
-def RunCompareThread():
+def RunMainThreads():
     ProgressBar.place(x=699-45, y=255+5)
     
-    comparethread = Thread(target=CompareThread)
-    comparethread.start()
-    comparethread = ""
+    if WorkingMode == "AddData":
+        comparethread = Thread(target=CompareThread)
+        comparethread.start()
+        comparethread = ""
+    elif WorkingMode == "DuplicateFinder":
+        duplicatesthread = Thread(target=DuplicatesThread)
+        duplicatesthread.start()
+        duplicatesthread = ""
     
     taskswatchdogthread = Thread(target=TasksWatchdog)
     taskswatchdogthread.start()
@@ -755,6 +765,91 @@ def CompareProcess(conn2, compareevent, InputFile, PreviewRows, ColmSearch, Colm
 
 
 
+    
+def DuplicatesThread(): # Thread for process start 
+    print('====== DT Started')
+    global InputFile
+    global PreviewRows
+    
+    global duplicatesprocess
+    global duplicatesevent
+    conn1, conn2 = Pipe()
+    
+    global RunningDuplicatesThread
+    RunningDuplicatesThread = True
+    global AbortAllTasks
+    
+    # Main data get
+    global LblSearchDup  
+    global TBxResultDup
+    ColmSearchDup = int(TBxSearchDup.get())
+    ColmResultDup = int(TBxResultDup.get())
+    
+
+    
+    duplicatesprocess = Process(target=DuplicatesProcess, args=(conn2, duplicatesevent, InputFile, PreviewRows, ColmSearchDup, ColmResultDup))
+    duplicatesprocess.start()
+    
+    while RunningDuplicatesThread:
+        processresult = conn1.recv()
+        
+        LblStatus2.config(text = "Обработано: {0} / {1}".format(processresult[0], PreviewRows))
+        LblStatus3.config(text = "Найдено: {0}".format(processresult[1]))
+        percentage = int (processresult[0]) / (PreviewRows / 100)
+        ProgressBar['value'] = percentage
+        LblProgressBar.config(text = "{0}%".format(int(percentage)))
+        
+        #time.sleep(0.01)
+    
+    if not AbortAllTasks:
+        RunPrevWindowThread()
+    
+    print('====== DT Ended')
+
+
+def DuplicatesProcess(conn2, duplicatesevent, InputFile, PreviewRows, ColmSearchDup, ColmResultDup): 
+    print('######## pDP Started')
+
+    MaxRowsSearch = PreviewRows
+
+    book = openpyxl.load_workbook(InputFile)
+    sheet = book.active
+
+    ArrSearch = []
+    ArrData = []
+    
+    
+    # Main conditions array appending
+    for i in range(MaxRowsSearch):
+        ArrSearch.append(sheet.cell(row=i+1, column=ColmSearchDup).value)   
+
+
+    # Starting search
+    SearchedRowsCount = 0
+    FindedRowsCount = 0
+    for m in range(MaxRowsSearch-1):
+        SearchedRowsCount = SearchedRowsCount + 1
+
+        if ArrSearch[m]!=None:
+            for n in range(m+1, MaxRowsSearch):
+                if ArrSearch[m] == ArrSearch[n]:
+                    sheet.cell(row=m+1, column=ColmResultDup).value = 'Дубликат {0}'.format(m)
+                    sheet.cell(row=n+1, column=ColmResultDup).value = 'Дубликат {0}'.format(m)
+                    #print('m={0}, finded: {1} = {2}'.format(m, ArrSearch[m], ArrData[n]))
+                    FindedRowsCount = FindedRowsCount + 1
+        
+        conn2.send([SearchedRowsCount, FindedRowsCount])
+    book.save(InputFile)
+
+    duplicatesevent.set()
+    
+    msgbxlbl = ['Обработка завершена !', 'Обработано: {0}'.format(SearchedRowsCount), 'Найдено: {0}'.format(FindedRowsCount)]
+    messagebox.showinfo("", "\n".join(msgbxlbl))
+    
+    print('######## pDP Ended')
+
+
+
 
 def RunPrevWindowThread(): # For button click
     prevwindowthread = Thread(target=PrevWindowThread)
@@ -836,8 +931,10 @@ def TasksWatchdog():
     global RunningCheckMaxRows
     global RunningPrevWindowThread
     global RunningCompareTrhead
+    global RunningDuplicatesThread
     global prevwindevent
     global compareevent
+    global duplicatesevent
     
     InterfaceDisabler(0)
     
@@ -864,6 +961,14 @@ def TasksWatchdog():
             if compareevent.is_set():
                 compareevent.clear()
                 RunningCompareTrhead = False
+                finished = True
+                break
+                
+        if RunningDuplicatesThread == True:
+            LblStatus.config(text = 'Поиск дубликатов ...')
+            if duplicatesevent.is_set():
+                duplicatesevent.clear()
+                RunningDuplicatesThread = False
                 finished = True
                 break
 
@@ -972,6 +1077,13 @@ def InterfaceDisabler(enable):
         TbxRes4.configure(state = NORMAL)
         TbxResTarget4.configure(state = NORMAL)
         
+        
+        AddDataModeBtn.configure(state = NORMAL)
+        DuplicateFinderModeBtn.configure(state = NORMAL)
+
+        TBxSearchDup.configure(state = NORMAL)
+        TBxResultDup.configure(state = NORMAL)
+        
     else:
         RunBtn.configure(state = DISABLED)
         RunBtn.configure(bg = "#f0f0f0")
@@ -1024,7 +1136,13 @@ def InterfaceDisabler(enable):
         LblResTarget4.configure(state = DISABLED)
         TbxRes4.configure(state = DISABLED)
         TbxResTarget4.configure(state = DISABLED)
+        
+        
+        AddDataModeBtn.configure(state = DISABLED)
+        DuplicateFinderModeBtn.configure(state = DISABLED)
 
+        TBxSearchDup.configure(state = DISABLED)
+        TBxResultDup.configure(state = DISABLED)
 
 
 def InterfaceTrigger():
@@ -1114,6 +1232,7 @@ def KillProcc():
     global AbortAllTasks
     global RunningPrevWindowThread
     global RunningCompareTrhead
+    global RunningDuplicatesThread 
 
     AbortAllTasks = True
 
@@ -1127,6 +1246,7 @@ def KillProcc():
     time.sleep(0.5)
     RunningPrevWindowThread = False
     RunningCompareTrhead = False
+    RunningDuplicatesThread = False
     
     
     messagebox.showerror("", "Задачи отменены !")
@@ -1140,6 +1260,138 @@ def PrintProccList():
 
 def PrintRow():
     print('  ')
+    
+ 
+
+ 
+def ToggleAddDataMode():
+    global WorkingMode
+    WorkingMode = "AddData"
+    
+    AddDataModeBtn.configure(bg='#9AEBB7')
+    DuplicateFinderModeBtn.configure(bg=bckgcolor)
+
+    LblColmName1.place(x=16, y=5)
+    LblSearch.place(x=16, y=45)
+    TBxSearch.place(x=160, y=45)
+    LblSearchData.place(x=16, y=75)
+    TBxSearchData.place(x=160, y=75)
+
+    ChBxAdittCond.place(x=25, y=115)
+    LblSearchAd1.place(x=40, y=145)
+    TBxSearchAd1.place(x=185, y=145)
+    LblSearchDataAd1.place(x=40, y=175)
+    TBxSearchDataAd1.place(x=185, y=175)
+
+    ChBxAdittCond2.place(x=25, y=215)
+    LblSearchAd2.place(x=40, y=245)
+    TBxSearchAd2.place(x=185, y=245)
+    LblSearchDataAd2.place(x=40, y=275)
+    TBxSearchDataAd2.place(x=185, y=275)
+
+    ChBxAdittCond3.place(x=25, y=315)
+    LblSearchAd3.place(x=40, y=345)
+    TBxSearchAd3.place(x=185, y=345)
+    LblSearchDataAd3.place(x=40, y=375)
+    TBxSearchDataAd3.place(x=185, y=375)
+
+    LblColmName2.place(x=375, y=5)
+    LblRes1.place(x=375, y=45)
+    TbxRes1.place(x=475, y=45)
+    LblResTarget1.place(x=375, y=75)
+    TbxResTarget1.place(x=550, y=75)
+
+    ChBxRes2.place(x=385, y=115)
+    LblRes2.place(x=400, y=145)
+    TbxRes2.place(x=500, y=145)
+    LblResTarget2.place(x=400, y=175)
+    TbxResTarget2.place(x=575, y=175)
+
+    ChBxRes3.place(x=385, y=215)
+    LblRes3.place(x=400, y=245)
+    TbxRes3.place(x=500, y=245)
+    LblResTarget3.place(x=400, y=275)
+    TbxResTarget3.place(x=575, y=275)
+
+    ChBxRes4.place(x=385, y=315)
+    LblRes4.place(x=400, y=345)
+    TbxRes4.place(x=500, y=345)
+    LblResTarget4.place(x=400, y=375)
+    TbxResTarget4.place(x=575, y=375)
+    
+    
+    
+    LblColmNameDup.place_forget()
+    LblSearchDup.place_forget()
+    TBxSearchDup.place_forget()
+    LblResultDup.place_forget()
+    TBxResultDup.place_forget()
+ 
+    
+def ToggleDuplicateFinderMode():
+    global WorkingMode
+    WorkingMode = "DuplicateFinder"
+    
+    AddDataModeBtn.configure(bg=bckgcolor)
+    DuplicateFinderModeBtn.configure(bg='#9AEBB7')
+
+    LblColmName1.place_forget()
+    LblSearch.place_forget()
+    TBxSearch.place_forget()
+    LblSearchData.place_forget()
+    TBxSearchData.place_forget()
+
+    ChBxAdittCond.place_forget()
+    LblSearchAd1.place_forget()
+    TBxSearchAd1.place_forget()
+    LblSearchDataAd1.place_forget()
+    TBxSearchDataAd1.place_forget()
+
+    ChBxAdittCond2.place_forget()
+    LblSearchAd2.place_forget()
+    TBxSearchAd2.place_forget()
+    LblSearchDataAd2.place_forget()
+    TBxSearchDataAd2.place_forget()
+
+    ChBxAdittCond3.place_forget()
+    LblSearchAd3.place_forget()
+    TBxSearchAd3.place_forget()
+    LblSearchDataAd3.place_forget()
+    TBxSearchDataAd3.place_forget()
+
+    LblColmName2.place_forget()
+    LblRes1.place_forget()
+    TbxRes1.place_forget()
+    LblResTarget1.place_forget()
+    TbxResTarget1.place_forget()
+
+    ChBxRes2.place_forget()
+    LblRes2.place_forget()
+    TbxRes2.place_forget()
+    LblResTarget2.place_forget()
+    TbxResTarget2.place_forget()
+
+    ChBxRes3.place_forget()
+    LblRes3.place_forget()
+    TbxRes3.place_forget()
+    LblResTarget3.place_forget()
+    TbxResTarget3.place_forget()
+
+    ChBxRes4.place_forget()
+    LblRes4.place_forget()
+    TbxRes4.place_forget()
+    LblResTarget4.place_forget()
+    TbxResTarget4.place_forget()
+    
+    
+    
+    LblColmNameDup.place(x=36, y=25)
+    LblSearchDup.place(x=36, y=65)
+    TBxSearchDup.place(x=185, y=65)
+    LblResultDup.place(x=36, y=95)
+    TBxResultDup.place(x=185, y=95)
+
+
 
 
 def CheckSetup():
