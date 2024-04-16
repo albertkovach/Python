@@ -406,7 +406,7 @@ def CheckMaxRows():
     EmptyCellCounter = 0
     EmptyRowCounter = 0
     
-    for t in range(100000):
+    for t in range(500000):
         EmptyCellCounter = 0
         for y in range(PreviewColumns):
             if sheet.cell(row=t+1, column=y+1).value is None:
